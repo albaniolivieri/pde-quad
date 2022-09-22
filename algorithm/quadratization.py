@@ -69,7 +69,10 @@ w0t1 = [poly(u*ux**2, [u, ux])]
 V2 = list(map(lambda v: poly(v, [u, ux]), [1, u, ux, u**2, 2*u*ux]))
 w0t2 = [poly(2*u**3*ux, [u, ux]), poly(2*u**4, [u, ux])]
 
-is_a_quadratization(V2, w0t2)
+assert is_a_quadratization(V, w0t) 
+assert is_a_quadratization(V1, w0t1)
+assert is_a_quadratization(V2, w0t2)  
+
 
 
     
