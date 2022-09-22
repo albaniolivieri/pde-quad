@@ -2,6 +2,7 @@ from fractions import Fraction
 from sympy import *
 import numpy as np
 
+# Gleb: maybe we cold also make this function return (or print) an actual quadratization if there is one
 def is_a_quadratization(V, deriv):
     V2 = list(set([(m1 * m2) for m1 in V for m2 in V]))
     for mon in deriv:
@@ -15,6 +16,7 @@ def is_linear_combination(V2, mon):
     mon = (mon, mon.monoms(), mon.coeffs())
     [print("V2 poly", pol) for pol in V2]   
     
+    # Gleb: you can do this cleaner by combining reduce and union functions
     base = []
     for pol in V2:
         for terms_pol in pol[1]:
@@ -25,8 +27,12 @@ def is_linear_combination(V2, mon):
     lambdas = symbols(["Lambda" + "_%d" % i for i in range(len(V2))])
     print(f"lambda set {lambdas}\n")
     
+    # Gleb: very puzzling construction...
     b_vector = np.zeros(len(base), dtype=int) + Fraction()
+    # Gleb: In general, there is a subtlety since there is a built-in Python type Fraction which you use
+    # and type Rational from sympy. Intuition suggests that using the latter may be better just for the compatibility reasons
     print(f"derivative mon {mon[1][0]}\n")
+
     if mon[1][0] in base: 
         b_vector[base.index(mon[1][0])] = Fraction(mon[2][0])
         print(f"b vector {b_vector}\n")
@@ -41,6 +47,8 @@ def is_linear_combination(V2, mon):
             if term in base: sub_v[base.index(term)] = Fraction(pol[2][pol[1].index(term)])
         matrix_A.append(sub_v)
         
+    # Gleb: this is somewhat unnatural that you create a list of numpy arrays and then convert to Matrix.
+    # how about starting with a zero Matrix and filling it?
     system = (Matrix(matrix_A).T, Matrix(b_vector))
     print(f"System: {system}\n")
     sols = list(linsolve(system, lambdas))
@@ -71,8 +79,4 @@ w0t2 = [poly(2*u**3*ux, [u, ux]), poly(2*u**4, [u, ux])]
 
 assert is_a_quadratization(V, w0t) 
 assert is_a_quadratization(V1, w0t1)
-assert is_a_quadratization(V2, w0t2)  
-
-
-
-    
+assert is_a_quadratization(V2, w0t2)
