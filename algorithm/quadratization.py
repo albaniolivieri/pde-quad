@@ -1,82 +1,103 @@
 from fractions import Fraction
+from functools import reduce
 from sympy import *
 import numpy as np
 
-# Gleb: maybe we cold also make this function return (or print) an actual quadratization if there is one
-def is_a_quadratization(V, deriv):
-    V2 = list(set([(m1 * m2) for m1 in V for m2 in V]))
-    for mon in deriv:
-        if mon not in V2: 
-            if not is_linear_combination(V2, mon): return False
-    print("\nIt is a quadratization")
+def is_a_quadratization(V, deriv, name_var):
+    V2, V2_names = [], []
+    for i in range(len(V)):
+        for j in range(len(V)):
+            mult = V[i]*V[j]
+            if mult not in V2:
+                V2.append(mult)
+                V2_names.append(name_var[i]*name_var[j])
+    
+    quad = []
+    for pol in deriv:
+        if pol[1] not in V2: 
+            result = is_linear_combination(V2, pol[1], V2_names)
+            if not result: return False
+            quad.append(f"\n{pol[0]} = {result}")
+        else: 
+            quad.append(f"\n{pol[0]} = {V2_names[V2.index(pol[1])]}")
+    
+    print("\nQuadratization:")
+    [print(new_expr) for new_expr in quad]             
     return True
 
-def is_linear_combination(V2, mon):
+def is_linear_combination(V2, der_pol, names_V2):
     V2 = list(map(lambda p: (p, p.monoms(), p.coeffs()), V2))
-    mon = (mon, mon.monoms(), mon.coeffs())
-    [print("V2 poly", pol) for pol in V2]   
+    der_pol = (der_pol, der_pol.monoms(), der_pol.coeffs())
+    [print("\nV2 poly", pol) for pol in V2]       
     
-    # Gleb: you can do this cleaner by combining reduce and union functions
-    base = []
-    for pol in V2:
-        for terms_pol in pol[1]:
-            if terms_pol not in base:
-                base.append(terms_pol)
-    print(f"\nbase {base}\n")
+    base = list(reduce(lambda base, pol: set(base).union(term for term in pol[1]), V2, []))
+    print(f"\nbase: {base}, length: {len(base)}\n")
     
     lambdas = symbols(["Lambda" + "_%d" % i for i in range(len(V2))])
+    subst_lambdas = list((coef, 0) for coef in lambdas)
+    
     print(f"lambda set {lambdas}\n")
     
-    # Gleb: very puzzling construction...
-    b_vector = np.zeros(len(base), dtype=int) + Fraction()
-    # Gleb: In general, there is a subtlety since there is a built-in Python type Fraction which you use
-    # and type Rational from sympy. Intuition suggests that using the latter may be better just for the compatibility reasons
-    print(f"derivative mon {mon[1][0]}\n")
-
-    if mon[1][0] in base: 
-        b_vector[base.index(mon[1][0])] = Fraction(mon[2][0])
-        print(f"b vector {b_vector}\n")
-    else: 
-        print("Not a quadratization")
-        return False
+    print(f"derivative {der_pol[1]}\n")
+    
+    b_vector = zeros(1, len(base), rational=True)
+    for i in range(len(der_pol[1])):
+        if der_pol[1][i] in base: 
+            b_vector[base.index(der_pol[1][i])] = Rational(der_pol[2][i])
+        else:
+            print("Not a quadratization")
+            return False 
+    print(f"b vector {b_vector}\n")
         
-    matrix_A = []
-    for pol in V2:
-        sub_v = np.zeros(len(base), dtype=int) + Fraction()
-        for term in pol[1]:
-            if term in base: sub_v[base.index(term)] = Fraction(pol[2][pol[1].index(term)])
-        matrix_A.append(sub_v)
+    matrix_A = zeros(len(base), len(V2), rational=True)
+    for i in range(len(V2)):
+        for term in V2[i][1]:
+            if term in base: matrix_A[base.index(term), i] = Rational(V2[i][2][V2[i][1].index(term)])
         
-    # Gleb: this is somewhat unnatural that you create a list of numpy arrays and then convert to Matrix.
-    # how about starting with a zero Matrix and filling it?
-    system = (Matrix(matrix_A).T, Matrix(b_vector))
+    system = (matrix_A, b_vector)
     print(f"System: {system}\n")
     sols = list(linsolve(system, lambdas))
     
-    if sols == EmptySet:
+    if sols == [] or sols[0] == EmptySet:
         print("Not a quadratization")
         return False
     
-    print(f"System solution: {sols} \n")
+    sols2 = list(map(lambda x: list(x), sols)) 
+    for i in range(len(sols2[0])):
+        sols2[0][i] = sols2[0][i].subs(subst_lambdas)
+
+    print(f"System solution: {sols[0]} \n")
     print("Linear combination:")
-    i = 0
-    while i < len(sols[0]):
-        if sols[0][i] != 0: print(f"{sols[0][i]} * {V2[i][0]}") 
-        i += 1
-    return True
+            
+    der_expr = 0
+    for i in range(len(sols[0])):
+        if sols2[0][i] != 0: 
+            der_expr += sols2[0][i]*names_V2[i]
+            print(f"{sols[0][i]} * {V2[i][0]}") 
+    print()        
+    return simplify(der_expr)
     
 # Tests     
-u, ux, uxx = symbols('u ux uxx')
+u, ux, uxx, uxxx = symbols('u ux uxx uxxx')
+w0, w0x, w0xx, w0xxx = symbols('w0 w0x w0xx w0xxx')
 
-V = list(map(lambda v: poly(v, [u, ux, uxx]), [1, u, ux, uxx, u**2, u*ux, 2*ux**2+2*u*uxx]))
-w0t= [poly(2*u**3*uxx, [u, ux, uxx])]
+# u_t = u**2 * uxx
+# w = u**2
+# w_t = 2u * (u**2 * uxx)
+V0 = list(map(lambda v: poly(v, [u, ux, uxx]), [1, u, ux, uxx, u**2, 2*u*ux, 2*ux**2+2*u*uxx]))
+w0t = [("w_t", poly(2*u**3*uxx, [u, ux, uxx]))]
+assert is_a_quadratization(V0, w0t, [1, u, ux, uxx, w0, w0x, w0xx]) 
 
-V1 = list(map(lambda v: poly(v, [u, ux]), [1, u, ux, u + ux**2]))
-w0t1 = [poly(u*ux**2, [u, ux])]
+# u_t = u * (ux**2 + u * uxx)
+# w = u**2
+# w_t = 2u**2 * (ux**2 + u * uxx)
+V1 = list(map(lambda v: poly(v, [u, ux, uxx]), [1, u, ux, uxx, u**2, 2*u*ux, 2*ux**2+2*u*uxx]))
+w0t1 = [("u_t", poly(u*ux**2 + u**2*uxx, [u, ux, uxx])), ("w_t", poly(2*u**2*ux**2 + 2*u**3*uxx, [u, ux, uxx]))]
+assert is_a_quadratization(V1, w0t1, [1, u, ux, uxx, w0, w0x, w0xx]) 
 
-V2 = list(map(lambda v: poly(v, [u, ux]), [1, u, ux, u**2, 2*u*ux]))
-w0t2 = [poly(2*u**3*ux, [u, ux]), poly(2*u**4, [u, ux])]
-
-assert is_a_quadratization(V, w0t) 
-assert is_a_quadratization(V1, w0t1)
-assert is_a_quadratization(V2, w0t2)
+# u_t = u * (2 ux * uxx + u * uxxx + 1)
+# w = u**2
+# w_t = 2 * u**2 * (2 ux * uxx + u * uxxx + 1)
+V2 = list(map(lambda v: poly(v, [u, ux, uxx, uxxx]), [1, u, ux, uxx, uxxx, u**2, 2*u*ux, 2*ux**2+2*u*uxx, 4*ux*uxx + 2*u*uxxx]))
+w0t2 = [("u_t", poly(u*(ux**2 + u*uxx + 1), [u, ux, uxx, uxxx])), ("w_t", poly(2*u**2*(2*ux*uxx + u*uxxx + 1), [u, ux, uxx, uxxx]))]
+assert is_a_quadratization(V2, w0t2, [1, u, ux, uxx, uxxx, w0, w0x, w0xx, w0xxx]) 
