@@ -3,7 +3,9 @@ from functools import reduce
 from sympy import *
 import numpy as np
 
+# maybe V + name_var --> dictionary
 def is_a_quadratization(V, deriv, name_var):
+    # turn into a dict too
     V2, V2_names = [], []
     for i in range(len(V)):
         for j in range(len(V)):
@@ -14,7 +16,7 @@ def is_a_quadratization(V, deriv, name_var):
     
     quad = []
     for pol in deriv:
-        if pol[1] not in V2: 
+        if pol[1] not in V2:
             result = is_linear_combination(V2, pol[1], V2_names)
             if not result: return False
             quad.append(f"\n{pol[0]} = {result}")
@@ -22,7 +24,8 @@ def is_a_quadratization(V, deriv, name_var):
             quad.append(f"\n{pol[0]} = {V2_names[V2.index(pol[1])]}")
     
     print("\nQuadratization:")
-    [print(new_expr) for new_expr in quad]             
+    [print(new_expr) for new_expr in quad]
+    # to return quad but as polynomials
     return True
 
 def is_linear_combination(V2, der_pol, names_V2):
@@ -30,7 +33,7 @@ def is_linear_combination(V2, der_pol, names_V2):
     der_pol = (der_pol, der_pol.monoms(), der_pol.coeffs())
     [print("\nV2 poly", pol) for pol in V2]       
     
-    base = list(reduce(lambda base, pol: set(base).union(term for term in pol[1]), V2, []))
+    base = list(reduce(lambda base, pol: set(base).union(set(pol[1])), V2, []))
     print(f"\nbase: {base}, length: {len(base)}\n")
     
     lambdas = symbols(["Lambda" + "_%d" % i for i in range(len(V2))])
@@ -42,7 +45,7 @@ def is_linear_combination(V2, der_pol, names_V2):
     
     b_vector = zeros(1, len(base), rational=True)
     for i in range(len(der_pol[1])):
-        if der_pol[1][i] in base: 
+        if der_pol[1][i] in base:
             b_vector[base.index(der_pol[1][i])] = Rational(der_pol[2][i])
         else:
             print("Not a quadratization")
@@ -51,8 +54,8 @@ def is_linear_combination(V2, der_pol, names_V2):
         
     matrix_A = zeros(len(base), len(V2), rational=True)
     for i in range(len(V2)):
-        for term in V2[i][1]:
-            if term in base: matrix_A[base.index(term), i] = Rational(V2[i][2][V2[i][1].index(term)])
+        for j, term in enumerate(V2[i][1]):
+            matrix_A[base.index(term), i] = Rational(V2[i][2][j])
         
     system = (matrix_A, b_vector)
     print(f"System: {system}\n")
@@ -62,18 +65,18 @@ def is_linear_combination(V2, der_pol, names_V2):
         print("Not a quadratization")
         return False
     
-    sols2 = list(map(lambda x: list(x), sols)) 
-    for i in range(len(sols2[0])):
-        sols2[0][i] = sols2[0][i].subs(subst_lambdas)
+    sols = list(map(list, sols)) 
+    for i in range(len(sols[0])):
+        sols[0][i] = sols[0][i].subs(subst_lambdas)
 
     print(f"System solution: {sols[0]} \n")
     print("Linear combination:")
             
     der_expr = 0
-    for i in range(len(sols[0])):
-        if sols2[0][i] != 0: 
-            der_expr += sols2[0][i]*names_V2[i]
-            print(f"{sols[0][i]} * {V2[i][0]}") 
+    for i, s in enumerate(sols[0]):
+        if s != 0: 
+            der_expr += s * names_V2[i]
+            print(f"{s} * {V2[i][0]}") 
     print()        
     return simplify(der_expr)
     
