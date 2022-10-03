@@ -1,7 +1,5 @@
-from fractions import Fraction
 from functools import reduce
 from sympy import *
-import numpy as np
 
 def is_a_quadratization(V, deriv):
     V2 = list(set((m1[0]*m2[0], m1[1]*m2[1]) for m1 in V for m2 in V))
@@ -18,28 +16,26 @@ def is_a_quadratization(V, deriv):
     
     print("\nQuadratization:")
     for i in range(len(quad)):
-        pprint(exp(quad[i]))
-        #quad[i] = poly(quad[i])      
+        pprint(exp(quad[i]))     
     return quad
 
 def is_linear_combination(V2_names, der_pol):
-    V2 = list(map(lambda p: (p[1], p[1].monoms(), p[1].coeffs()), V2_names))
-    der_pol = (der_pol, der_pol.monoms(), der_pol.coeffs())
+    V2 = list(term[1] for term in V2_names)
     [print("\nV2 poly", pol) for pol in V2]       
     
-    base = list(reduce(lambda base, pol: set(base).union(set(pol[1])), V2, []))
+    base = list(reduce(lambda base, pol: set(base).union(set(pol.monoms())), V2, []))
     print(f"\nbase: {base}, length: {len(base)}\n")
     
     lambdas = symbols(["Lambda" + "_%d" % i for i in range(len(V2))])
     subst_lambdas = list((coef, 0) for coef in lambdas)   
     print(f"lambda set {lambdas}\n")
     
-    print(f"derivative {der_pol[1]}\n")
+    print(f"derivative {der_pol.monoms()}\n")
     
     b_vector = zeros(1, len(base), rational=True)
-    for i in range(len(der_pol[1])):
-        if der_pol[1][i] in base:
-            b_vector[base.index(der_pol[1][i])] = Rational(der_pol[2][i])
+    for monom in der_pol.monoms():
+        if monom in base:
+            b_vector[base.index(monom)] = Rational(der_pol.coeff_monomial(monom))
         else:
             print("Not a quadratization")
             return False 
@@ -47,8 +43,8 @@ def is_linear_combination(V2_names, der_pol):
         
     matrix_A = zeros(len(base), len(V2), rational=True)
     for i in range(len(V2)):
-        for j, term in enumerate(V2[i][1]):
-            matrix_A[base.index(term), i] = Rational(V2[i][2][j])
+        for mon in V2[i].monoms():
+            matrix_A[base.index(mon), i] = Rational(V2[i].coeff_monomial(mon))
         
     system = (matrix_A, b_vector)
     print(f"System: {system}\n")
@@ -70,31 +66,5 @@ def is_linear_combination(V2_names, der_pol):
         if s != 0: 
             der_expr += s * V2_names[i][0]
             print(f"{s} * {V2_names[i][1]}")
+            
     return simplify(der_expr)
-    
-# Tests     
-u, ux, uxx, uxxx = symbols('u ux uxx uxxx')
-w0, w0x, w0xx, w0xxx = symbols('w0 w0x w0xx w0xxx')
-u_t, w_0t = symbols('u_t w_0t')
-
-# u_t = u**2 * uxx
-# w = u**2
-# w_t = 2u * (u**2 * uxx)
-V0 = list(map(lambda v, l: (l, poly(v, [u, ux, uxx])), [1, u, ux, uxx, u**2, 2*u*ux, 2*ux**2+2*u*uxx], [1, u, ux, uxx, w0, w0x, w0xx]))
-w0t = [(w_0t, poly(2*u**3*uxx, [u, ux, uxx]))]
-assert is_a_quadratization(V0, w0t) == [Eq(w_0t, w0*w0xx - w0x**2/2)]
-
-# u_t = u * (ux**2 + u * uxx)
-# w = u**2
-# w_t = 2u**2 * (ux**2 + u * uxx)
-V1 = list(map(lambda v, l: (l, poly(v, [u, ux, uxx])), [1, u, ux, uxx, u**2, 2*u*ux, 2*ux**2+2*u*uxx], [1, u, ux, uxx, w0, w0x, w0xx]))
-w0t1 = [(u_t, poly(u*ux**2 + u**2*uxx, [u, ux, uxx])), (w_0t, poly(2*u**2*ux**2 + 2*u**3*uxx, [u, ux, uxx]))]
-assert is_a_quadratization(V1, w0t1)#  == [Eq(u_t, u*w0xx/2), Eq(w_0t, w0*w0xx)]
-
-# u_t = u * (2 ux * uxx + u * uxxx + 1)
-# w = u**2
-# w_t = 2 * u**2 * (2 ux * uxx + u * uxxx + 1)
-V2 = list(map(lambda v, l: (l, poly(v, [u, ux, uxx, uxxx])), [1, u, ux, uxx, uxxx, u**2, 2*u*ux, 2*ux**2+2*u*uxx, 4*ux*uxx + 2*u*uxxx],
-    [1, u, ux, uxx, uxxx, w0, w0x, w0xx, w0xxx]))
-w0t2 = [(u_t, poly(u*(2*ux*uxx + u*uxxx + 1), [u, ux, uxx, uxxx])), (w_0t, poly(2*u**2*(2*ux*uxx + u*uxxx + 1), [u, ux, uxx, uxxx]))]
-assert is_a_quadratization(V2, w0t2) #== [Eq(u_t, ux*w0xx/2), Eq(w_0t, w0*w0xx + 2*w0)]
