@@ -8,27 +8,29 @@ def get_quadratization(vars_func: tuple, new_vars: list, n_diff: int):
     undef_fun = vars_func[0] 
     sec_indep = list(vars_func[0].free_symbols)
     sec_indep.remove(symbols('t'))
-    
+   
+    # aren't elements of `sec_indep` symbols themselves?
     refac = [(D(undef_fun, symbols(f'{sec_indep[0]}'), i), symbols(f'{str(undef_fun)[0]}{sec_indep[0]}{i}')) 
-             for i in range(n_diff+1, 0, -1)]
+             for i in range(n_diff + 1, 0, -1)]
     refac.append((undef_fun, symbols(str(undef_fun)[0])))
     print('refac', refac)
     
-    poly_vars = [name for der, name in refac]
+    poly_vars = [name for _, name in refac]
     deriv_t = []
     quad_vars = []
     
     for i in range(len(new_vars)):
         wt = D(new_vars[i], symbols('t')).doit().subs(D(undef_fun, symbols('t')), ut)
         quad_vars.extend([(symbols(f'w{i}{sec_indep[0]}{j}'), D(new_vars[i], sec_indep[0], j).doit().subs(refac)) 
-                          for j in range(1, n_diff+1)])  
+                          for j in range(1, n_diff + 1)])
+        # shouldn't the range of j be more adaptive?
         print('quad_vars', quad_vars)
         quad_vars.append((symbols(f'w{i}'), new_vars[i].subs(refac)))
         deriv_t.append((symbols(f'w{i}t'), poly(wt.doit().subs(refac), poly_vars)))
     
     V = [(name, poly(exprs, poly_vars)) for name, exprs in quad_vars]
     V.extend([(var, poly(var, poly_vars)) for var in poly_vars] + [(1, poly(1, poly_vars))])
-    print('V',V)
+    print('V', V)
     
     deriv_t.extend([(symbols(str(undef_fun)[0] + 't'), poly(ut.subs(refac), poly_vars))])
     print('deriv_t', deriv_t)
@@ -68,4 +70,4 @@ w04 = u**2
 #get_quadratization((u, ut4), [w04], 3)
 
 ut5 = u**3 * D(u, x, 3)
-get_quadratization((u, ut5), [u**3, u * D(u, x)**2], 5)
+get_quadratization((u, ut5), [u**3, u * D(u, x, 2)**2], 5)
