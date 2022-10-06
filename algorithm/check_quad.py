@@ -66,3 +66,6 @@ get_quadratization((u, ut3), [w03], 2)
 ut4 = u * (3 * D(u, x) * D(u, x, 2) + u * D(u, x, 3) + 1)
 w04 = u**2
 get_quadratization((u, ut4), [w04], 3)
+
+ut5 = u**3 * D(u, x, 3)
+get_quadratization((u, ut5), [u**3], 5)
