@@ -10,7 +10,7 @@ def get_quadratization(vars_func: tuple, new_vars: list, n_diff: int):
     sec_indep.remove(symbols('t'))
     
     refac = [(D(undef_fun, symbols(f'{sec_indep[0]}'), i), symbols(f'{str(undef_fun)[0]}{sec_indep[0]}{i}')) 
-             for i in range(n_diff, 0, -1)]
+             for i in range(n_diff+1, 0, -1)]
     refac.append((undef_fun, symbols(str(undef_fun)[0])))
     print('refac', refac)
     
@@ -20,12 +20,11 @@ def get_quadratization(vars_func: tuple, new_vars: list, n_diff: int):
     
     for i in range(len(new_vars)):
         wt = D(new_vars[i], symbols('t')).doit().subs(D(undef_fun, symbols('t')), ut)
-        print('wt', wt.subs(refac))
         quad_vars.extend([(symbols(f'w{i}{sec_indep[0]}{j}'), D(new_vars[i], sec_indep[0], j).doit().subs(refac)) 
                           for j in range(1, n_diff+1)])  
         print('quad_vars', quad_vars)
         quad_vars.append((symbols(f'w{i}'), new_vars[i].subs(refac)))
-        deriv_t.append((symbols(f'w{i}t'), poly(wt.subs(refac), poly_vars)))
+        deriv_t.append((symbols(f'w{i}t'), poly(wt.doit().subs(refac), poly_vars)))
     
     V = [(name, poly(exprs, poly_vars)) for name, exprs in quad_vars]
     V.extend([(var, poly(var, poly_vars)) for var in poly_vars] + [(1, poly(1, poly_vars))])
