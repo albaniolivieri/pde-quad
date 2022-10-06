@@ -3,30 +3,66 @@ from sympy import *
 from sympy import Derivative as D
 import numpy as np
 
-def get_quadratization(vars_func: tuple, var_indep, new_var, n_diff):
-    eq_t = vars_func[1]
-    wt = D(new_var, t).doit().subs(D(Function(vars_func[0][0])(var_indep[0], var_indep[1]), var_indep[0]), eq_t) 
+def get_quadratization(vars_func: tuple, new_vars: list, n_diff: int):
+    ut = vars_func[1]
+    undef_fun = vars_func[0] 
+    sec_indep = list(vars_func[0].free_symbols)
+    sec_indep.remove(symbols('t'))
     
-    refac = list(
-        (D(Function(vars_func[0][0])(var_indep[0], var_indep[1]), var_indep[1], len(vars_func[0][i])-1), symbols(vars_func[0][i]))
-        for i in range(1, len(vars_func[0])))
-    refac.append((Function(vars_func[0][0])(var_indep[0], var_indep[1]), symbols(vars_func[0][0])))
+    max_order = max(second[1] for first, second in [der.args for der in list(ut.atoms(Derivative))])
+    refac = [(D(undef_fun, symbols(f'{sec_indep[0]}'), i), symbols(f'{str(undef_fun)[0]}{sec_indep[0]}{i}')) 
+             for i in range(max_order, 0, -1)]
+    refac.append((undef_fun, symbols(str(undef_fun)[0])))
+    print('refac', refac)
     
-    deriv_x = list((symbols(f'wx{i}'), D(new_var, var_indep[1], i).doit().subs(refac)) for i in range(1, n_diff+1))
-        
-    new_vars = deriv_x + [(symbols('w'), new_var.subs(refac))]
-    vars = list(symbols(var) for var in vars_func[0])
+    poly_vars = [name for der, name in refac]
+    deriv_t = []
+    quad_vars = []
     
-    V = list((name, poly(exprs, vars)) for name, exprs in new_vars)
-    V.extend(list((var, poly(var, vars)) for var in vars) + [(1, poly(1, vars))])
+    for i in range(len(new_vars)):
+        wt = D(new_vars[i], symbols('t')).doit().subs(D(undef_fun, symbols('t')), ut)
+        quad_vars.extend([(symbols(f'w{i}{sec_indep[0]}{j}'), D(new_vars[i], sec_indep[0], j).doit().subs(refac)) 
+                          for j in range(1, n_diff+1)])  
+        quad_vars.append((symbols(f'w{i}'), new_vars[i].subs(refac)))
+        deriv_t.append((symbols(f'w{i}t'), poly(wt.subs(refac), poly_vars)))
     
-    deriv_t = [(symbols(f'{vars_func[0][0]}t'), poly(eq_t.subs(refac), vars)), (symbols('wt'), poly(wt.subs(refac), vars))]
+    V = [(name, poly(exprs, poly_vars)) for name, exprs in quad_vars]
+    V.extend([(var, poly(var, poly_vars)) for var in poly_vars] + [(1, poly(1, poly_vars))])
+    print('V',V)
     
+    deriv_t.extend([(symbols(str(undef_fun)[0] + 't'), poly(ut.subs(refac), poly_vars))])
+    print('deriv_t', deriv_t)
+
     return is_a_quadratization(V, deriv_t)
 
-#test 
+#tests
 t, x = symbols('t x')
 u = Function('u')(t,x)
-ut = u**2*D(u, x) + u
-w0 = u**2
-get_quadratization((['u', 'ux'], ut), (t,x), w0, 1)
+
+# u_t = u**2 * ux + u
+# w = u**2
+# w_t = 2u * (u**2 * ux + u)
+ut1 = u**2*D(u, x) + u
+w01 = u**2
+get_quadratization((u, ut1), [w01], 1)
+
+# u_t = u**2 * uxx
+# w = u**2
+# w_t = 2u * (u**2 * uxx)
+ut2 = u**2*D(u, x, 2)
+w02 = u**2
+get_quadratization((u, ut2), [w02], 2)
+
+# u_t = u * (ux**2 + u * uxx)
+# w = u**2
+# w_t = 2u**2 * (ux**2 + u * uxx)
+ut3 = u * (D(u, x)**2 + u * D(u, x, 2))
+w03 = u**2
+get_quadratization((u, ut3), [w03], 2)
+
+# u_t = u * (2 ux * uxx + u * uxxx + 1)
+# w = u**2
+# w_t = 2 * u**2 * (2 ux * uxx + u * uxxx + 1)
+ut4 = u * (3 * D(u, x) * D(u, x, 2) + u * D(u, x, 3) + 1)
+w04 = u**2
+get_quadratization((u, ut4), [w04], 3)

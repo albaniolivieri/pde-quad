@@ -2,8 +2,8 @@ from functools import reduce
 from sympy import *
 
 def is_a_quadratization(V, deriv):
-    V2 = list(set((m1[0]*m2[0], m1[1]*m2[1]) for m1 in V for m2 in V))
-    V2_poly = list(term[1] for term in V2)
+    V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
+    V2_poly = [term[1] for term in V2]
     quad = []
     
     for pol in deriv:
@@ -16,18 +16,19 @@ def is_a_quadratization(V, deriv):
     
     print("\nQuadratization:")
     for i in range(len(quad)):
-        pprint(exp(quad[i]))     
+        pprint(exp(quad[i]))  
+           
     return quad
 
 def is_linear_combination(V2_names, der_pol):
-    V2 = list(term[1] for term in V2_names)
+    V2 = [term[1] for term in V2_names]
     [print("\nV2 poly", pol) for pol in V2]       
     
     base = list(reduce(lambda base, pol: set(base).union(set(pol.monoms())), V2, []))
     print(f"\nbase: {base}, length: {len(base)}\n")
     
     lambdas = symbols(["Lambda" + "_%d" % i for i in range(len(V2))])
-    subst_lambdas = list((coef, 0) for coef in lambdas)   
+    subst_lambdas = [(coef, 0) for coef in lambdas]   
     print(f"lambda set {lambdas}\n")
     
     print(f"derivative {der_pol.monoms()}\n")
