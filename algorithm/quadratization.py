@@ -22,16 +22,16 @@ def is_a_quadratization(V, deriv):
 
 def is_linear_combination(V2_names, der_pol):
     V2 = [term[1] for term in V2_names]
-    [print("\nV2 poly", pol) for pol in V2]       
+    #[print("\nV2 poly", pol) for pol in V2]       
     
     base = list(reduce(lambda base, pol: set(base).union(set(pol.monoms())), V2, []))
-    print(f"\nbase: {base}, length: {len(base)}\n")
+    #print(f"\nbase: {base}, length: {len(base)}\n")
     
     lambdas = symbols(["Lambda" + "_%d" % i for i in range(len(V2))])
     subst_lambdas = [(coef, 0) for coef in lambdas]   
-    print(f"lambda set {lambdas}\n")
+    #print(f"lambda set {lambdas}\n")
     
-    print(f"derivative {der_pol.monoms()}\n")
+    #print(f"derivative {der_pol.monoms()}\n")
     
     b_vector = zeros(1, len(base), rational=True)
     for monom in der_pol.monoms():
@@ -40,7 +40,7 @@ def is_linear_combination(V2_names, der_pol):
         else:
             print("Not a quadratization")
             return False 
-    print(f"b vector {b_vector}\n")
+    #print(f"b vector {b_vector}\n")
         
     matrix_A = zeros(len(base), len(V2), rational=True)
     for i in range(len(V2)):
@@ -48,7 +48,7 @@ def is_linear_combination(V2_names, der_pol):
             matrix_A[base.index(mon), i] = Rational(V2[i].coeff_monomial(mon))
         
     system = (matrix_A, b_vector)
-    print(f"System: {system}\n")
+    #print(f"System: {system}\n")
     sols = list(linsolve(system, lambdas))
     
     if sols == [] or sols[0] == EmptySet:
@@ -59,7 +59,7 @@ def is_linear_combination(V2_names, der_pol):
     for i in range(len(sols[0])):
         sols[0][i] = sols[0][i].subs(subst_lambdas)
 
-    print(f"System solution: {sols[0]} \n")
+    #print(f"System solution: {sols[0]} \n")
     print("Linear combination:")
             
     der_expr = 0
