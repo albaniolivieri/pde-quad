@@ -69,4 +69,4 @@ w04 = u**2
 #get_quadratization((u, ut4), [w04], 3)
 
 ut5 = u**3 * D(u, x, 3)
-get_quadratization((u, ut5), [u**3], 5)
+get_quadratization((u, ut5), [u**3, u * D(u, x)**2], 5)
