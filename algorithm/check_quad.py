@@ -9,18 +9,21 @@ def get_quadratization(vars_func: tuple, new_vars: list, n_diff: int):
     sec_indep = list(vars_func[0].free_symbols)
     sec_indep.remove(symbols('t'))
     
+    # add u to new_vars
     deriv_t, quad_vars = differentiate(undef_fun, sec_indep, ut, new_vars, n_diff)
     
     for _, deriv in quad_vars:
+        # introduce function get_order
         max_order = reduce(max, [der.args[1][1] for der in deriv.atoms(Derivative)], 0)
     for _, deriv in deriv_t:
         max_order = reduce(max, [der.args[1][1] for der in deriv.atoms(Derivative)], max_order)
 
+    # ordering matters !
     refac = [(D(undef_fun, sec_indep[0], i), symbols(f'{str(undef_fun)[0]}_{sec_indep[0]}{i}')) 
              for i in range(max_order, 0, -1)] + [(undef_fun, symbols(str(undef_fun)[0]))]
     
     poly_vars = [name for _, name in refac] 
-    V = [(name, poly(exprs.subs(refac), poly_vars)) for name, exprs in quad_vars] 
+    V = [(name, poly(exprs.subs(refac), poly_vars)) for name, exprs in quad_vars]
     V.extend([(var, poly(var, poly_vars)) for var in poly_vars] + [(1, poly(1, poly_vars))])   
      
     deriv_t = list(map(lambda exprs: (exprs[0], poly(exprs[1].subs(refac), poly_vars)), deriv_t))
@@ -28,6 +31,7 @@ def get_quadratization(vars_func: tuple, new_vars: list, n_diff: int):
 
     return is_a_quadratization(V, deriv_t)
 
+# split into two
 def differentiate(func, indep_vars, ut, new_vars, n):
     deriv_t = []
     quad_vars = []
