@@ -1,7 +1,7 @@
 from quadratization import is_a_quadratization
 from sympy import *
 from sympy import Derivative as D
-import numpy as np
+from functools import reduce
 
 def get_quadratization(vars_func: tuple, new_vars: list, n_diff: int):
     ut = vars_func[1]
@@ -9,24 +9,34 @@ def get_quadratization(vars_func: tuple, new_vars: list, n_diff: int):
     sec_indep = list(vars_func[0].free_symbols)
     sec_indep.remove(symbols('t'))
     
+    deriv_t, quad_vars = differentiate(undef_fun, sec_indep, ut, new_vars, n_diff)
+    
+    for _, deriv in quad_vars:
+        max_order = reduce(max, [der.args[1][1] for der in deriv.atoms(Derivative)], 0)
+    for _, deriv in deriv_t:
+        max_order = reduce(max, [der.args[1][1] for der in deriv.atoms(Derivative)], max_order)
+
     refac = [(D(undef_fun, sec_indep[0], i), symbols(f'{str(undef_fun)[0]}_{sec_indep[0]}{i}')) 
-             for i in range(n_diff+2, 0, -1)] + [(undef_fun, symbols(str(undef_fun)[0]))]
+             for i in range(max_order, 0, -1)] + [(undef_fun, symbols(str(undef_fun)[0]))]
     
-    poly_vars = [name for _, name in refac]
-    deriv_t = []
-    quad_vars = []
-    
-    for i in range(len(new_vars)):
-        wt = D(new_vars[i], symbols('t')).doit().subs(D(undef_fun, symbols('t')), ut)
-        quad_vars.extend([(symbols(f'w_{i}{sec_indep[0]}{j}'), D(new_vars[i], sec_indep[0], j).doit().subs(refac)) 
-                          for j in range(1, n_diff+1)] + [(symbols(f'w_{i}'), new_vars[i].subs(refac))])  
-        deriv_t.append((symbols(f'w_{i}t'), poly(wt.doit().subs(refac), poly_vars)))
-    
-    V = [(name, poly(exprs, poly_vars)) for name, exprs in quad_vars] 
-    V.extend([(var, poly(var, poly_vars)) for var in poly_vars] + [(1, poly(1, poly_vars))])    
+    poly_vars = [name for _, name in refac] 
+    V = [(name, poly(exprs.subs(refac), poly_vars)) for name, exprs in quad_vars] 
+    V.extend([(var, poly(var, poly_vars)) for var in poly_vars] + [(1, poly(1, poly_vars))])   
+     
+    deriv_t = list(map(lambda exprs: (exprs[0], poly(exprs[1].subs(refac), poly_vars)), deriv_t))
     deriv_t.extend([(symbols(str(undef_fun)[0] + '_t'), poly(ut.subs(refac), poly_vars))])
 
     return is_a_quadratization(V, deriv_t)
+
+def differentiate(func, indep_vars, ut, new_vars, n):
+    deriv_t = []
+    quad_vars = []
+    for i in range(len(new_vars)):
+        wt = D(new_vars[i], symbols('t')).doit().subs(D(func, symbols('t')), ut)
+        quad_vars.extend([(symbols(f'w_{i}{indep_vars[0]}{j}'), D(new_vars[i], indep_vars[0], j).doit()) 
+                          for j in range(1, n+1)] + [(symbols(f'w_{i}'), new_vars[i])])  
+        deriv_t.append((symbols(f'w_{i}t'), wt.doit()))
+    return deriv_t, quad_vars
 
 #tests
 t, x = symbols('t x')
