@@ -3,9 +3,10 @@ from sympy import Derivative as D
 from quadratization import is_a_quadratization
 from utils import get_order
 
-def get_quadratization(func_eq: list[tuple], new_vars: list, n_diff: int):
+def get_quadratization(func_eq, new_vars: list, n_diff: int):
     undef_fun = [symbol for symbol, _ in func_eq] 
-    
+
+    # do on the first function only
     for fun_name in undef_fun: 
         indep = fun_name.free_symbols
         indep.remove(symbols('t'))
@@ -21,6 +22,7 @@ def get_quadratization(func_eq: list[tuple], new_vars: list, n_diff: int):
     # ordering matters !
     refac = []
     for fun in undef_fun:
+        # use `fun.name`
         refac += [(D(fun, x_var, i), symbols(f'{str(fun).split("(")[0]}_{x_var}{i}')) 
                   for i in range(max_order, 0, -1)] + [(fun, symbols(str(fun).split("(")[0]))]
 
@@ -32,6 +34,7 @@ def get_quadratization(func_eq: list[tuple], new_vars: list, n_diff: int):
 
     return is_a_quadratization(V, deriv_t)
 
+# `func_eq` sounds like singular
 def differentiate_t(func_eq, new_vars):
     deriv_t = []
     refac = [(D(deriv[0], symbols('t')), deriv[1]) for deriv in func_eq]
@@ -44,7 +47,7 @@ def differentiate_x(func_var, new_vars, n):
     quad_vars = []
     for i in range(len(new_vars)):
         quad_vars.extend([(symbols(f'w_{i}{func_var}{j}'), D(new_vars[i], func_var, j).doit()) 
-                          for j in range(1, n+1)] + [(symbols(f'w_{i}'), new_vars[i])])  
+                          for j in range(1, n + 1)] + [(symbols(f'w_{i}'), new_vars[i])])  
     return quad_vars
 
 #tests
@@ -87,4 +90,5 @@ ut5 = u**3 * D(u, x, 3)
 
 u1t = u1**3 * D(u1, x, 1)
 
-get_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], 3)
+for h in range(3, 7):
+    get_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], h)
