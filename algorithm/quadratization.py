@@ -8,6 +8,7 @@ def is_a_quadratization(V, deriv):
         names.append(name)
         V2_poly.append(polyn)
     quad = []
+    
     base, matrix_A, lambdas = get_matrix_system(V2)
     
     for pol in deriv:

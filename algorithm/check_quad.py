@@ -1,16 +1,13 @@
+import time
 from sympy import *
 from sympy import Derivative as D
-from quadratization import is_a_quadratization
+from quadratization_copy import is_a_quadratization
 from utils import get_order
 
 def get_quadratization(func_eq, new_vars: list, n_diff: int):
     undef_fun = [symbol for symbol, _ in func_eq] 
-
-    # do on the first function only
-    for fun_name in undef_fun: 
-        indep = fun_name.free_symbols
-        indep.remove(symbols('t'))
-        x_var = indep.pop()
+    
+    x_var = [symbol for symbol in undef_fun[0].free_symbols if symbol != symbols('t')].pop()
     
     vars_t = [(f'w_{i}', new_vars[i]) for i in range(len(new_vars))] 
     deriv_t = differentiate_t(func_eq, vars_t) + [(symbols(str(eqs[0]).split("(")[0] + '_t'), eqs[1]) for eqs in func_eq] 
@@ -22,9 +19,8 @@ def get_quadratization(func_eq, new_vars: list, n_diff: int):
     # ordering matters !
     refac = []
     for fun in undef_fun:
-        # use `fun.name`
-        refac += [(D(fun, x_var, i), symbols(f'{str(fun).split("(")[0]}_{x_var}{i}')) 
-                  for i in range(max_order, 0, -1)] + [(fun, symbols(str(fun).split("(")[0]))]
+        refac += [(D(fun, x_var, i), symbols(f'{fun.name}_{x_var}{i}')) 
+                  for i in range(max_order, 0, -1)] + [(fun, symbols(fun.name))]
 
     poly_vars = [name for _, name in refac] 
     V = [(name, poly(exprs.subs(refac), poly_vars)) for name, exprs in quad_vars]
@@ -34,19 +30,18 @@ def get_quadratization(func_eq, new_vars: list, n_diff: int):
 
     return is_a_quadratization(V, deriv_t)
 
-# `func_eq` sounds like singular
-def differentiate_t(func_eq, new_vars):
+def differentiate_t(funcs_eqs, new_vars):
     deriv_t = []
-    refac = [(D(deriv[0], symbols('t')), deriv[1]) for deriv in func_eq]
+    refac = [(D(deriv[0], symbols('t')), deriv[1]) for deriv in funcs_eqs]
     for i in range(len(new_vars)):
         wt = D(new_vars[i][1], symbols('t')).doit().subs(refac)
         deriv_t.append((symbols(f'{new_vars[i][0]}t'), wt.doit()))
     return deriv_t
 
-def differentiate_x(func_var, new_vars, n):
+def differentiate_x(var_indep, new_vars, n):
     quad_vars = []
     for i in range(len(new_vars)):
-        quad_vars.extend([(symbols(f'w_{i}{func_var}{j}'), D(new_vars[i], func_var, j).doit()) 
+        quad_vars.extend([(symbols(f'w_{i}{var_indep}{j}'), D(new_vars[i], var_indep, j).doit()) 
                           for j in range(1, n + 1)] + [(symbols(f'w_{i}'), new_vars[i])])  
     return quad_vars
 
@@ -89,6 +84,6 @@ ut5 = u**3 * D(u, x, 3)
 #get_quadratization([(u, ut5)], [u**3], 5)
 
 u1t = u1**3 * D(u1, x, 1)
-
-for h in range(3, 7):
-    get_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], h)
+ti = time.time()
+get_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], 3)
+print(time.time() - ti)
