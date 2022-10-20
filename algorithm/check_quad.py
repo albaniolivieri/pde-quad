@@ -4,6 +4,8 @@ from sympy import Derivative as D
 from quadratization_copy import is_a_quadratization
 from utils import get_order
 
+import cProfile
+
 def get_quadratization(func_eq, new_vars: list, n_diff: int):
     undef_fun = [symbol for symbol, _ in func_eq] 
     
@@ -85,5 +87,8 @@ ut5 = u**3 * D(u, x, 3)
 
 u1t = u1**3 * D(u1, x, 1)
 ti = time.time()
-get_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], 3)
-print(time.time() - ti)
+#cProfile.run("get_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], 3)", "stats.txt")
+for i in range(3, 7):
+    ti = time.time()
+    get_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], i)
+    print(time.time() - ti)

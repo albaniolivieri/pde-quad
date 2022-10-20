@@ -26,20 +26,22 @@ def is_a_quadratization(V, deriv):
            
     return quad
 
-def reduce_set(V2): 
-    V2.sort(key=lambda pol: (pol[1].total_degree(), str(pol[0])), reverse=True)
+def reduce_set(V2):
+    print(len(V2))
     ti = time.time()
-    for i in range(len(V2)):  
-        LM = V2[i][1].LM()
+    for i in range(len(V2)):
+        for j in range(i):
+            coef = V2[i][1].coeff_monomial(V2[j][2])
+            if coef != 0:
+                V2[i] = (V2[i][0] - coef * V2[j][0], V2[i][1] - coef * V2[j][1])
         LC = V2[i][1].LC()
-        for j in range(len(V2)):
-            if V2[i] != V2[j]:
-                if LM in V2[j][1].monoms():
-                    coef = V2[j][1].coeff_monomial(LM)
-                    V2[j] = (V2[i][0] - (LC/coef)*V2[j][0], V2[i][1] - (LC/coef)*V2[j][1])
+        V2[i] = (V2[i][0] / LC, V2[i][1] * (1 / LC), V2[i][1].LM())
+        for j in range(i):
+            coef = V2[j][1].coeff_monomial(V2[i][2])
+            if coef != 0:
+               V2[j] = (V2[j][0] - coef * V2[i][0], V2[j][1] - coef * V2[i][1], V2[j][2])
     print(time.time()-ti)                     
-    V2.sort(key=lambda pol: (pol[1].total_degree(), str(pol[0])), reverse=True)
-    return V2         
+    return [(a[0], a[1]) for a in V2]
 
 def is_linear_combination(V2, der_pol):          
     der_expr = 0
