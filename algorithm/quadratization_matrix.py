@@ -55,7 +55,6 @@ def is_linear_combination(names, base, matrix_A, lambdas, der_pol):
 def get_matrix_system(V2_names):
     V2 = [term[1] for term in V2_names]
     base = list(reduce(lambda base, pol: set(base).union(set(pol.monoms())), V2, []))
-    print(f"The dimension is {len(base)}, the number of polys is {len(V2)}")
     
     matrix_A = zeros(len(base), len(V2), rational=True)
     for i in range(len(V2)):
