@@ -1,6 +1,6 @@
 from sympy import *
 from sympy import Derivative as D
-from .quadratization_sparse import is_a_quadratization
+from .quadratization import is_a_quadratization
 from .utils import get_order
 from functools import reduce
 

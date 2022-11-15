@@ -6,9 +6,9 @@ from sympy import *
 from sympy import Derivative as D
 
 sys.path.append("..")
-from algorithm import check_quad_sparse as sparse
-from algorithm import check_quad_gauss as gauss
-from algorithm import check_quad_matrix as matrix
+from algorithm import check_quad as sparse
+from deprecated import check_quad_gauss as gauss
+from deprecated import check_quad_matrix as matrix
 
 t, x = symbols('t x')
 u = Function('u')(t,x)

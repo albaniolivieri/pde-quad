@@ -2,7 +2,7 @@ from sympy import *
 from sympy import Derivative as D
 import sys
 sys.path.append("..")
-from algorithm import check_quad_sparse as quad
+from algorithm import check_quad as quad
 
 #tests
 t, x = symbols('t x')

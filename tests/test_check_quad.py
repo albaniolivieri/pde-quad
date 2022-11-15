@@ -2,7 +2,7 @@ from sympy import *
 from sympy import Derivative as D
 import sys
 sys.path.append("..")
-from algorithm import check_quad_sparse as quad
+from algorithm import check_quad as quad
 from algorithm.utils import get_order
 
 
@@ -53,6 +53,11 @@ print(test_quad([(u, ut4)], [w04], 3))
 
 ut5 = u**3 * D(u, x, 3)
 print(test_quad([(u, ut5)], [u**3, u * D(u, x)**2], 3))
+
+u1 = Function('u1')(t,x)
+u1t = u1**3 * D(u1, x, 1)
+ut5 = u**3 * D(u, x, 3)
+print(test_quad([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], 3))
 
 
 
