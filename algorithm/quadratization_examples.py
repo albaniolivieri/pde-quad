@@ -13,11 +13,11 @@ def is_a_quadratization(V, deriv):
     for name, pol in deriv:
         if pol not in V2_poly:
             result = is_linear_combination(V2_red, pol)
-            if type(result) == tuple: NS.append(result[1])
+            if type(result) == tuple: NS.append((name, result[1]))
             else: quad.append(Eq(name, result))
         else: quad.append(Eq(name, names[V2_poly.index(pol)]))
     if NS != []: 
-        for i in range(len(NS)): pprint(f'NS for expr {deriv[i][0]}: {NS[i][1]}')
+        for i in range(len(NS)): pprint(f'NS for expr {NS[i][0]}: {NS[i][1]}')
         return NS
     print("\nQuadratization:")
     for exprs in quad: pprint(exprs)       
