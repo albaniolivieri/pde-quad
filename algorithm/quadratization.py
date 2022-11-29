@@ -1,7 +1,7 @@
 from sympy import *
 from .utils import reduction_sparse
 
-def is_a_quadratization(V, deriv):
+def is_quadratization(V, deriv):
     V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
     V2_poly, names = [], []
     for name, polyn in V2: 
@@ -38,6 +38,6 @@ def is_linear_combination(V2, der_pol):
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
             return simplify(-der_tuple[0])  
-    print(der_tuple[1])            
+    print('rest', der_tuple[1])            
     print("Not a quadratization")
     return False  

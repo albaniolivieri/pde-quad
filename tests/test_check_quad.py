@@ -21,10 +21,15 @@ def test_quad(func_eq, new_vars: list, n_diff: int):
     refac += quad_vars
     exprs_orig = [expr for _, expr in deriv_t]
     results = quad.get_quadratization(func_eq, new_vars, n_diff)
+    if not results: return False 
     
     for i in range(len(exprs_orig)):
+        print('passed eq:', results[i])
         if simplify(exprs_orig[i]) - simplify(results[i].rhs.subs(refac)) != 0:
             print('Test failed: expressions are not equal')
+            print('equation: ', results[i])
+            print('Original expression: ', simplify(exprs_orig[i]))
+            print('Quad expression: ', simplify(results[i].rhs.subs(refac)))
             return False
     return True
 

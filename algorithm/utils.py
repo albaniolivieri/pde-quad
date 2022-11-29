@@ -23,3 +23,10 @@ def reduction_sparse(pol1, pol2):
             new_pol = pol1[1] - coef * pol2[1]
             return (pol1[0] - coef * pol2[0], new_pol, new_pol.leading_monom())
     return pol1
+
+def diff_dict(pol, dic, order=1):
+    deriv = pol
+    for _ in range(1, order + 1):
+        deriv = sum(deriv.diff(k) * v for (k, v) in dic.items())
+        #print('deriv', deriv)
+    return deriv
