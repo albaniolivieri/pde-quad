@@ -29,3 +29,13 @@ def diff_dict(pol, dic, order=1):
     for _ in range(1, order + 1):
         deriv = sum(deriv.diff(k) * v for (k, v) in dic.items())
     return deriv
+
+def remove_vars(list_vars, accum_vars, axis):
+    for i in range(len(list_vars)):
+        if len(list_vars[i]) > 1:
+            if list_vars[i][axis] in accum_vars or (sum(list_vars[i][axis].degrees()) <= 1):
+                list_vars[i] = (list_vars[i][int(not axis)],)
+    return list_vars
+
+
+         

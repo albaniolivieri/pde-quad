@@ -2,7 +2,7 @@ from sympy import *
 from sympy import Derivative as D
 import sys
 sys.path.append("..")
-from algorithm.check_quad_examples import *
+from algorithm.check_quad import *
 t, s = symbols('t s')
 psi = Function('psi')(t,s)
 theta = Function('theta')(t,s)

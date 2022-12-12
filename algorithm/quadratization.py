@@ -8,17 +8,20 @@ def is_quadratization(V, deriv):
         names.append(name)
         V2_poly.append(polyn)
     quad = []
+    NS = []
     V2_red = reduce_set(V2)
     for name, pol in deriv:
         if pol not in V2_poly:
             result = is_linear_combination(V2_red, pol)
-            if not result: return False
+            if type(result) == tuple: NS.append((name, result[1][1]))
             else: quad.append(Eq(name, result))
         else: quad.append(Eq(name, names[V2_poly.index(pol)]))
+    if NS != []: 
+        for i in range(len(NS)): pprint(f'NS for expr {NS[i][0]}: {NS[i][1]}')
+        return (False, NS)
     print("\nQuadratization:")
-    for exprs in quad:
-        pprint(exprs)       
-    return quad
+    for exprs in quad: pprint(exprs)       
+    return (True, quad)
 
 def reduce_set(V2):
     for i in range(len(V2)):
@@ -37,7 +40,6 @@ def is_linear_combination(V2, der_pol):
     for i in range(len(V2)):
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
-            return simplify(-der_tuple[0])  
-    print('rest', der_tuple[1])            
+            return simplify(-der_tuple[0])               
     print("Not a quadratization")
-    return False  
+    return (False, der_tuple)  

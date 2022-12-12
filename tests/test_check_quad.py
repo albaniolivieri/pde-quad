@@ -35,15 +35,16 @@ def test_quad(func_eq, new_vars: list, n_diff: int):
     refac += quad_vars
     exprs_orig = [expr for _, expr in deriv_t]
     results = quad.get_quadratization(func_eq, new_vars, n_diff)
-    if not results: return False 
+    print('results', results)
+    if not results[0]: return False 
     
     for i in range(len(exprs_orig)):
-        print('passed eq:', results[i])
-        if simplify(exprs_orig[i]) - simplify(results[i].rhs.subs(refac)) != 0:
+        print('passed eq:', results[1][i])
+        if simplify(exprs_orig[i]) - simplify(results[1][i].rhs.subs(refac)) != 0:
             print('Test failed: expressions are not equal')
-            print('equation: ', results[i])
+            print('equation: ', results[1][i])
             print('Original expression: ', simplify(exprs_orig[i]))
-            print('Quad expression: ', simplify(results[i].rhs.subs(refac)))
+            print('Quad expression: ', simplify(results[1][i].rhs.subs(refac)))
             return False
     return True
 
@@ -71,6 +72,7 @@ ut4 = u * (3 * D(u, x) * D(u, x, 2) + u * D(u, x, 3) + 1)
 w04 = u**2
 tests.append(test_quad([(u, ut4)], [w04], 3))
 
+#Dym 
 ut5 = u**3 * D(u, x, 3)
 tests.append(test_quad([(u, ut5)], [u**3, u * D(u, x)**2], 3))
 

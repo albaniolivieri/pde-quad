@@ -1,7 +1,7 @@
 from sympy import *
 from sympy import Derivative as D
-from .quadratization_examples import is_a_quadratization
-from .utils import get_order
+from ..algorithm.quadratization import is_a_quadratization
+from ..algorithm.utils import get_order
 from functools import reduce
 
 def get_quadratization(func_eq, new_vars: list, n_diff: int):
