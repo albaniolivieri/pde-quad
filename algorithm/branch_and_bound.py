@@ -38,25 +38,27 @@ def bnb(new_vars, best_nvars, poly_syst):
     result_quad = get_quad(poly_syst.dic_t, poly_syst.dic_x, new_vars_named, poly_syst.pde_eq, 
                            poly_syst.order, poly_syst.var_indep, poly_syst.poly_vars)
     if result_quad[0]: 
-        return new_vars, len(new_vars)
-    
+        return new_vars, len(new_vars), 1
     if pruning_rule_nvars(len(new_vars), best_nvars) or ALGORITHM_INTERRUPTED:
-        return None, math.inf
+        return None, math.inf, 1
     
     min_nvars = best_nvars
     best_quad_vars = None
-    print('result_quad', result_quad)
+    
+    traversed_total = 1
     prop_vars = prop_new_vars(result_quad[1], new_vars)
-    print('prop_vars', prop_vars)
+    #print('prop_vars', prop_vars)
     for p_vars in prop_vars: 
-        print('p_vars', p_vars)
+        #print('p_vars', p_vars)
         print('new vars added', new_vars + list(p_vars))
-        quad_vars, nvars = bnb(new_vars + list(p_vars), min_nvars, poly_syst)
+        quad_vars, nvars, traversed = bnb(new_vars + list(p_vars), min_nvars, poly_syst)
+        traversed_total += traversed
+        print('nodes traversed:', traversed_total)
         if nvars < min_nvars:
             min_nvars = nvars
             print('Best quadratization until now:', min_nvars, quad_vars)
             best_quad_vars = quad_vars
     
-    return best_quad_vars, min_nvars
+    return best_quad_vars, min_nvars, traversed_total
             
             

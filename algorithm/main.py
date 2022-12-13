@@ -15,7 +15,7 @@ def quadratize(func_eq, n_diff):
     dics = get_dics(func_eq, poly_syms, eqs_pol, n_diff, max_order)
     
     poly_syst = PolynomialSystem(dics, poly_syms, n_diff, x_var, eqs_pol)
-    nvars_bound = 5
+    nvars_bound = 4
     quad = bnb([], nvars_bound, poly_syst)
     
     return quad

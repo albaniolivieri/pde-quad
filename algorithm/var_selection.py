@@ -20,7 +20,7 @@ def prop_new_vars(NS_list, accum_vars):
         if not list_vars[i]: 
             list_vars.remove(list_vars[i])
     
-    by_degree_order = sort_degree_order(list_vars)
+    by_degree_order = sort_order_degree_fun(list_vars)
     print('by_degree_order', by_degree_order)
     return by_degree_order
 
@@ -62,6 +62,28 @@ def sorting_fun(vars_tup):
     else: 
         return (sum(vars_tup[0].degrees()), get_order(vars_tup[0]))
     
+def sorting_fun_inv(vars_tup):
+    if len(vars_tup) > 1:
+        return (sum([get_order(vars_tup[0]), get_order(vars_tup[1])]),
+                sum([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]))
+    else: 
+        return (get_order(vars_tup[0]), sum(vars_tup[0].degrees()))
+    
+def sorting_degree_order(vars_tup):
+    if len(vars_tup) > 1:
+        return sum([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + \
+                2*sum([get_order(vars_tup[0]), get_order(vars_tup[1])])
+    else: 
+        return sum(vars_tup[0].degrees()) + 2*get_order(vars_tup[0])
+
 def sort_degree_order(var_list):
     sort_degree_order = sorted(var_list, key=sorting_fun)
     return sort_degree_order
+
+def sort_order_degree(var_list):
+    sort_order_degree = sorted(var_list, key=sorting_fun_inv)
+    return sort_order_degree
+
+def sort_order_degree_fun(var_list):
+    sort_order_degree = sorted(var_list, key=sorting_degree_order)
+    return sort_order_degree

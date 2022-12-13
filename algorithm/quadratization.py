@@ -17,7 +17,7 @@ def is_quadratization(V, deriv):
             else: quad.append(Eq(name, result))
         else: quad.append(Eq(name, names[V2_poly.index(pol)]))
     if NS != []: 
-        for i in range(len(NS)): pprint(f'NS for expr {NS[i][0]}: {NS[i][1]}')
+        #for i in range(len(NS)): pprint(f'NS for expr {NS[i][0]}: {NS[i][1]}')
         return (False, NS)
     print("\nQuadratization:")
     for exprs in quad: pprint(exprs)       
