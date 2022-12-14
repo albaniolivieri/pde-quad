@@ -63,11 +63,13 @@ def sorting_fun(vars_tup):
         return (sum(vars_tup[0].degrees()), get_order(vars_tup[0]))
     
 def sorting_fun_inv(vars_tup):
+    deg, order = 0, 0
     if len(vars_tup) > 1:
-        return (sum([get_order(vars_tup[0]), get_order(vars_tup[1])]),
-                sum([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]))
+        order, deg = (max([get_order(vars_tup[0]), get_order(vars_tup[1])]),
+                max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]))
     else: 
-        return (get_order(vars_tup[0]), sum(vars_tup[0].degrees()))
+        order, deg = (get_order(vars_tup[0]), sum(vars_tup[0].degrees()))
+    return (order, deg)
     
 def sorting_degree_order(vars_tup):
     if len(vars_tup) > 1:

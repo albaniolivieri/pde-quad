@@ -34,13 +34,13 @@ def pruning_rule_time(start_time, max_time):
 
 # idea: structure that has all the information of poly system 
 def bnb(new_vars, best_nvars, poly_syst):
+    if len(new_vars) >= best_nvars:
+        return None, math.inf, 1
     new_vars_named = [(symbols(f'w_{i}'), pol) for i, pol in enumerate(new_vars)]
     result_quad = get_quad(poly_syst.dic_t, poly_syst.dic_x, new_vars_named, poly_syst.pde_eq, 
                            poly_syst.order, poly_syst.var_indep, poly_syst.poly_vars)
-    if result_quad[0]: 
+    if result_quad[0]:
         return new_vars, len(new_vars), 1
-    if pruning_rule_nvars(len(new_vars), best_nvars) or ALGORITHM_INTERRUPTED:
-        return None, math.inf, 1
     
     min_nvars = best_nvars
     best_quad_vars = None
