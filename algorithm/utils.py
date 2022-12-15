@@ -1,6 +1,7 @@
 from sympy import *
 from sympy import Derivative as D
 from functools import reduce
+from itertools import chain, combinations
 
 def get_order(set_derivs):
     max_order = 0
@@ -36,6 +37,10 @@ def remove_vars(list_vars, accum_vars, axis):
             if list_vars[i][axis] in accum_vars or (sum(list_vars[i][axis].degrees()) <= 1):
                 list_vars[i] = (list_vars[i][int(not axis)],)
     return list_vars
+
+def powerset(iterable):
+    s = list(iterable)
+    return chain.from_iterable(combinations(s, r) for r in range(1, len(s)))
 
 
          

@@ -41,5 +41,5 @@ def is_linear_combination(V2, der_pol):
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
             return simplify(-der_tuple[0])               
-    print("Not a quadratization")
+    #print("Not a quadratization")
     return (False, der_tuple)  

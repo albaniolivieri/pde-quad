@@ -2,8 +2,9 @@ import signal
 import time
 import math
 from sympy import *
-from .var_selection import prop_new_vars
+from .var_selection import *
 from .check_quad import get_quad
+from .utils import powerset
 
 class PolynomialSystem: 
     
@@ -30,35 +31,44 @@ def pruning_rule_nvars(nvars, global_nvars):
 
 def pruning_rule_time(start_time, max_time):
     if time.time() - start_time > max_time: return True
-    return False    
+    return False
+
+def shrink_quad(quad_vars, poly_syst):
+    final_vars = quad_vars
+    subsets = powerset(quad_vars)
+    #print('subsets', subsets)
+    for var_group in subsets: 
+    #    print('var_group', list(var_group))
+        vars_named = [(symbols(f'w_{i}'), pol) for i, pol in enumerate(var_group)] # TBD: get get_quad fun to do this
+        res, _ = get_quad(poly_syst.dic_t, poly_syst.dic_x, vars_named, poly_syst.pde_eq, 
+                           poly_syst.order, poly_syst.var_indep, poly_syst.poly_vars) # TBD: pass only the object
+        if res:
+            return list(var_group)
+    return final_vars
 
 # idea: structure that has all the information of poly system 
-def bnb(new_vars, best_nvars, poly_syst):
+def bnb(new_vars, best_nvars, poly_syst, sort_fun):
     if len(new_vars) >= best_nvars:
         return None, math.inf, 1
+    
     new_vars_named = [(symbols(f'w_{i}'), pol) for i, pol in enumerate(new_vars)]
     result_quad = get_quad(poly_syst.dic_t, poly_syst.dic_x, new_vars_named, poly_syst.pde_eq, 
                            poly_syst.order, poly_syst.var_indep, poly_syst.poly_vars)
     if result_quad[0]:
-        return new_vars, len(new_vars), 1
+        shrinked_quad = shrink_quad(new_vars, poly_syst)
+        return shrinked_quad, len(shrinked_quad), 1
     
     min_nvars = best_nvars
     best_quad_vars = None
-    
     traversed_total = 1
-    prop_vars = prop_new_vars(result_quad[1], new_vars)
-    #print('prop_vars', prop_vars)
+    prop_vars = prop_new_vars(result_quad[1], new_vars, sort_fun)
+    
     for p_vars in prop_vars: 
-        #print('p_vars', p_vars)
-        print('new vars added', new_vars + list(p_vars))
-        quad_vars, nvars, traversed = bnb(new_vars + list(p_vars), min_nvars, poly_syst)
+        quad_vars, nvars, traversed = bnb(new_vars + list(p_vars), min_nvars, poly_syst, sort_fun)
         traversed_total += traversed
-        print('nodes traversed:', traversed_total)
         if nvars < min_nvars:
             min_nvars = nvars
             print('Best quadratization until now:', min_nvars, quad_vars)
             best_quad_vars = quad_vars
     
     return best_quad_vars, min_nvars, traversed_total
-            
-            
