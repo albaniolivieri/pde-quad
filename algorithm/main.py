@@ -3,7 +3,7 @@ from sympy import Derivative as D
 from .check_quad import get_dics, build_ring
 from .utils import get_order
 from .branch_and_bound import PolynomialSystem, bnb 
-from .var_selection import *
+from .var_selection import by_order_degree
 
 def quadratize(func_eq, n_diff, sort_fun=by_order_degree, nvars_bound=10):
     undef_fun = [symbol for symbol, _ in func_eq] 
