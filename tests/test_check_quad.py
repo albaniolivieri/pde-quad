@@ -35,7 +35,6 @@ def test_quad(func_eq, new_vars: list, n_diff: int):
     refac += quad_vars
     exprs_orig = [expr for _, expr in deriv_t]
     results = quad.get_quadratization(func_eq, new_vars, n_diff)
-    print('results', results)
     if not results[0]: return False 
     
     for i in range(len(exprs_orig)):

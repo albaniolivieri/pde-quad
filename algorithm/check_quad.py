@@ -30,8 +30,9 @@ def build_ring(func_eq, order, var_indep, max_order, new_vars=None):
     R, pol_sym = xring(poly_vars, QQ)
     
     expr_pol = [(symbols(f'{fun.name}_t'), R.ring_new(eq.subs(refac))) for fun, eq in func_eq]
+    
     if new_vars != None: 
-        vars_pol = [(symbols(f'w_{i}'), R.ring_new(new_vars[i].subs(refac))) for i in range(len(new_vars))]
+        vars_pol = [R.ring_new(new_vars[i].subs(refac)) for i in range(len(new_vars))]
         return vars_pol, pol_sym, expr_pol 
     
     return pol_sym, expr_pol
@@ -54,10 +55,11 @@ def get_dics(func_eq, symb, eqs_pol, order, max_order):
         
     return dic_t, dic_x
 
-def get_quad(dic_t, dic_x, new_vars, eqs_pol, order, var_indep, poly_syms):
-    new_vars_t, new_vars_x = differentiate_dict(dic_t, dic_x, new_vars, order, var_indep)  
+def get_quad(dic_t, dic_x, new_vars, eqs_pol, order, var_indep, poly_syms):   
+    new_vars_named = [(symbols(f'w_{i}'), pol) for i, pol in enumerate(new_vars)] 
+    new_vars_t, new_vars_x = differentiate_dict(dic_t, dic_x, new_vars_named, order, var_indep)  
     deriv_t = new_vars_t + eqs_pol   
-    V = [(1, list(dic_t.keys())[0].ring(1))] + [(symbols(f'{sym}'), sym) for sym in poly_syms] + new_vars + new_vars_x
+    V = [(1, list(dic_t.keys())[0].ring(1))] + [(symbols(f'{sym}'), sym) for sym in poly_syms] + new_vars_named + new_vars_x
     return is_quadratization(V, deriv_t)
 
 def differentiate_dict(dic_t, dic_x, new_vars, order, var_indep):

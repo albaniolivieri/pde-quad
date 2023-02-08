@@ -36,11 +36,8 @@ def pruning_rule_time(start_time, max_time):
 def shrink_quad(quad_vars, poly_syst):
     final_vars = quad_vars
     subsets = powerset(quad_vars)
-    #print('subsets', subsets)
     for var_group in subsets: 
-    #    print('var_group', list(var_group))
-        vars_named = [(symbols(f'w_{i}'), pol) for i, pol in enumerate(var_group)] # TBD: get get_quad fun to do this
-        res, _ = get_quad(poly_syst.dic_t, poly_syst.dic_x, vars_named, poly_syst.pde_eq, 
+        res, _ = get_quad(poly_syst.dic_t, poly_syst.dic_x, var_group, poly_syst.pde_eq, 
                            poly_syst.order, poly_syst.var_indep, poly_syst.poly_vars) # TBD: pass only the object
         if res:
             return list(var_group)
@@ -51,8 +48,7 @@ def bnb(new_vars, best_nvars, poly_syst, sort_fun):
     if len(new_vars) >= best_nvars:
         return None, math.inf, 1
     
-    new_vars_named = [(symbols(f'w_{i}'), pol) for i, pol in enumerate(new_vars)]
-    result_quad = get_quad(poly_syst.dic_t, poly_syst.dic_x, new_vars_named, poly_syst.pde_eq, 
+    result_quad = get_quad(poly_syst.dic_t, poly_syst.dic_x, new_vars, poly_syst.pde_eq, 
                            poly_syst.order, poly_syst.var_indep, poly_syst.poly_vars)
     if result_quad[0]:
         shrinked_quad = shrink_quad(new_vars, poly_syst)

@@ -21,7 +21,7 @@ v = Function('v')(r,p)
 #print(quadratize([(u, ur), (v, vr)], 4))
 
 ut2 = u**3 * D(u, x, 3)
-ut3 = D(u, x, 1)**3
+ut3 = D(u, x)**3
 ti = time.time()
 print(quadratize([(u, ut3)], 2))
 print(time.time() - ti)
