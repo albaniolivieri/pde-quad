@@ -1,3 +1,4 @@
+from sympy import *
 from .quadratization import is_quadratization
 from .utils import diff_dict
 
@@ -31,8 +32,8 @@ class PolySys:
         for name, expr in named_new_vars:
             deriv_t.append((symbols(f'{name}t'), diff_dict(expr, self.dic_t)))
         
-        for name, expr in self.new_vars:
-            for i in range(1, order + 1):
+        for name, expr in named_new_vars:
+            for i in range(1, self.order + 1):
                 deriv_x.append((symbols(f'{name}{self.var_indep}{i}'), 
                                 diff_dict(expr, self.dic_x, i)))
                 

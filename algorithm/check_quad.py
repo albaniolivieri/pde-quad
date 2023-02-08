@@ -1,7 +1,7 @@
 from functools import reduce
 from sympy import *
 from sympy import Derivative as D
-from .quadratization import is_quadratization
+from .PolySys import *
 from .utils import get_order, diff_dict
 
 
@@ -13,8 +13,9 @@ def get_quadratization(func_eq, new_vars: list, n_diff: int):
     
     new_vars_pol, poly_syms, eqs_pol = build_ring(func_eq, n_diff, x_var, max_order, new_vars)
     dic_t, dic_x = get_dics(func_eq, poly_syms, eqs_pol, n_diff, max_order)
+    poly_syst = PolySys(dic_t, dic_x, eqs_pol, n_diff, x_var, poly_syms, new_vars_pol)
 
-    return get_quad(dic_t, dic_x, new_vars_pol, eqs_pol, n_diff, x_var, poly_syms)
+    return poly_syst.get_quad()
 
 def build_ring(func_eq, order, var_indep, max_order, new_vars=None):
     refac = []
@@ -54,23 +55,3 @@ def get_dics(func_eq, symb, eqs_pol, order, max_order):
                 dic_t[symb[(der_order+1)*k]] = eqs_pol[k][1]
         
     return dic_t, dic_x
-
-def get_quad(dic_t, dic_x, new_vars, eqs_pol, order, var_indep, poly_syms):   
-    new_vars_named = [(symbols(f'w_{i}'), pol) for i, pol in enumerate(new_vars)] 
-    new_vars_t, new_vars_x = differentiate_dict(dic_t, dic_x, new_vars_named, order, var_indep)  
-    deriv_t = new_vars_t + eqs_pol   
-    V = [(1, list(dic_t.keys())[0].ring(1))] + [(symbols(f'{sym}'), sym) for sym in poly_syms] + new_vars_named + new_vars_x
-    return is_quadratization(V, deriv_t)
-
-def differentiate_dict(dic_t, dic_x, new_vars, order, var_indep):
-    deriv_t = []
-    deriv_x = []
-    
-    for name, expr in new_vars:
-        deriv_t.append((symbols(f'{name}t'), diff_dict(expr, dic_t)))
-    
-    for name, expr in new_vars:
-        for i in range(1, order + 1):
-            deriv_x.append((symbols(f'{name}{var_indep}{i}'), diff_dict(expr, dic_x, i)))
-            
-    return deriv_t, deriv_x
