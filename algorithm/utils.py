@@ -42,5 +42,13 @@ def powerset(iterable):
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(1, len(s)))
 
+def ring_to_expr(ring_syms, ring_pol):
+    expr_syms = [symbols(str(var)) for var in ring_syms]
+    expr_pol = sympify(str(ring_pol)) 
+    return expr_pol, expr_syms
+
+def expr_to_ring(R, expr_pol):
+    return R.ring_new(expr_pol)
+
 
          

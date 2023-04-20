@@ -1,4 +1,4 @@
-from sympy import *
+from sympy import Eq, pprint, simplify
 from .utils import reduction_sparse
 
 def is_quadratization(V, deriv):
@@ -7,8 +7,7 @@ def is_quadratization(V, deriv):
     for name, polyn in V2: 
         names.append(name)
         V2_poly.append(polyn)
-    quad = []
-    NS = []
+    quad, NS = [], []
     V2_red = reduce_set(V2)
     for name, pol in deriv:
         if pol not in V2_poly:
@@ -41,5 +40,4 @@ def is_linear_combination(V2, der_pol):
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
             return simplify(-der_tuple[0])               
-    #print("Not a quadratization")
     return (False, der_tuple)  

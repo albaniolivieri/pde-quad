@@ -65,7 +65,6 @@ def by_fun(vars_tup):
     else: 
         return sum(vars_tup[0].degrees()) + 2*get_order(vars_tup[0])
     
-    
 def by_fun2(vars_tup):
     if len(vars_tup) > 1:
         return sum([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + \
@@ -73,6 +72,5 @@ def by_fun2(vars_tup):
     else: 
         return sum(vars_tup[0].degrees()) + 4*get_order(vars_tup[0])
     
-
 # max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) +
 # 2*max([get_order(vars_tup[0]), get_order(vars_tup[1])])
