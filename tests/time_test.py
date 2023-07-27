@@ -6,7 +6,7 @@ from sympy import *
 from sympy import Derivative as D
 
 sys.path.append("..")
-from algorithm import check_quad as sparse
+from algorithm import check_manual_quad as sparse
 from deprecated import check_quad_gauss as gauss
 from deprecated import check_quad_matrix as matrix
 
@@ -21,7 +21,7 @@ if len(sys.argv) > 1:
     if sys.argv[1] == 'sparse':
         for i in range(1, 11):
             ti = time.time()
-            sparse.get_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], i)
+            sparse.test_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], i)
             print("Diff order:", i, "\nTime:", time.time() - ti)
     elif sys.argv[1] == 'gauss':
         for i in range(1, 11):

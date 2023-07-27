@@ -2,7 +2,7 @@ from sympy import *
 from sympy import Derivative as D
 import sys
 sys.path.append("..")
-from algorithm.main import *
+from algorithm.quadratize import *
 t, x = symbols('t x')
 c = Function('c')(t,x)
 q = Function('q')(t,x)

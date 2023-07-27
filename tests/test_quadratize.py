@@ -5,7 +5,8 @@ from sympy import *
 from sympy import Derivative as D
 
 sys.path.append("..")
-from algorithm.main import quadratize
+from algorithm.quadratize import quadratize
+
 
 # tests
 t, x = symbols('t x')

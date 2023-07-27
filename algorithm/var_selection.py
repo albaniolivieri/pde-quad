@@ -34,7 +34,7 @@ def sort_vars(var_list, fun):
     sorted_list = sorted(var_list, key=fun)
     return sorted_list
 
-def get_order(pol):
+def get_diff_order(pol):
     derivs = [x for x in pol.ring.gens if pol.diff(x) != 0]
     order = 0
     for var in derivs:
@@ -45,32 +45,32 @@ def get_order(pol):
 def by_degree_order(vars_tup):
     if len(vars_tup) > 1:
         return (max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]), 
-                max([get_order(vars_tup[0]), get_order(vars_tup[1])]))
+                max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]))
     else: 
-        return (sum(vars_tup[0].degrees()), get_order(vars_tup[0]))
+        return (sum(vars_tup[0].degrees()), get_diff_order(vars_tup[0]))
     
 def by_order_degree(vars_tup):
     deg, order = 0, 0
     if len(vars_tup) > 1:
-        order, deg = (max([get_order(vars_tup[0]), get_order(vars_tup[1])]),
+        order, deg = (max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]),
                 max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]))
     else: 
-        order, deg = (get_order(vars_tup[0]), sum(vars_tup[0].degrees()))
+        order, deg = (get_diff_order(vars_tup[0]), sum(vars_tup[0].degrees()))
     return (order, deg)
     
 def by_fun(vars_tup):
     if len(vars_tup) > 1:
         return max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + \
-                2*max([get_order(vars_tup[0]), get_order(vars_tup[1])])
+                2*max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])])
     else: 
-        return sum(vars_tup[0].degrees()) + 2*get_order(vars_tup[0])
+        return sum(vars_tup[0].degrees()) + 2*get_diff_order(vars_tup[0])
     
 def by_fun2(vars_tup):
     if len(vars_tup) > 1:
         return sum([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + \
-                4*sum([get_order(vars_tup[0]), get_order(vars_tup[1])])
+                4*sum([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])])
     else: 
-        return sum(vars_tup[0].degrees()) + 4*get_order(vars_tup[0])
+        return sum(vars_tup[0].degrees()) + 4*get_diff_order(vars_tup[0])
     
 # max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) +
-# 2*max([get_order(vars_tup[0]), get_order(vars_tup[1])])
+# 2*max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])])

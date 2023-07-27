@@ -3,6 +3,7 @@ from .utils import reduction_sparse
 
 def is_quadratization(V, deriv):
     V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
+    # the reduction respect to groebner basis (function that also transforms from ring to expr)
     V2_poly, names = [], []
     for name, polyn in V2: 
         names.append(name)

@@ -2,7 +2,7 @@ from sympy import *
 from sympy import Derivative as D
 import sys
 sys.path.append("..")
-from algorithm import check_quad as quad
+from algorithm import check_manual_quad as quad
 from algorithm.utils import get_order
 
 def differentiate_t(funcs_eqs, new_vars):
@@ -34,7 +34,7 @@ def test_quad(func_eq, new_vars: list, n_diff: int):
                   for i in range(max_order, 0, -1)] + [(symbols(fun.name), fun)]
     refac += quad_vars
     exprs_orig = [expr for _, expr in deriv_t]
-    results = quad.get_quadratization(func_eq, new_vars, n_diff)
+    results = quad.test_quadratization(func_eq, new_vars, n_diff)
     if not results[0]: return False 
     
     for i in range(len(exprs_orig)):

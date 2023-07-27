@@ -4,7 +4,7 @@ import statistics
 import sys
 import time
 sys.path.append("..")
-from algorithm.main import *
+from algorithm.quadratize import *
 from algorithm.var_selection import *
 
 t, x = symbols('t x')
