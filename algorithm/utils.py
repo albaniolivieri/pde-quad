@@ -16,7 +16,8 @@ def reduction(pol1, pol2):
         return (pol1[0] - coef * pol2[0], new_pol, new_pol.LM())
     else: 
         return pol1
-    
+
+# Gleb: quick docstrings here would be great as well
 def reduction_sparse(pol1, pol2):
     if pol2[1] != 0:
         coef = pol1[1].coeff(pol2[2])
@@ -48,7 +49,4 @@ def ring_to_expr(ring_syms, ring_pol):
     return expr_pol, expr_syms
 
 def expr_to_ring(R, expr_pol):
-    return R.ring_new(expr_pol)
-
-
-         
+    return R.ring_new(expr_pol)         

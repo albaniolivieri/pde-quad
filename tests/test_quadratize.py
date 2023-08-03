@@ -7,6 +7,10 @@ from sympy import Derivative as D
 sys.path.append("..")
 from algorithm.quadratize import quadratize
 
+# Gleb: would be great to have:
+#  - more test cases
+#  - automatic check that the produced thing is a quadratization (as in test_check_quad.py)
+#  - summary at the end
 
 # tests
 t, x = symbols('t x')

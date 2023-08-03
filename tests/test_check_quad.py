@@ -82,8 +82,4 @@ tests.append(test_quad([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], 3))
 
 # Summary
 print('\nTests passed: ', tests.count(True))
-print('Tests failed: ', tests.count(False))
-
-
-    
-    
+print('Tests failed: ', tests.count(False))    

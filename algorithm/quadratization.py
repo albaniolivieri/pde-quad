@@ -1,6 +1,8 @@
 from sympy import Eq, pprint, simplify
 from .utils import reduction_sparse
 
+# Gleb: docstings would be great here
+
 def is_quadratization(V, deriv):
     V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
     # the reduction respect to groebner basis (function that also transforms from ring to expr)
@@ -40,5 +42,6 @@ def is_linear_combination(V2, der_pol):
     for i in range(len(V2)):
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
+            # Gleb: why do we have `simplify` here? Aren't we in polynomials?
             return simplify(-der_tuple[0])               
     return (False, der_tuple)  

@@ -33,6 +33,7 @@ def shrink_quad(quad_vars, poly_syst):
             return list(var_group)
     return final_vars
 
+# Gleb: to think if we want to do BFS / A*
 def bnb(new_vars, best_nvars, poly_syst, sort_fun):
     if len(new_vars) >= best_nvars:
         return None, math.inf, 1

@@ -12,9 +12,9 @@ class PolySys:
     Attributes
     ----------
     dic_t : dict
-        a dictionary that stores first variable derivatives
+        a dictionary that stores time derivatives derivatives
     dic_x : dict
-        a dictionary that stores second variable derivatives
+        a dictionary that stores spatial derivatives
     new_vars : list[sympy.Symbol]
         a list of new variables introduced for the PDE quadratization
     pde_eq : list[tuple]
@@ -75,7 +75,8 @@ class PolySys:
         self.order = n_diff
         self.var_indep = var_indep
         self.poly_vars = poly_syms
-        
+    
+    # Gleb: I think you can always return three things, just new_vars_pol may be empty. It may also make sense to make it the last since it is the least important in some sense
     def build_ring(self, func_eq, order, var_indep, max_order, new_vars=None):
         """Returns equation symbols and expressions expressed as polynomials. 
         If new_vars parameter is passed, it also returns the new variables as polynomials.
@@ -93,6 +94,7 @@ class PolySys:
         new_vars : list, optional
             List of proposed new variables
         """
+        # Gleb: would be great to have some explanation here or/and rename `refac`
         refac = []
         for fun, _ in func_eq:
             refac += [(D(fun, var_indep, i), symbols(f'{fun.name}_{var_indep}{i}')) 
@@ -159,9 +161,10 @@ class PolySys:
         """
         self.new_vars = new_vars
         
+    # Gleb: would rename to something try_make_quadratic
     def get_quad(self):  
         """Returns a tuple with a bool and the quadratization (if it is a quadratization) or
-        the expressions that could not be quadratize (if it was not a quadratization)"""
+        the expressions that could not be quadratized (if it was not a quadratization)"""
          
         new_vars_named = [(symbols(f'w_{i}'), pol) for i, pol in enumerate(self.new_vars)] 
         new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named)  
@@ -170,7 +173,7 @@ class PolySys:
             + [(symbols(f'{sym}'), sym) for sym in self.poly_vars] \
             + new_vars_named + new_vars_x
         return is_quadratization(V, deriv_t)
-    
+   
     def differentiate_dict(self, named_new_vars):
         """Returns two dictionaries that map the new variables with their respctive
         derivatives in the first and second variable 
