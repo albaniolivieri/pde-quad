@@ -4,12 +4,43 @@ from functools import reduce
 from itertools import chain, combinations
 
 def get_order(set_derivs):
+    """Verifies if all variables in V are a quadratization for the system in deriv.
+    Also prints the quadratization
+
+    Parameters
+    ----------
+    V : list[sympy.PolyElement]
+        List V with all variables/symbols
+    deriv : list[sympy.PolyElement]
+        List with all equations of the PDE system
+
+    Returns
+    -------
+    tuple
+        a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
+    """
+    
     max_order = 0
     for deriv in set_derivs:
         max_order = reduce(max, [der.args[1][1] for der in deriv.atoms(D)], max_order)
     return max_order
 
 def reduction(pol1, pol2):
+    """Verifies if all variables in V are a quadratization for the system in deriv.
+    Also prints the quadratization
+
+    Parameters
+    ----------
+    V : list[sympy.PolyElement]
+        List V with all variables/symbols
+    deriv : list[sympy.PolyElement]
+        List with all equations of the PDE system
+
+    Returns
+    -------
+    tuple
+        a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
+    """
     coef = pol1[1].coeff_monomial(pol2[2])
     if coef != 0:
         new_pol = pol1[1] - coef * pol2[1]
@@ -19,6 +50,21 @@ def reduction(pol1, pol2):
 
 # Gleb: quick docstrings here would be great as well
 def reduction_sparse(pol1, pol2):
+    """Verifies if all variables in V are a quadratization for the system in deriv.
+    Also prints the quadratization
+
+    Parameters
+    ----------
+    V : list[sympy.PolyElement]
+        List V with all variables/symbols
+    deriv : list[sympy.PolyElement]
+        List with all equations of the PDE system
+
+    Returns
+    -------
+    tuple
+        a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
+    """
     if pol2[1] != 0:
         coef = pol1[1].coeff(pol2[2])
         if coef != 0:
@@ -27,12 +73,42 @@ def reduction_sparse(pol1, pol2):
     return pol1
 
 def diff_dict(pol, dic, order=1):
+    """Verifies if all variables in V are a quadratization for the system in deriv.
+    Also prints the quadratization
+
+    Parameters
+    ----------
+    V : list[sympy.PolyElement]
+        List V with all variables/symbols
+    deriv : list[sympy.PolyElement]
+        List with all equations of the PDE system
+
+    Returns
+    -------
+    tuple
+        a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
+    """
     deriv = pol
     for _ in range(1, order + 1):
         deriv = sum(deriv.diff(k) * v for (k, v) in dic.items())
     return deriv
 
 def remove_vars(list_vars, accum_vars, axis):
+    """Verifies if all variables in V are a quadratization for the system in deriv.
+    Also prints the quadratization
+
+    Parameters
+    ----------
+    V : list[sympy.PolyElement]
+        List V with all variables/symbols
+    deriv : list[sympy.PolyElement]
+        List with all equations of the PDE system
+
+    Returns
+    -------
+    tuple
+        a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
+    """
     for i in range(len(list_vars)):
         if len(list_vars[i]) > 1:
             if list_vars[i][axis] in accum_vars or (sum(list_vars[i][axis].degrees()) <= 1):
@@ -40,13 +116,58 @@ def remove_vars(list_vars, accum_vars, axis):
     return list_vars
 
 def powerset(iterable):
+    """Verifies if all variables in V are a quadratization for the system in deriv.
+    Also prints the quadratization
+
+    Parameters
+    ----------
+    V : list[sympy.PolyElement]
+        List V with all variables/symbols
+    deriv : list[sympy.PolyElement]
+        List with all equations of the PDE system
+
+    Returns
+    -------
+    tuple
+        a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
+    """
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(1, len(s)))
 
 def ring_to_expr(ring_syms, ring_pol):
+    """Verifies if all variables in V are a quadratization for the system in deriv.
+    Also prints the quadratization
+
+    Parameters
+    ----------
+    V : list[sympy.PolyElement]
+        List V with all variables/symbols
+    deriv : list[sympy.PolyElement]
+        List with all equations of the PDE system
+
+    Returns
+    -------
+    tuple
+        a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
+    """
     expr_syms = [symbols(str(var)) for var in ring_syms]
     expr_pol = sympify(str(ring_pol)) 
     return expr_pol, expr_syms
 
 def expr_to_ring(R, expr_pol):
+    """Verifies if all variables in V are a quadratization for the system in deriv.
+    Also prints the quadratization
+
+    Parameters
+    ----------
+    V : list[sympy.PolyElement]
+        List V with all variables/symbols
+    deriv : list[sympy.PolyElement]
+        List with all equations of the PDE system
+
+    Returns
+    -------
+    tuple
+        a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
+    """
     return R.ring_new(expr_pol)         

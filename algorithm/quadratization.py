@@ -1,7 +1,6 @@
 from sympy import Eq, pprint, simplify
 from .utils import reduction_sparse
 
-
 def is_quadratization(V, deriv):
     """Verifies if all variables in V are a quadratization for the system in deriv.
     Also prints the quadratization
@@ -85,5 +84,5 @@ def is_linear_combination(V2, der_pol):
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
             # Gleb: why do we have `simplify` here? Aren't we in polynomials?
-            return simplify(-der_tuple[0])               
+            return -der_tuple[0]              
     return (False, der_tuple)  

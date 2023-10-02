@@ -10,6 +10,8 @@ def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=10):
     poly_syst = PolySys(func_eq, n_diff, x_var)
     quad = bnb([], nvars_bound, poly_syst, sort_fun)
     
+    # change back fractions (right before giving output)
+    
     return quad
     
 

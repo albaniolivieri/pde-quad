@@ -2,7 +2,7 @@ import sys
 sys.path.append("..")
 
 import random
-from sympy import ring, QQ, apart, symbols, simplify, Add, fraction, apart_list
+from sympy import apart, symbols, simplify, Add, fraction, apart_list
 from algorithm.fractions import decompose_fraction 
 from algorithm.utils import ring_to_expr, expr_to_ring
 

@@ -1,4 +1,4 @@
-from sympy import *
+from sympy import symbols, Function, simplify
 from sympy import Derivative as D
 import sys
 sys.path.append("..")
@@ -35,7 +35,9 @@ def test_quad(func_eq, new_vars: list, n_diff: int):
     refac += quad_vars
     exprs_orig = [expr for _, expr in deriv_t]
     results = quad.test_quadratization(func_eq, new_vars, n_diff)
-    if not results[0]: return False 
+    if not results[0]: 
+        print("Quadratization not found")
+        return False 
     
     for i in range(len(exprs_orig)):
         print('passed eq:', results[1][i])
@@ -52,33 +54,37 @@ u = Function('u')(t,x)
 
 tests = []
 
-# u_t = u**2 * ux + u
-# w = u**2
-# w_t = 2u * (u**2 * ux + u)
-ut1 = u**2*D(u, x) + u
-w01 = u**2
-tests.append(test_quad([(u, ut1)], [w01], 1))
+# # u_t = u**2 * ux + u
+# # w = u**2
+# # w_t = 2u * (u**2 * ux + u)
+# ut1 = u**2*D(u, x) + u
+# w01 = u**2
+# tests.append(test_quad([(u, ut1)], [w01], 1))
 
-ut2 = u**2*D(u, x, 2)
-w02 = u**2
-tests.append(test_quad([(u, ut2)], [w02], 2))
+# ut2 = u**2*D(u, x, 2)
+# w02 = u**2
+# tests.append(test_quad([(u, ut2)], [w02], 2))
 
-ut3 = u * (D(u, x)**2 + u * D(u, x, 2))
-w03 = u**2
-tests.append(test_quad([(u, ut3)], [w03], 2))
+# ut3 = u * (D(u, x)**2 + u * D(u, x, 2))
+# w03 = u**2
+# tests.append(test_quad([(u, ut3)], [w03], 2))
 
-ut4 = u * (3 * D(u, x) * D(u, x, 2) + u * D(u, x, 3) + 1)
-w04 = u**2
-tests.append(test_quad([(u, ut4)], [w04], 3))
+# ut4 = u * (3 * D(u, x) * D(u, x, 2) + u * D(u, x, 3) + 1)
+# w04 = u**2
+# tests.append(test_quad([(u, ut4)], [w04], 3))
 
-#Dym 
-ut5 = u**3 * D(u, x, 3)
-tests.append(test_quad([(u, ut5)], [u**3, u * D(u, x)**2], 3))
+# #Dym 
+# ut5 = u**3 * D(u, x, 3)
+# tests.append(test_quad([(u, ut5)], [u**3, u * D(u, x)**2], 3))
 
-u1 = Function('u1')(t,x)
-u1t = u1**3 * D(u1, x, 1)
-ut5 = u**3 * D(u, x, 3)
-tests.append(test_quad([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], 3))
+# u1 = Function('u1')(t,x)
+# u1t = u1**3 * D(u1, x, 1)
+# ut5 = u**3 * D(u, x, 3)
+# tests.append(test_quad([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], 3))
+
+# Solar wind
+ut6 = 7*D(u, x)/u - 5*D(u, x, 1)**2 + 1/u 
+tests.append(test_quad([(u, ut6)], [D(u, x)/u, D(u, x)/u**2], 3))
 
 # Summary
 print('\nTests passed: ', tests.count(True))

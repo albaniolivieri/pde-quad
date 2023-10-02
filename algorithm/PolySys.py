@@ -5,7 +5,7 @@ from .utils import diff_dict, get_order
 
 class PolySys: 
     """
-    A class used to represent an PDE system as polynomial expressions
+    A class used to represent a PDE system as polynomial expressions
 
     ...
 
@@ -36,14 +36,14 @@ class PolySys:
         its symbol derivative
     set_new_vars(new_vars)
         Sets the attribute new_vars to parameter passed 
-    get_quad()
+    try_make_quadratic()
         Gets the quadratization of the PDE
     differentiate_dict(named_new_vars)
         Builds two dictionaries with new variables derivatives in first
         and second variable
     """ 
     
-    def __init__(self, pde_sys, n_diff, var_indep, new_vars=[]): 
+    def __init__(self, pde_sys, n_diff, var_indep, new_vars=[], vars_frac=[]): 
         """
         Parameters
         ----------
@@ -59,12 +59,14 @@ class PolySys:
         max_order = get_order([expr for _, expr in pde_sys])
         new_vars_pol = new_vars
         
+        # if there's a flag, then do the reduction (call decompose fraction)
+        
         # case when the constructor is called within quadratize function
         if new_vars == []: 
-            poly_syms, eqs_pol = self.build_ring(pde_sys, n_diff, var_indep, max_order)
-        # case when is called in the test manual quadratize module
+            poly_syms, eqs_pol = self.build_ring(pde_sys, n_diff, var_indep, max_order, vars_frac)
+        # case when is called in the test manual quadratization module
         else: 
-            new_vars_pol, poly_syms, eqs_pol = self.build_ring(pde_sys, n_diff, var_indep, max_order, new_vars)
+            new_vars_pol, poly_syms, eqs_pol = self.build_ring(pde_sys, n_diff, var_indep, max_order, vars_frac, new_vars)
             
         dic_t, dic_x = self.get_dics(pde_sys, poly_syms, eqs_pol, n_diff, max_order)
         
@@ -77,7 +79,7 @@ class PolySys:
         self.poly_vars = poly_syms
     
     # Gleb: I think you can always return three things, just new_vars_pol may be empty. It may also make sense to make it the last since it is the least important in some sense
-    def build_ring(self, func_eq, order, var_indep, max_order, new_vars=None):
+    def build_ring(self, func_eq, order, var_indep, max_order, frac_vars, new_vars=None):
         """Returns equation symbols and expressions expressed as polynomials. 
         If new_vars parameter is passed, it also returns the new variables as polynomials.
 
@@ -94,10 +96,11 @@ class PolySys:
         new_vars : list, optional
             List of proposed new variables
         """
-        # Gleb: would be great to have some explanation here or/and rename `refac`
-        refac = []
+        
+        # der_subs is used for derivatives and functions substitution to sympy symbols
+        der_subs = []
         for fun, _ in func_eq:
-            refac += [(D(fun, var_indep, i), symbols(f'{fun.name}_{var_indep}{i}')) 
+            der_subs += [(D(fun, var_indep, i), symbols(f'{fun.name}_{var_indep}{i}')) 
                     for i in range(max_order, 0, -1)] + [(fun, symbols(fun.name))] 
         
         poly_vars = []
@@ -105,14 +108,17 @@ class PolySys:
             poly_vars.append(f'{fun.name}')
             poly_vars.extend([f'{fun.name}_{var_indep}{i}' for i in range(1, max_order + order + 1)])
             
+        for var, _ in frac_vars:
+            poly_vars.append(f'{var.name}')        
+        
         R, pol_sym = xring(poly_vars, QQ)
         
-        expr_pol = [(symbols(f'{fun.name}_t'), R.ring_new(eq.subs(refac))) for fun, eq in func_eq]
+        expr_pol = [(symbols(f'{fun.name}_t'), R.ring_new(eq.subs(der_subs))) for fun, eq in func_eq]
         
         # if the new variables are passed as sympy expressions  
         # they are also added to the polynomial ring
         if new_vars != None: 
-            vars_pol = [R.ring_new(new_vars[i].subs(refac)) for i in range(len(new_vars))]
+            vars_pol = [R.ring_new(new_vars[i].subs(der_subs)) for i in range(len(new_vars))]
             return vars_pol, pol_sym, expr_pol 
         
         return pol_sym, expr_pol
@@ -161,8 +167,7 @@ class PolySys:
         """
         self.new_vars = new_vars
         
-    # Gleb: would rename to something try_make_quadratic
-    def get_quad(self):  
+    def try_make_quadratic(self):  
         """Returns a tuple with a bool and the quadratization (if it is a quadratization) or
         the expressions that could not be quadratized (if it was not a quadratization)"""
          
