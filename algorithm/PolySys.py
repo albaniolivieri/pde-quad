@@ -1,7 +1,7 @@
 from sympy import xring, symbols, QQ
 from sympy import Derivative as D
 from .quadratization import is_quadratization
-from .utils import diff_dict, get_order
+from .utils import diff_dict, get_order, diff_frac
 
 class PolySys: 
     """
@@ -26,6 +26,10 @@ class PolySys:
         a Symbol that represents the second independent variable
     poly_vars : sympy.PolyElement
         all symbol names as polynomial ring
+    expr_frac : list[tuple]
+        a list of tuples containing the fraction variables and their expressions
+    frac_ders : list[sympy.PolyElement]
+        a list of the t derivatives of the fraction variables
 
     Methods
     -------
@@ -55,20 +59,15 @@ class PolySys:
             The symbol of the second independent variable
         new_vars : list, optional
             List of proposed new variables
+        vars_frac : list, optional
+            List of new variables of the fraction decomposition
         """
         max_order = get_order([expr for _, expr in pde_sys])
         new_vars_pol = new_vars
-        
-        # if there's a flag, then do the reduction (call decompose fraction)
-        
-        # case when the constructor is called within quadratize function
-        if new_vars == []: 
-            poly_syms, eqs_pol = self.build_ring(pde_sys, n_diff, var_indep, max_order, vars_frac)
-        # case when is called in the test manual quadratization module
-        else: 
-            new_vars_pol, poly_syms, eqs_pol = self.build_ring(pde_sys, n_diff, var_indep, max_order, vars_frac, new_vars)
+       
+        poly_syms, eqs_pol, new_vars_pol, expr_frac = self.build_ring(pde_sys, n_diff, var_indep, max_order, vars_frac, new_vars)
             
-        dic_t, dic_x = self.get_dics(pde_sys, poly_syms, eqs_pol, n_diff, max_order)
+        dic_t, dic_x, frac_ders = self.get_dics(pde_sys, poly_syms, eqs_pol, n_diff, max_order, expr_frac)
         
         self.dic_t = dic_t
         self.dic_x = dic_x
@@ -77,8 +76,10 @@ class PolySys:
         self.order = n_diff
         self.var_indep = var_indep
         self.poly_vars = poly_syms
+        self.expr_frac = expr_frac
+        self.frac_ders = frac_ders
     
-    # Gleb: I think you can always return three things, just new_vars_pol may be empty. It may also make sense to make it the last since it is the least important in some sense
+    
     def build_ring(self, func_eq, order, var_indep, max_order, frac_vars, new_vars=None):
         """Returns equation symbols and expressions expressed as polynomials. 
         If new_vars parameter is passed, it also returns the new variables as polynomials.
@@ -109,23 +110,30 @@ class PolySys:
             poly_vars.extend([f'{fun.name}_{var_indep}{i}' for i in range(1, max_order + order + 1)])
             
         for var, _ in frac_vars:
-            poly_vars.append(f'{var.name}')        
+            poly_vars.append(f'{var.name}') 
         
         R, pol_sym = xring(poly_vars, QQ)
         
-        expr_pol = [(symbols(f'{fun.name}_t'), R.ring_new(eq.subs(der_subs))) for fun, eq in func_eq]
+        frac_subs = [(1/rel, var) for var, rel in frac_vars]
+        
+        func_eq_frac = [(fun, eq.subs(frac_subs)) for fun, eq in func_eq]   
+
+        expr_pol = [(symbols(f'{fun.name}_t'), R.ring_new(eq.subs(der_subs))) for fun, eq in func_eq_frac] 
+        
+        expr_frac = [(symbols(f'{var.name}'), R.ring_new(rel.subs(der_subs))) for var, rel in frac_vars]    
         
         # if the new variables are passed as sympy expressions  
         # they are also added to the polynomial ring
+        vars_pol = []
         if new_vars != None: 
             vars_pol = [R.ring_new(new_vars[i].subs(der_subs)) for i in range(len(new_vars))]
-            return vars_pol, pol_sym, expr_pol 
         
-        return pol_sym, expr_pol
+        return pol_sym, expr_pol, vars_pol, expr_frac
     
-    def get_dics(self, func_eq, symb, eqs_pol, order, max_order): 
-        """Returns a tuple with two dictionaries that maps the equations symbols 
-        with their respective derivatives
+    def get_dics(self, func_eq, symb, eqs_pol, order, max_order, expr_frac): 
+        """Returns a tuple with two dictionaries that map the equations symbols 
+        with their respective derivatives and a list with the derivatives of the
+        fraction variables
 
         Parameters
         ----------
@@ -147,6 +155,12 @@ class PolySys:
         for j in range(len(func_eq)):
             for i in range(der_order): 
                 dic_x[symb[i + (der_order+1)*j]] = symb[i + (der_order+1)*j + 1]
+                last = i + (der_order+1)*j
+        
+        count = last
+        for i in range(len(expr_frac)):
+            dic_x[symb[count+2]] = diff_frac(symb[0].ring(1), expr_frac[i][1], symb[last+2], dic_x)
+            count += 1
         
         for k in range(len(func_eq)):
             for i in range(der_order - 1): 
@@ -154,8 +168,15 @@ class PolySys:
                     dic_t[symb[i + (der_order+1)*k]] = diff_dict(dic_t[symb[i - 1 + (der_order+1)*k]], dic_x)
                 else: 
                     dic_t[symb[(der_order+1)*k]] = eqs_pol[k][1]
+        
+        frac_ders = []            
+        for i in range(len(expr_frac)):
+            frac_der_t = diff_frac(symb[0].ring(1), expr_frac[i][1], symb[last+2], dic_t)
+            frac_ders.append(frac_der_t)
+            dic_t[symb[last+2]] = frac_der_t
+            last += 1
             
-        return dic_t, dic_x
+        return dic_t, dic_x, frac_ders
         
     def set_new_vars(self, new_vars):
         """Returns none as it only sets with a new value the new_vars attribute
@@ -168,19 +189,20 @@ class PolySys:
         self.new_vars = new_vars
         
     def try_make_quadratic(self):  
-        """Returns a tuple with a bool and the quadratization (if it is a quadratization) or
-        the expressions that could not be quadratized (if it was not a quadratization)"""
-         
+        """Returns a tuple with a bool and the quadratization if it is a quadratization. If not,
+        returns the expressions that could not be quadratized.
+        """
         new_vars_named = [(symbols(f'w_{i}'), pol) for i, pol in enumerate(self.new_vars)] 
-        new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named)  
-        deriv_t = new_vars_t + self.pde_eq   
+        new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named) 
+        frac_der_t = [(symbols(f'q_{i}t'), pol) for i, pol in enumerate(self.frac_ders)]
+        deriv_t = new_vars_t + self.pde_eq + frac_der_t
         V = [(1, list(self.dic_t.keys())[0].ring(1))] \
             + [(symbols(f'{sym}'), sym) for sym in self.poly_vars] \
             + new_vars_named + new_vars_x
-        return is_quadratization(V, deriv_t)
+        return is_quadratization(V, deriv_t, self.expr_frac, self.poly_vars)
    
     def differentiate_dict(self, named_new_vars):
-        """Returns two dictionaries that map the new variables with their respctive
+        """Returns two dictionaries that map the new variables with their respective
         derivatives in the first and second variable 
 
         Parameters

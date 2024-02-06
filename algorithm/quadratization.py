@@ -1,7 +1,7 @@
-from sympy import Eq, pprint, simplify
-from .utils import reduction_sparse
+from sympy import Eq, pprint
+from .utils import reduction_sparse, revert_frac_decomp
 
-def is_quadratization(V, deriv):
+def is_quadratization(V, deriv, expr_frac, poly_vars):
     """Verifies if all variables in V are a quadratization for the system in deriv.
     Also prints the quadratization
 
@@ -18,7 +18,6 @@ def is_quadratization(V, deriv):
         a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
     """
     V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
-    # the reduction respect to groebner basis (function that also transforms from ring to expr)
     V2_poly, names = [], []
     for name, polyn in V2: 
         names.append(name)
@@ -35,6 +34,10 @@ def is_quadratization(V, deriv):
         # for seeing problematic monomials, uncomment next line:
         # for i in range(len(NS)): pprint(f'NS for expr {NS[i][0]}: {NS[i][1]}')
         return (False, NS)
+    
+    if expr_frac != []: 
+       quad = revert_frac_decomp(quad, expr_frac, poly_vars)
+    
     print("\nQuadratization:")
     for exprs in quad: pprint(exprs)       
     return (True, quad)
@@ -83,6 +86,5 @@ def is_linear_combination(V2, der_pol):
     for i in range(len(V2)):
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
-            # Gleb: why do we have `simplify` here? Aren't we in polynomials?
             return -der_tuple[0]              
     return (False, der_tuple)  
