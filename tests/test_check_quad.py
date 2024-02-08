@@ -24,7 +24,7 @@ def differentiate_t(funcs_eqs, new_vars):
     refac = [(D(deriv[0], symbols('t')), deriv[1]) for deriv in funcs_eqs]
     for i in range(len(new_vars)):
         wt = D(new_vars[i][1], symbols('t')).doit().subs(refac)
-        deriv_t.append((symbols(f'{new_vars[i][0]}t'), wt.doit()))
+        deriv_t.append((symbols(f'{new_vars[i][0]}_t'), wt.doit()))
     return deriv_t
 
 def differentiate_x(var_indep, new_vars, n):
@@ -81,7 +81,7 @@ def test_quad(func_eq, new_vars: list, n_diff: int):
     exprs_orig = [expr for _, expr in deriv_t]
     results = quad.test_quadratization(func_eq, new_vars, n_diff)
     if not results[0]: 
-        print("Quadratization not found")
+        print("\nQuadratization not found")
         return False 
     
     for i in range(len(exprs_orig)):

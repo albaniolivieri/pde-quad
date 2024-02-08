@@ -26,6 +26,7 @@ def prop_new_vars(NS_list, accum_vars, sort_fun):
     
     list_vars = remove_vars(list_vars, accum_vars, 0)
     list_vars = remove_vars(list_vars, accum_vars, 1)
+
     for i in range(len(list_vars)): 
         if not list_vars[i]: 
             list_vars.remove(list_vars[i])

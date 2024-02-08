@@ -36,7 +36,7 @@ def is_quadratization(V, deriv, expr_frac, poly_vars):
         return (False, NS)
     
     if expr_frac != []: 
-       quad = revert_frac_decomp(quad, expr_frac, poly_vars)
+       quad = revert_frac_decomp(quad, expr_frac)
     
     print("\nQuadratization:")
     for exprs in quad: pprint(exprs)       

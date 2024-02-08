@@ -33,6 +33,9 @@ tests.append(test_quad([(u, ut4)], [w04], 3))
 ut5 = u**3 * D(u, x, 3)
 tests.append(test_quad([(u, ut5)], [u**3, u * D(u, x)**2], 3))
 
+ut6 = D(u, x)**3 + u**3
+tests.append(test_quad([(u, ut6)], [u**2, D(u,x)**3], 3))
+
 u1 = Function('u1')(t,x)
 u1t = u1**3 * D(u1, x, 1)
 ut5 = u**3 * D(u, x, 3)

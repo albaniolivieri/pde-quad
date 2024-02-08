@@ -12,4 +12,4 @@ t, x = symbols('t x')
 v = Function('v')(t,x)
 
 v_t = 7 * D(v, x) / v - 5 * D(v, x)
-quadratize([(v, v_t)], 4, sort_fun=by_fun)
+print(quadratize([(v, v_t)], 4, sort_fun=by_fun))

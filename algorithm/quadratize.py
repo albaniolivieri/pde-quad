@@ -3,6 +3,7 @@ from .PolySys import PolySys
 from .branch_and_bound import bnb 
 from .var_selection import by_fun
 from .utils import get_frac_vars
+
 def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=10):
     """Quadratizes a given PDE
     
@@ -23,7 +24,7 @@ def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=10):
         a tuple with the best quadratization found, the number of variables in the 
         quadratization and the total number of traversed nodes   
     """
-    undef_fun = [symbol for symbol, _ in func_eq] 
+    undef_fun = [symbol for symbol, _,  in func_eq] 
     x_var = [symbol for symbol in undef_fun[0].free_symbols if symbol != symbols('t')].pop()
     
     _, vars_frac = get_frac_vars(func_eq, undef_fun)
@@ -31,7 +32,7 @@ def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=10):
     poly_syst = PolySys(func_eq, n_diff, x_var, vars_frac= vars_frac)
     quad = bnb([], nvars_bound, poly_syst, sort_fun)
     
-    return quad
+    return quad[0], vars_frac
     
 
     

@@ -109,6 +109,8 @@ def remove_vars(list_vars, accum_vars, axis):
         if len(list_vars[i]) > 1:
             if list_vars[i][axis] in accum_vars or (sum(list_vars[i][axis].degrees()) <= 1):
                 list_vars[i] = (list_vars[i][int(not axis)],)
+            elif list_vars[i][axis] == list_vars[i][int(not axis)]:
+                list_vars[i] = (list_vars[i][axis],)
     return list_vars
 
 def powerset(iterable):
@@ -127,7 +129,7 @@ def powerset(iterable):
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(1, len(s)))
 
-def ring_to_expr(ring_syms, ring_pol):
+def ring_to_expr(ring_pol, ring_syms=[]):
     """converts a polynomial ring to a sympy expression
 
     Parameters
@@ -163,7 +165,7 @@ def expr_to_ring(R, expr_pol):
     """
     return R.ring_new(expr_pol)         
 
-def revert_frac_decomp(quad_exprs, frac_rel, symbols_in_ring):
+def revert_frac_decomp(quad_exprs, frac_rel, quad=True):
     """Reverts a quadratization without the fraction decomposition variables
 
     Parameters
@@ -178,11 +180,14 @@ def revert_frac_decomp(quad_exprs, frac_rel, symbols_in_ring):
     list[sympy.Eq]
         the original quadratization without the fraction decomposition variables
     """
-    frac_subs = [(var, 1/ring_to_expr(symbols_in_ring, rel)[0]) for var, rel in frac_rel]
-    for i in range(len(quad_exprs)):
-        quad_exprs[i] = Eq(quad_exprs[i].lhs, quad_exprs[i].rhs.subs(frac_subs))
+    frac_subs = [(var, 1/ring_to_expr(rel)[0]) for var, rel in frac_rel]
+    if quad: 
+        for i in range(len(quad_exprs)):
+            quad_exprs[i] = Eq(quad_exprs[i].lhs, quad_exprs[i].rhs.subs(frac_subs))
+    else: 
+        for i in range(len(quad_exprs)):
+            quad_exprs[i] = quad_exprs[i].subs(frac_subs)
     return quad_exprs
-
 
 def diff_frac(num, den, symb_var, dic):
     """Differentiates a fraction by a dictionary of variables

@@ -2,7 +2,7 @@ import sys
 sys.path.append("..")
 
 import random
-from sympy import apart, symbols, simplify, Add, fraction, apart_list, expand
+from sympy import apart, symbols, simplify, Add, fraction, expand
 from algorithm.fractions import decompose_fraction 
 
 w = symbols('w')
