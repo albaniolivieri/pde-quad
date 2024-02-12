@@ -199,7 +199,7 @@ class PolySys:
         V = [(1, list(self.dic_t.keys())[0].ring(1))] \
             + [(symbols(f'{sym}'), sym) for sym in self.poly_vars] \
             + new_vars_named + new_vars_x
-        return is_quadratization(V, deriv_t, self.expr_frac, self.poly_vars)
+        return is_quadratization(V, deriv_t)
    
     def differentiate_dict(self, named_new_vars):
         """Returns two dictionaries that map the new variables with their respective

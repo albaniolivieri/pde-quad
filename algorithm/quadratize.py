@@ -32,7 +32,9 @@ def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=10):
     poly_syst = PolySys(func_eq, n_diff, x_var, vars_frac= vars_frac)
     quad = bnb([], nvars_bound, poly_syst, sort_fun)
     
-    return quad[0], vars_frac
+    vars_frac_intro = [1/rel for _, rel in vars_frac]
+    
+    return quad[0], vars_frac_intro
     
 
     

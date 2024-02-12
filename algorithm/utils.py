@@ -46,7 +46,7 @@ def reduction(pol1, pol2):
         return pol1
 
 def reduction_sparse(pol1, pol2):
-    """Reduces the first polynomial by the second one using sparse polynomials
+    """Reduces the polynomial pol1 by the polynomial pol2 in the sparse representation
 
     Parameters
     ----------

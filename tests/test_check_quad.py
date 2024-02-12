@@ -28,13 +28,14 @@ def differentiate_t(funcs_eqs, new_vars):
     return deriv_t
 
 def differentiate_x(var_indep, new_vars, n):
-    """Differentiate the functions with respect to the x variable.
+    """Differentiates functions with respect to the x variable.
     
     Parameters
     var_indep : sympy.Symbol
         The symbol of the second independent variable
-    new_vars : list
-        List of proposed new variables
+    new_vars : tuple
+        Tuple with a list of proposed new variables and 
+        another list with fraction relations
     n : int
         The number of second variable differentiations to do
     
@@ -43,18 +44,22 @@ def differentiate_x(var_indep, new_vars, n):
     list[tuple]
         the differentiated functions with respect to x
     """
+    vars_prop, frac_vars = new_vars
     quad_vars = []
-    for i in range(len(new_vars)):
-        quad_vars.extend([(symbols(f'w_{i}{var_indep}{j}'), D(new_vars[i], var_indep, j).doit()) 
-                          for j in range(1, n + 1)] + [(symbols(f'w_{i}'), new_vars[i])])  
+    for i in range(len(vars_prop)):
+        quad_vars.extend([(symbols(f'w_{i}{var_indep}{j}'), D(vars_prop[i], var_indep, j).doit()) 
+                          for j in range(1, n + 1)] + [(symbols(f'w_{i}'), vars_prop[i])])
+    for i in range(len(frac_vars)):
+        quad_vars.extend([(symbols(f'q_{i}{var_indep}{1}'), D(frac_vars[i], var_indep, 1).doit())]
+                          + [(symbols(f'q{i}'), frac_vars[i])])
     return quad_vars
 
-def test_quad(func_eq, new_vars: list, n_diff: int):
+def test_quad(func_eq, new_vars: list, n_diff: int, frac_vars: list = []):
     """Test the proposed quadratization of a given PDE
     
     Parameters
     ----------
-    func_eq : list[tuple]
+    func_eq : list
         Tuples with the symbol and equations of the PDE
     new_vars : list
         List of proposed new variables
@@ -67,8 +72,11 @@ def test_quad(func_eq, new_vars: list, n_diff: int):
         True if the quadratization is correct, False otherwise
     """
     x_var = [symbol for symbol in func_eq[0][0].free_symbols if symbol != symbols('t')].pop()
+    new_vars = [expr.subs([(symbols(f'q{i}'), frac_vars[i]) for i in range(len(frac_vars))]) 
+                for expr in new_vars]
     var_dic = [(symbols(f'w_{i}'), new_vars[i]) for i in range(len(new_vars))] 
-    quad_vars = differentiate_x(x_var, new_vars, n_diff)
+    total_vars = (new_vars, frac_vars)
+    quad_vars = differentiate_x(x_var, total_vars, n_diff)
     undef_fun = [symbol for symbol, _ in func_eq]
     deriv_t = differentiate_t(func_eq, var_dic) + [(symbols(eqs[0].name + '_t'), eqs[1]) for eqs in func_eq] 
     max_order = max(get_order([der for _, der in deriv_t]), get_order([der for _, der in quad_vars]))
@@ -92,5 +100,7 @@ def test_quad(func_eq, new_vars: list, n_diff: int):
             print('Original expression: ', expand(exprs_orig[i]))
             print('Quad expression: ', expand(results[1][i].rhs.subs(refac)))
             return False
+        
+    print('Test passed')
     return True
 

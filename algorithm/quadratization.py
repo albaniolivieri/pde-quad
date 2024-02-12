@@ -1,7 +1,7 @@
 from sympy import Eq, pprint
 from .utils import reduction_sparse, revert_frac_decomp
 
-def is_quadratization(V, deriv, expr_frac, poly_vars):
+def is_quadratization(V, deriv, expr_frac):
     """Verifies if all variables in V are a quadratization for the system in deriv.
     Also prints the quadratization
 
@@ -34,9 +34,6 @@ def is_quadratization(V, deriv, expr_frac, poly_vars):
         # for seeing problematic monomials, uncomment next line:
         # for i in range(len(NS)): pprint(f'NS for expr {NS[i][0]}: {NS[i][1]}')
         return (False, NS)
-    
-    if expr_frac != []: 
-       quad = revert_frac_decomp(quad, expr_frac)
     
     print("\nQuadratization:")
     for exprs in quad: pprint(exprs)       
