@@ -95,7 +95,7 @@ def bnb(new_vars, best_nvars, poly_syst, sort_fun):
         a tuple with the best quadratization found, the number of variables in the 
         quadratization and the total number of traversed nodes   
     """
-    if len(new_vars) >= best_nvars:
+    if pruning_rule_nvars(len(new_vars), best_nvars):
         return None, math.inf, 1
     
     poly_syst.set_new_vars(new_vars)

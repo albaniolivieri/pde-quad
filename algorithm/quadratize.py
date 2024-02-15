@@ -4,7 +4,7 @@ from .branch_and_bound import bnb
 from .var_selection import by_fun
 from .utils import get_frac_vars
 
-def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=10):
+def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=5):
     """Quadratizes a given PDE
     
     Parameters

@@ -18,7 +18,7 @@ std = []
 
 for heur in funcs: 
     times = []
-    for i in range(10):
+    for i in range(2):
         print(heur)
         ti = time.time()
         print(quadratize([(u, ut)], 2, heur))

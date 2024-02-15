@@ -3,6 +3,7 @@ from sympy import Derivative as D
 import sys
 sys.path.append("..")
 from algorithm.quadratize import quadratize
+
 t, s = symbols('t s')
 psi = Function('psi')(t,s)
 theta = Function('theta')(t,s)

@@ -13,8 +13,8 @@ theta = Function('theta')(t,s)
 y_0 = Function('y_0')(t,s)
 y_1 = Function('y_1')(t,s)
 
-psi_t = D(psi, s, 2) - D(psi, s) - psi * (theta**3 + 6 * theta**2 + theta + 1)
-theta_t = D(theta, s, 2) - D(theta, s) - theta - 1 + psi * (theta**3 + 6 * theta**2 + theta + 1)
+psi_t = D(psi, s, 2) - D(psi, s) - psi * (theta**3 + theta**2 + theta + 1)
+theta_t = D(theta, s, 2) - D(theta, s) - theta - 1 + (theta**3 + theta**2 + theta + 1)
 
 #quadratize([(psi, psi_t), (theta, theta_t)], 5, by_fun) 
 
@@ -24,7 +24,7 @@ std = []
 
 for heur in funcs: 
     times = []
-    for i in range(10):
+    for i in range(2):
         ti = time.time()
         quadratize([(psi, psi_t), (theta, theta_t)], 5, heur) 
         times.append(time.time() - ti) 

@@ -1,7 +1,7 @@
 from sympy import Eq, pprint
-from .utils import reduction_sparse, revert_frac_decomp
+from .utils import reduction_sparse
 
-def is_quadratization(V, deriv, expr_frac):
+def is_quadratization(V, deriv):
     """Verifies if all variables in V are a quadratization for the system in deriv.
     Also prints the quadratization
 
@@ -18,12 +18,15 @@ def is_quadratization(V, deriv, expr_frac):
         a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
     """
     V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
+    
     V2_poly, names = [], []
     for name, polyn in V2: 
         names.append(name)
         V2_poly.append(polyn)
     quad, NS = [], []
+
     V2_red = reduce_set(V2)
+    
     for name, pol in deriv:
         if pol not in V2_poly:
             result = is_linear_combination(V2_red, pol)

@@ -11,5 +11,5 @@ from algorithm.var_selection import *
 t, x = symbols('t x')
 v = Function('v')(t,x)
 
-v_t = 7 * D(v, x) / v - 5 * D(v, x)
+v_t = D(v, x) / v - D(v, x)
 print(quadratize([(v, v_t)], 4, sort_fun=by_fun))

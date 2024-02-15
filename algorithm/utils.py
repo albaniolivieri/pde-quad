@@ -1,4 +1,4 @@
-from sympy import symbols, sympify, Eq, Add, Mul, simplify
+from sympy import symbols, sympify, Eq, Add, Mul, simplify, expand
 from sympy import Derivative as D
 from functools import reduce
 from itertools import chain, combinations
@@ -208,7 +208,14 @@ def diff_frac(num, den, symb_var, dic):
     sympy.PolyRing
         the differentiated fraction
     """
-    return (diff_dict(num, dic) * den - diff_dict(den, dic) * num) * symb_var**2 
+    num = (diff_dict(num, dic) * den - diff_dict(den, dic) * num) 
+    
+    den_mod = ring_to_expr(den)[0]
+    num_mod = ring_to_expr(num)[0]
+    frac_var = ring_to_expr(symb_var)[0]
+    res_expr = expand(num_mod/den_mod**2).subs(1/den_mod, frac_var)
+    
+    return expr_to_ring(symb_var.ring, res_expr)
 
 def get_diff_order(pol):
     """Returns the order of the highest derivative in a polynomial

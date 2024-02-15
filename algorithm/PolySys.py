@@ -157,9 +157,11 @@ class PolySys:
                 dic_x[symb[i + (der_order+1)*j]] = symb[i + (der_order+1)*j + 1]
                 last = i + (der_order+1)*j
         
+        frac_ders = []
         count = last
         for i in range(len(expr_frac)):
             dic_x[symb[count+2]] = diff_frac(symb[0].ring(1), expr_frac[i][1], symb[last+2], dic_x)
+            frac_ders.append(dic_x[symb[count+2]])
             count += 1
         
         for k in range(len(func_eq)):
@@ -168,14 +170,14 @@ class PolySys:
                     dic_t[symb[i + (der_order+1)*k]] = diff_dict(dic_t[symb[i - 1 + (der_order+1)*k]], dic_x)
                 else: 
                     dic_t[symb[(der_order+1)*k]] = eqs_pol[k][1]
-        
-        frac_ders = []            
+                 
         for i in range(len(expr_frac)):
             frac_der_t = diff_frac(symb[0].ring(1), expr_frac[i][1], symb[last+2], dic_t)
-            frac_ders.append(frac_der_t)
+            #print('frac_der_t', frac_der_t)
+            frac_ders[i] = (frac_der_t, frac_ders[i])
             dic_t[symb[last+2]] = frac_der_t
             last += 1
-            
+
         return dic_t, dic_x, frac_ders
         
     def set_new_vars(self, new_vars):
@@ -194,11 +196,14 @@ class PolySys:
         """
         new_vars_named = [(symbols(f'w_{i}'), pol) for i, pol in enumerate(self.new_vars)] 
         new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named) 
-        frac_der_t = [(symbols(f'q_{i}t'), pol) for i, pol in enumerate(self.frac_ders)]
+        frac_der_x = [(symbols(f'q_{i}{self.var_indep}1'), pol[1]) for i, pol in enumerate(self.frac_ders)]
+        frac_der_t = [(symbols(f'q_{i}t'), pol[0]) for i, pol in enumerate(self.frac_ders)]
         deriv_t = new_vars_t + self.pde_eq + frac_der_t
         V = [(1, list(self.dic_t.keys())[0].ring(1))] \
             + [(symbols(f'{sym}'), sym) for sym in self.poly_vars] \
-            + new_vars_named + new_vars_x
+            + new_vars_named + new_vars_x + frac_der_x
+        # print('deriv_t', deriv_t)
+        #print('V', V)
         return is_quadratization(V, deriv_t)
    
     def differentiate_dict(self, named_new_vars):
