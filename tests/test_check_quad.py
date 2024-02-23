@@ -50,11 +50,11 @@ def differentiate_x(var_indep, new_vars, n):
         quad_vars.extend([(symbols(f'w_{i}{var_indep}{j}'), D(vars_prop[i], var_indep, j).doit()) 
                           for j in range(1, n + 1)] + [(symbols(f'w_{i}'), vars_prop[i])])
     for i in range(len(frac_vars)):
-        quad_vars.extend([(symbols(f'q_{i}{var_indep}{1}'), D(frac_vars[i], var_indep, 1).doit())]
-                          + [(symbols(f'q{i}'), frac_vars[i])])
+        quad_vars.extend([(symbols(f'q_{i}{var_indep}{j}'), D(frac_vars[i], var_indep, j).doit())
+                          for j in range(1, n + 1)] + [(symbols(f'q{i}'), 1/frac_vars[i])])
     return quad_vars
 
-def test_quad(func_eq, new_vars: list, n_diff: int, frac_vars: list = []):
+def test_quad(func_eq: list, new_vars: list, n_diff: int, frac_vars: list = []):
     """Test the proposed quadratization of a given PDE
     
     Parameters
@@ -65,6 +65,8 @@ def test_quad(func_eq, new_vars: list, n_diff: int, frac_vars: list = []):
         List of proposed new variables
     n_diff : int
         The number of second variable differentiations to do
+    frac_vars : list, optional
+        List of fraction decomposition variables
         
     Returns
     -------
@@ -72,23 +74,22 @@ def test_quad(func_eq, new_vars: list, n_diff: int, frac_vars: list = []):
         True if the quadratization is correct, False otherwise
     """
     x_var = [symbol for symbol in func_eq[0][0].free_symbols if symbol != symbols('t')].pop()
-    new_vars = [expr.subs([(symbols(f'q{i}'), frac_vars[i]) for i in range(len(frac_vars))]) 
-                for expr in new_vars]
     var_dic = [(symbols(f'w_{i}'), new_vars[i]) for i in range(len(new_vars))] 
+    frac_vars_dic = [(symbols(f'q_{i}'), frac_vars[i]) for i in range(len(frac_vars))]
     total_vars = (new_vars, frac_vars)
     quad_vars = differentiate_x(x_var, total_vars, n_diff)
     undef_fun = [symbol for symbol, _ in func_eq]
-    deriv_t = differentiate_t(func_eq, var_dic) + [(symbols(eqs[0].name + '_t'), eqs[1]) for eqs in func_eq] 
+    deriv_t = differentiate_t(func_eq, [(var, expr.subs(frac_vars_dic)) for var, expr in var_dic] + frac_vars_dic) + [(symbols(eqs[0].name + '_t'), eqs[1]) for eqs in func_eq] 
     max_order = max(get_order([der for _, der in deriv_t]), get_order([der for _, der in quad_vars]))
     
     refac = []
     for fun in undef_fun:
         refac += [(symbols(f'{fun.name}_{x_var}{i}'), D(fun, x_var, i)) 
                   for i in range(max_order, 0, -1)] + [(symbols(fun.name), fun)]
-    refac += quad_vars
+    refac += quad_vars + frac_vars_dic
     exprs_orig = [expr for _, expr in deriv_t]
-    results = quad.test_quadratization(func_eq, new_vars, n_diff)
-    if not results[0]: 
+    results = quad.test_quadratization(func_eq, new_vars, n_diff, frac_vars=frac_vars)
+    if not results[0] and not results[1]: 
         print("\nQuadratization not found")
         return False 
     

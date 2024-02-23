@@ -23,7 +23,7 @@ sympy_decomp = apart(n/d)
 
 dens_symp = [fraction(term)[1] for term in Add.make_args(sympy_decomp)]
 
-expr, rel, q_syms = decompose_fraction(n/d, [w])
+expr, rel, q_syms, _, _ = decompose_fraction(n/d, [w])
 
 print('Fraction decomposition:', expr, '\nRelations:', rel)
 

@@ -14,22 +14,25 @@ y_0 = Function('y_0')(t,s)
 y_1 = Function('y_1')(t,s)
 
 psi_t = D(psi, s, 2) - D(psi, s) - psi * (theta**3 + theta**2 + theta + 1)
-theta_t = D(theta, s, 2) - D(theta, s) - theta - 1 + (theta**3 + theta**2 + theta + 1)
+theta_t = D(theta, s, 2) - D(theta, s) - theta + 1 + psi * (theta**3 + theta**2 + theta + 1)
 
-#quadratize([(psi, psi_t), (theta, theta_t)], 5, by_fun) 
+ti = time.time()
 
-funcs = [by_fun2] 
+print(quadratize([(psi, psi_t), (theta, theta_t)], n_diff=2, nvars_bound=5, sort_fun=by_degree_order, max_order=2))
+
+print('time', time.time() - ti)
+funcs = [by_fun] 
 avg = []
 std = []
 
-for heur in funcs: 
-    times = []
-    for i in range(2):
-        ti = time.time()
-        quadratize([(psi, psi_t), (theta, theta_t)], 5, heur) 
-        times.append(time.time() - ti) 
-    avg.append(statistics.mean(times))
-    std.append(statistics.stdev(times))
+# for heur in funcs: 
+#     times = []
+#     for i in range(2):
+#         ti = time.time()
+#         quadratize([(psi, psi_t), (theta, theta_t)], n_diff=3, nvars_bound=3, sort_fun=heur, max_order=3) 
+#         times.append(time.time() - ti) 
+#     avg.append(statistics.mean(times))
+#     std.append(statistics.stdev(times))
 
-print('averages', avg)
-print('standard deviations', std)
+# print('averages', avg)
+# print('standard deviations', std)

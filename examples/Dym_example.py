@@ -14,19 +14,19 @@ ut = u**3 * D(u, x, 3)
 
 #quadratize([(u, ut5)], 3)
 
-funcs = [by_order_degree] 
+funcs = [by_order_degree, by_fun] 
 avg = []
 std = []
 
 for heur in funcs: 
     times = []
-    for i in range(10):
+    for i in range(2):
         print(heur)
         ti = time.time()
-        print(quadratize([(u, ut)], 3, heur))
+        print(quadratize([(u, ut)], n_diff=3, sort_fun=heur, nvars_bound=4))
         times.append(time.time() - ti) 
     avg.append(statistics.mean(times))
     std.append(statistics.stdev(times))
-
 print('averages', avg)
 print('standard deviations', std)
+

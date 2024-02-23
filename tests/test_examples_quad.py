@@ -7,14 +7,15 @@ from algorithm.var_selection import by_order_degree, by_fun, by_degree_order
 # examples
 
 t, x = symbols('t x')
-u = Function('u')(t,x)
+u = Function('u')(t, x)
 
 tests = []
 
 # tests
-ut = u**2*D(u, x, 2)
+ut = u**2*D(u, x, 2) + 1/3
 tests.append(test_try_quadratize([(u, ut)], 3, by_order_degree))
 
+# Hard example
 # v = Function('v')(t,x)
 # u = Function('u')(t,x)
 # vt = D(v, x, 1) * u - 2 * D(v, x, 1)
@@ -25,7 +26,7 @@ ut2 = u**3 * D(u, x, 3)
 print('\nu**3 * D(u, x, 3)')
 tests.append(test_try_quadratize([(u, ut2)], 3, by_order_degree))
 
-ut3 = D(u, x)**3
+ut3 = D(u, x)**3 
 print('\nD(u, x)**3')
 tests.append(test_try_quadratize([(u, ut3)], 3, by_order_degree))
 

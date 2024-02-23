@@ -1,8 +1,7 @@
-from sympy import symbols, sympify, Eq, Add, Mul, simplify, expand
+from sympy import symbols, sympify, Eq, Poly, Expr
 from sympy import Derivative as D
 from functools import reduce
 from itertools import chain, combinations
-from .fractions import decompose_fraction
 
 def get_order(set_derivs):
     """Gets the maximum order of derivatives in a list of derivatives
@@ -129,24 +128,33 @@ def powerset(iterable):
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(1, len(s)))
 
-def ring_to_expr(ring_pol, ring_syms=[]):
+def ring_to_expr(ring_pol, ring_syms=[], constants=[]):
     """converts a polynomial ring to a sympy expression
 
     Parameters
     ----------
-    ring_syms : list[sympy.PolyElement]
-        symbols of the polynomial ring
     ring_pol : sympy.PolyRing
         polynomial to be converted
+    ring_syms : list[sympy.PolyElement]
+        symbols of the polynomial ring
 
     Returns
     -------
     tuple
         a tuple with a the polynomial as a sympy expression and the symbols as a list of sympy symbols
     """
-    expr_syms = [symbols(str(var)) for var in ring_syms]
-    expr_pol = sympify(str(ring_pol)) 
-    return expr_pol, expr_syms
+    expr_syms = {}
+    str_constants = [const.name for const in constants]
+    if ring_syms:
+        for var in ring_syms:
+            if str(var) in str_constants:
+                expr_syms[str(var)] = constants[str_constants.index(str(var))]
+            else: 
+                expr_syms[str(var)] = symbols(str(var))
+        expr_pol = sympify(str(ring_pol), locals=expr_syms) 
+    else:
+        expr_pol = sympify(str(ring_pol))
+    return expr_pol
 
 def expr_to_ring(R, expr_pol):
     """converts a sympy expression to a polynomial ring
@@ -180,7 +188,7 @@ def revert_frac_decomp(quad_exprs, frac_rel, quad=True):
     list[sympy.Eq]
         the original quadratization without the fraction decomposition variables
     """
-    frac_subs = [(var, 1/ring_to_expr(rel)[0]) for var, rel in frac_rel]
+    frac_subs = [(var, 1/ring_to_expr(rel)) for var, rel in frac_rel]
     if quad: 
         for i in range(len(quad_exprs)):
             quad_exprs[i] = Eq(quad_exprs[i].lhs, quad_exprs[i].rhs.subs(frac_subs))
@@ -189,7 +197,7 @@ def revert_frac_decomp(quad_exprs, frac_rel, quad=True):
             quad_exprs[i] = quad_exprs[i].subs(frac_subs)
     return quad_exprs
 
-def diff_frac(num, den, symb_var, dic):
+def diff_frac(num, den, dic, groeb_base, frac_var, n_diff=1, constants=[]):
     """Differentiates a fraction by a dictionary of variables
 
     Parameters
@@ -208,14 +216,14 @@ def diff_frac(num, den, symb_var, dic):
     sympy.PolyRing
         the differentiated fraction
     """
-    num = (diff_dict(num, dic) * den - diff_dict(den, dic) * num) 
-    
-    den_mod = ring_to_expr(den)[0]
-    num_mod = ring_to_expr(num)[0]
-    frac_var = ring_to_expr(symb_var)[0]
-    res_expr = expand(num_mod/den_mod**2).subs(1/den_mod, frac_var)
-    
-    return expr_to_ring(symb_var.ring, res_expr)
+    deriv_num, deriv_den = num, den
+    deriv_var = frac_var
+    for _ in range(1, n_diff + 1):
+        deriv_num = (diff_dict(deriv_num, dic) * deriv_den - diff_dict(deriv_den, dic) * deriv_num) 
+        deriv_den = den**2
+        deriv_var = deriv_var**2
+    deriv = groeb_base.reduce(ring_to_expr(deriv_num*deriv_var, groeb_base.gens, constants))[1]
+    return num.ring(deriv)
 
 def get_diff_order(pol):
     """Returns the order of the highest derivative in a polynomial
@@ -236,34 +244,3 @@ def get_diff_order(pol):
         if str(var)[-1].isnumeric():  
             order += int(str(var)[-1])         
     return order
-
-def get_frac_vars(func_eq, undef_fun):
-    """
-    Gets the fraction decomposition variables and relations from a PDE
-    
-    Parameters
-    ----------
-    func_eq : list[tuple]
-        Tuples with the symbol and equations of the PDE
-        undef_fun : list
-        List of undefined functions in the PDE
-        
-    Returns
-    -------
-    tuple
-        tuple with two lists: one with the fraction decomposition relations and
-        the other with the fraction decomposition variables
-    """
-    frac_rel, vars_frac = [], []
-    i = 0
-    for _, expr in func_eq:
-        for term in Add.make_args(expr):
-            for term2 in Mul.make_args(term):
-                if simplify(term2.as_base_exp()[1]).is_negative:
-                    frac_decomp = decompose_fraction(term2, undef_fun)
-                    for rel in frac_decomp[1]:
-                        if rel not in frac_rel: 
-                            frac_rel.append(rel)
-                            vars_frac.append((symbols(f'q{i}'), rel))
-                            i += 1
-    return frac_rel, vars_frac

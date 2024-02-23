@@ -2,9 +2,8 @@ from sympy import symbols
 from .PolySys import PolySys
 from .branch_and_bound import bnb 
 from .var_selection import by_fun
-from .utils import get_frac_vars
 
-def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=5):
+def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=5, max_order=100, first_indep=symbols('t')):
     """Quadratizes a given PDE
     
     Parameters
@@ -21,20 +20,21 @@ def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=5):
     Returns
     -------
     tuple
-        a tuple with the best quadratization found, the number of variables in the 
-        quadratization and the total number of traversed nodes   
+        a tuple with the best quadratization found, the variables introduced 
+        from rational functions and the total number of traversed nodes   
     """
     undef_fun = [symbol for symbol, _,  in func_eq] 
-    x_var = [symbol for symbol in undef_fun[0].free_symbols if symbol != symbols('t')].pop()
+    x_var = [symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep].pop()
     
-    _, vars_frac = get_frac_vars(func_eq, undef_fun)
+    poly_syst = PolySys(func_eq, n_diff, (first_indep, x_var))
+    quad = bnb([], nvars_bound, poly_syst, sort_fun, max_order)
     
-    poly_syst = PolySys(func_eq, n_diff, x_var, vars_frac= vars_frac)
-    quad = bnb([], nvars_bound, poly_syst, sort_fun)
+    vars_frac_intro = poly_syst.get_frac_vars()
     
-    vars_frac_intro = [1/rel for _, rel in vars_frac]
-    
-    return quad[0], vars_frac_intro
+    if not quad[0] and not vars_frac_intro:
+        print("Quadratization not found")
+    return quad[0], vars_frac_intro, quad[2]
+        
     
 
     

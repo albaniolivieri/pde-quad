@@ -2,7 +2,7 @@ import signal
 import time
 import math
 from .var_selection import prop_new_vars
-from .utils import powerset
+from .utils import powerset, get_diff_order
 
 ALGORITHM_INTERRUPTED = False
 
@@ -50,6 +50,26 @@ def pruning_rule_time(start_time, max_time):
     if time.time() - start_time > max_time: return True
     return False
 
+def pruning_rule_order(new_vars, max_order):
+    """Pruning rule based on the maximum order of derivatives allowed.
+    
+    Parameters
+    ----------
+    new_vars : list
+        List of proposed new variables
+    max_order : int
+        The maximum order allowed
+        
+    Returns
+    -------
+    bool
+        True if the maximum order of the derivatives in the new vars proposed is greater
+        than the maximum order allowed, False otherwise
+    """
+    for var in new_vars:
+        if get_diff_order(var) > max_order/2: return True
+    return False
+
 def shrink_quad(quad_vars, poly_syst):
     """Checks if the quadratization can be shrunk to a smaller set of variables.
     
@@ -75,7 +95,7 @@ def shrink_quad(quad_vars, poly_syst):
     return final_vars
 
 # Gleb: to think if we want to do BFS / A*
-def bnb(new_vars, best_nvars, poly_syst, sort_fun):
+def bnb(new_vars, best_nvars, poly_syst, sort_fun, max_order=100):
     """Branch and bound algorithm to find the best quadratization of a polynomial system.
     
     Parameters
@@ -96,6 +116,9 @@ def bnb(new_vars, best_nvars, poly_syst, sort_fun):
         quadratization and the total number of traversed nodes   
     """
     if pruning_rule_nvars(len(new_vars), best_nvars):
+        return None, math.inf, 1
+    
+    if pruning_rule_order(new_vars, max_order):
         return None, math.inf, 1
     
     poly_syst.set_new_vars(new_vars)

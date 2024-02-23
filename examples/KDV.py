@@ -10,9 +10,9 @@ from algorithm.var_selection import *
 t, x = symbols('t x')
 u = Function('u')(t,x)
 
-ut = - D(u, x, 3) - 6 * u**2 * D(u,x)
+ut = - D(u, x, 3) + 6 * u**2 * D(u,x)
 
-funcs = [by_fun] 
+funcs = [by_order_degree, by_degree_order, by_fun] 
 avg = []
 std = []
 

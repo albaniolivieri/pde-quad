@@ -14,6 +14,24 @@ y = Function('y')(t,x)
 v_t = -D(v, x, 2) - v**3 + v**2 -v + 0.05
 y_t = v - y + 0.05
 
-ti = time.time()
-print(quadratize([(v, v_t), (y, y_t)], 5, by_fun, 3))
-print('time', time.time() - ti)
+# ti = time.time()
+# print(quadratize([(v, v_t), (y, y_t)], 5, by_fun, 3))
+# print('time', time.time() - ti)
+
+funcs = [by_order_degree, by_degree_order, by_fun] 
+avg = []
+std = []
+
+for heur in funcs: 
+    times = []
+    for i in range(2):
+        print(heur)
+        ti = time.time()
+        print(quadratize([(v, v_t), (y, y_t)], 5, heur))
+        times.append(time.time() - ti) 
+    avg.append(statistics.mean(times))
+    std.append(statistics.stdev(times))
+
+print('averages', avg)
+print('standard deviations', std)
+
