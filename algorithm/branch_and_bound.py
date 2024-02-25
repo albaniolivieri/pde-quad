@@ -26,7 +26,7 @@ def pruning_rule_nvars(nvars, global_nvars):
     Returns
     -------
     bool
-        True if the number of variables od the quadratization found is greater 
+        True if the number of variables of the quadratization found is greater 
         than the global, False otherwise
     """
     if nvars >= global_nvars: return True 
@@ -115,6 +115,11 @@ def bnb(new_vars, best_nvars, poly_syst, sort_fun, max_order=100):
         a tuple with the best quadratization found, the number of variables in the 
         quadratization and the total number of traversed nodes   
     """
+    # Gleb: to discuss: maybe we want to reorder things a bit:
+    #  1. pruning rule order
+    #  2. check if quadratic
+    #  3. if it is not quadratic and the current nvars >= best - 1, we can already stop
+    # This could cut a bit more
     if pruning_rule_nvars(len(new_vars), best_nvars):
         return None, math.inf, 1
     
