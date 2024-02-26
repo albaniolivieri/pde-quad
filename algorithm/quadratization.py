@@ -17,6 +17,7 @@ def is_quadratization(V, deriv):
     tuple
         a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
     """
+    # Gleb: this looks like a place where reduction w.r.t. Groebner basis should happen
     V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
     
     V2_poly, names = [], []
