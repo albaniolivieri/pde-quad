@@ -3,7 +3,7 @@ from .PolySys import PolySys
 from .branch_and_bound import bnb 
 from .var_selection import by_fun
 
-def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=5, max_order=100, first_indep=symbols('t')):
+def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=5, first_indep=symbols('t')):
     """Quadratizes a given PDE
     
     Parameters
@@ -27,7 +27,7 @@ def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=5, max_order=100, f
     x_var = [symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep].pop()
     
     poly_syst = PolySys(func_eq, n_diff, (first_indep, x_var))
-    quad = bnb([], nvars_bound, poly_syst, sort_fun, max_order)
+    quad = bnb([], nvars_bound, poly_syst, sort_fun)
     
     vars_frac_intro = poly_syst.get_frac_vars()
     

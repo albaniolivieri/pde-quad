@@ -95,7 +95,7 @@ def shrink_quad(quad_vars, poly_syst):
     return final_vars
 
 # Gleb: to think if we want to do BFS / A*
-def bnb(new_vars, best_nvars, poly_syst, sort_fun, max_order=100):
+def bnb(new_vars, best_nvars, poly_syst, sort_fun):
     """Branch and bound algorithm to find the best quadratization of a polynomial system.
     
     Parameters
@@ -118,7 +118,7 @@ def bnb(new_vars, best_nvars, poly_syst, sort_fun, max_order=100):
     if pruning_rule_nvars(len(new_vars), best_nvars):
         return None, math.inf, 1
     
-    if pruning_rule_order(new_vars, max_order):
+    if pruning_rule_order(new_vars, poly_syst.get_max_order()):
         return None, math.inf, 1
     
     poly_syst.set_new_vars(new_vars)

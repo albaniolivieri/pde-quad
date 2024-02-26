@@ -63,15 +63,15 @@ class PolySys:
         vars_frac : list, optional
             List of new variables from the fraction decomposition
         """
-        max_order = get_order([expr for _, expr in pde_sys])
+        self.max_order = get_order([expr for _, expr in pde_sys])
         
         self.first_indep, self.sec_indep = vars_indep
         self.constants = []
         self.frac_vars = frac_vars
        
-        poly_syms, eqs_pol, new_vars_pol, frac_decomps = self.build_ring(pde_sys, n_diff, vars_indep, max_order, new_vars)
+        poly_syms, eqs_pol, new_vars_pol, frac_decomps = self.build_ring(pde_sys, n_diff, vars_indep, self.max_order, new_vars)
             
-        dic_t, dic_x, frac_der_t = self.get_dics(pde_sys, poly_syms, eqs_pol, n_diff, max_order, frac_decomps)
+        dic_t, dic_x, frac_der_t = self.get_dics(pde_sys, poly_syms, eqs_pol, n_diff, self.max_order, frac_decomps)
         
         self.dic_t = dic_t
         self.dic_x = dic_x
@@ -226,14 +226,24 @@ class PolySys:
         self.new_vars['new_vars'] = new_vars
         
     def get_frac_vars(self):
-        """Returns none as it only sets with a new value the new_vars attribute
-
-        Parameters
-        ----------
-        new_vars : list
-            List of proposed new variables 
+        """Returns the fraction variables introduced in the system
+        
+        Returns
+        -------
+        list
+            a list of the fraction variables introduced
         """
         return self.new_vars['frac_vars']
+    
+    def get_max_order(self):
+        """Returns the max derivative order of the system
+        
+        Returns
+        -------
+        int
+            the max derivative order of the system 
+        """
+        return self.max_order
    
     def differentiate_dict(self, named_new_vars):
         """Returns two lists that map the new variables with their respective

@@ -18,7 +18,7 @@ theta_t = D(theta, s, 2) - D(theta, s) - theta + 1 + psi * (theta**3 + theta**2 
 
 ti = time.time()
 
-print(quadratize([(psi, psi_t), (theta, theta_t)], n_diff=2, nvars_bound=5, sort_fun=by_degree_order, max_order=2))
+print(quadratize([(psi, psi_t), (theta, theta_t)], n_diff=2, nvars_bound=5, sort_fun=by_degree_order))
 
 print('time', time.time() - ti)
 funcs = [by_fun] 
