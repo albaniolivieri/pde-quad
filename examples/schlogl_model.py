@@ -9,8 +9,9 @@ from algorithm.var_selection import *
 
 t, x = symbols('t x')
 u = Function('u')(t,x)
+v_1, v_2, v_3 = symbols('v_1 v_2 v_3', constant=True)
 
-u_t = D(u, x, 2) - (u - 1)*(u - 2)*(u - 3)
+u_t = D(u, x, 2) - (u - v_1)*(u - v_2)*(u - v_3)
 
 # ti = time.time()
 # print(quadratize([(u, u_t)], 5, by_fun, 3))

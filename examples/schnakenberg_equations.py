@@ -12,8 +12,8 @@ a, b, gamma = symbols('a b gamma', constant=True)
 v = Function('v')(t,x)
 u = Function('u')(t,x)
 
-u_t = D(u, x, 2) + D(v, x, 2) + 5 - u + u**2 * v
-v_t = D(v, x, 2) + D(u, x, 2) + 5 - u**2 * v
+u_t = D(u, x, 2) + D(v, x, 2) + gamma*a - u + u**2 * v
+v_t = D(v, x, 2) + D(u, x, 2) + gamma*b - u**2 * v
 
 # ti = time.time()
 # print(quadratize([(v, v_t), (u, u_t)], 5, by_fun, 3))
@@ -25,7 +25,7 @@ std = []
 
 for heur in funcs: 
     times = []
-    for i in range(2):
+    for i in range(10):
         print(heur)
         ti = time.time()
         print(quadratize([(v, v_t), (u, u_t)], 5, heur))

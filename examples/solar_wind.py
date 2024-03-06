@@ -12,7 +12,7 @@ r, phi = symbols('r phi')
 omega = symbols('omega', constant=True)
 v = Function('v')(r,phi)
 
-v_r = (1*D(v, phi)) / v
+v_r = (omega*D(v, phi)) / v
 # print(quadratize([(v, v_t)], 4, sort_fun=by_fun))
 
 funcs = [by_order_degree, by_degree_order, by_fun] 

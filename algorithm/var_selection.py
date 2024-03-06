@@ -35,7 +35,8 @@ def prop_new_vars(NS_list, accum_vars, sort_fun):
     return sorted_vars
 
 def get_decompositions(monomial):
-    """ Returns the decompositions of a monomial to turn it in linear or quadratic
+    """ Returns the decompositions of a monomial to turn it into
+    linear or quadratic
     
     Parameters
     ----------

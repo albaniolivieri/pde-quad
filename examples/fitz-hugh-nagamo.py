@@ -10,9 +10,10 @@ from algorithm.var_selection import *
 t, x = symbols('t x')
 v = Function('v')(t,x)
 y = Function('y')(t,x)
+epsilon, h, gamma, r = symbols('epsilon h gamma r', constant=True)
 
-v_t = -D(v, x, 2) - v**3 + v**2 -v + 0.05
-y_t = v - y + 0.05
+v_t = epsilon * D(v, x, 2) - v**3 + 1.1*v**2 - 0.1*v - y + r
+y_t = h * v - gamma * y + r
 
 # ti = time.time()
 # print(quadratize([(v, v_t), (y, y_t)], 5, by_fun, 3))
@@ -24,7 +25,7 @@ std = []
 
 for heur in funcs: 
     times = []
-    for i in range(2):
+    for i in range(10):
         print(heur)
         ti = time.time()
         print(quadratize([(v, v_t), (y, y_t)], 5, heur))

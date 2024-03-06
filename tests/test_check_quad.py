@@ -75,26 +75,28 @@ def test_quad(func_eq: list, new_vars: list, n_diff: int, frac_vars: list = []):
     """
     x_var = [symbol for symbol in func_eq[0][0].free_symbols if symbol != symbols('t')].pop()
     var_dic = [(symbols(f'w_{i}'), new_vars[i]) for i in range(len(new_vars))] 
-    frac_vars_dic = [(symbols(f'q_{i}'), frac_vars[i]) for i in range(len(frac_vars))]
-    total_vars = (new_vars, frac_vars)
+    #frac_vars_dic = [(symbols(f'q_{i}'), frac_vars[i]) for i in range(len(frac_vars))]
+    total_vars = (new_vars, [rel for _, rel in frac_vars])
     quad_vars = differentiate_x(x_var, total_vars, n_diff)
     undef_fun = [symbol for symbol, _ in func_eq]
-    deriv_t = differentiate_t(func_eq, [(var, expr.subs(frac_vars_dic)) for var, expr in var_dic] + frac_vars_dic) + [(symbols(eqs[0].name + '_t'), eqs[1]) for eqs in func_eq] 
+    deriv_t = differentiate_t(func_eq, [(var, expr.subs(frac_vars)) for var, expr in var_dic] + frac_vars) \
+            + [(symbols(eqs[0].name + '_t'), eqs[1]) for eqs in func_eq] 
     max_order = max(get_order([der for _, der in deriv_t]), get_order([der for _, der in quad_vars]))
     
     refac = []
     for fun in undef_fun:
         refac += [(symbols(f'{fun.name}_{x_var}{i}'), D(fun, x_var, i)) 
                   for i in range(max_order, 0, -1)] + [(symbols(fun.name), fun)]
-    refac += quad_vars + frac_vars_dic
+    refac += quad_vars + frac_vars
     exprs_orig = [expr for _, expr in deriv_t]
     results = quad.test_quadratization(func_eq, new_vars, n_diff, frac_vars=frac_vars)
+    #print('results', results)
     if not results[0] and not results[1]: 
         print("\nQuadratization not found")
         return False 
     
     for i in range(len(exprs_orig)):
-        print('passed eq:', results[1][i])
+        print('Checking equation:', results[1][i])
         if expand(exprs_orig[i]) - expand(results[1][i].rhs.subs(refac)) != 0:
             print('Test failed: expressions are not equal')
             print('Equation: ', results[1][i])

@@ -63,7 +63,7 @@ def reduction_sparse(pol1, pol2):
         coef = pol1[1].coeff(pol2[2])
         if coef != 0:
             new_pol = pol1[1] - coef * pol2[1]
-            return (pol1[0] - coef * pol2[0], new_pol, new_pol.leading_monom())
+            return (pol1[0] - coef.as_expr() * pol2[0], new_pol, new_pol.leading_monom())
     return pol1
 
 def diff_dict(pol, dic, order=1):
@@ -128,7 +128,7 @@ def powerset(iterable):
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(1, len(s)))
 
-def ring_to_expr(ring_pol, ring_syms=[], constants=[]):
+def ring_to_expr(ring_pol, ring_syms=[], consts=[]):
     """converts a polynomial ring to a sympy expression
 
     Parameters
@@ -144,11 +144,11 @@ def ring_to_expr(ring_pol, ring_syms=[], constants=[]):
         a tuple with a the polynomial as a sympy expression and the symbols as a list of sympy symbols
     """
     expr_syms = {}
-    str_constants = [const.name for const in constants]
+    str_consts = [const.name for const in consts]
     if ring_syms:
         for var in ring_syms:
-            if str(var) in str_constants:
-                expr_syms[str(var)] = constants[str_constants.index(str(var))]
+            if str(var) in str_consts:
+                expr_syms[str(var)] = consts[str_consts.index(str(var))]
             else: 
                 expr_syms[str(var)] = symbols(str(var))
         expr_pol = sympify(str(ring_pol), locals=expr_syms) 
@@ -196,34 +196,6 @@ def revert_frac_decomp(quad_exprs, frac_rel, quad=True):
         for i in range(len(quad_exprs)):
             quad_exprs[i] = quad_exprs[i].subs(frac_subs)
     return quad_exprs
-
-def diff_frac(num, den, dic, groeb_base, frac_var, n_diff=1, constants=[]):
-    """Differentiates a fraction by a dictionary of variables
-
-    Parameters
-    ----------
-    num : sympy.PolyRing
-        numerator of the fraction
-    den : sympy.PolyRing
-        denominator of the fraction
-    symb_var : sympy.PolyRing
-        polinomial variable of the fraction
-    dic : dict
-        dictionary with the variables to differentiate by
-
-    Returns
-    -------
-    sympy.PolyRing
-        the differentiated fraction
-    """
-    deriv_num, deriv_den = num, den
-    deriv_var = frac_var
-    for _ in range(1, n_diff + 1):
-        deriv_num = (diff_dict(deriv_num, dic) * deriv_den - diff_dict(deriv_den, dic) * deriv_num) 
-        deriv_den = den**2
-        deriv_var = deriv_var**2
-    deriv = groeb_base.reduce(ring_to_expr(deriv_num*deriv_var, groeb_base.gens, constants))[1]
-    return num.ring(deriv)
 
 def get_diff_order(pol):
     """Returns the order of the highest derivative in a polynomial

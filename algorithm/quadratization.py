@@ -1,4 +1,4 @@
-from sympy import Eq, pprint
+from sympy import Eq, pprint, Expr
 from .utils import reduction_sparse
 
 def is_quadratization(V, deriv):
@@ -60,7 +60,7 @@ def reduce_set(V2):
         for j in range(i):
             V2[i] = reduction_sparse(V2[i], V2[j])
         if V2[i][1] != 0:
-            LC = V2[i][1].coeff(V2[i][1].leading_monom())
+            LC = V2[i][1].coeff(V2[i][1].leading_monom()).as_expr()
             V2[i] = (V2[i][0] / LC, V2[i][1] * (1 / LC), V2[i][1].leading_monom())
             for j in range(i):
                 V2[j] = reduction_sparse(V2[j], V2[i])                 

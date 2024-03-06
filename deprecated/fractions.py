@@ -2,8 +2,7 @@ from sympy import fraction, factor_list, groebner, symbols, simplify, Add, Mul, 
 from functools import reduce
 
 def decompose_fraction(pol, pol_vars, i=0):
-    # Gleb: factors -> fractions?
-    """Decomposes a fraction into a polynomial and a list of factors
+    """Decomposes a fraction into a polynomial and a list of relations
     
     Parameters
     ----------

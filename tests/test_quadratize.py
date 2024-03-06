@@ -20,8 +20,9 @@ def test_try_quadratize(func_eq, n_diff, sort_fun, nvars_bound=5):
                 for i in range(n_diff+2)] + [(symbols(fun.name), fun)] 
     quad_prop_expr = [expr.subs(der_subs) for expr in quad_prop_expr]
     
-    frac_vars_subs = [(symbols(f'q_{i}'), 1/frac_vars[i]) for i in range(len(frac_vars))]
-    frac_vars = [1/var.subs(frac_vars_subs) for var in [expr.subs(der_subs) for expr in frac_vars]]
+    frac_vars = [(q, 1/expr.subs(der_subs)) for q, expr in frac_vars]
+    # frac_vars_subs = [(symbols(f'q_{i}'), 1/frac_vars[i]) for i in range(len(frac_vars))]
+    # frac_vars = [1/var.subs(frac_vars_subs) for var in [expr.subs(der_subs) for expr in frac_vars]]
     
     if test_quad(func_eq, quad_prop_expr, n_diff, frac_vars): 
         return True

@@ -21,6 +21,7 @@ def test_quadratization(func_eq, new_vars: list, n_diff: int, first_indep=symbol
     """
     undef_fun = [symbol for symbol, _,  in func_eq] 
     x_var = [symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep].pop()
+    frac_vars = [expr for _, expr in frac_vars]
 
     poly_syst = PolySys(func_eq, n_diff, (first_indep, x_var), new_vars, frac_vars)    
     

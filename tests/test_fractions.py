@@ -3,7 +3,7 @@ sys.path.append("..")
 
 import random
 from sympy import apart, symbols, simplify, Add, fraction, expand
-from algorithm.fractions import decompose_fraction 
+from algorithm.FractionDecomp import FractionDecomp
 
 w = symbols('w')
 
@@ -21,13 +21,14 @@ print('Denominator generated:', d)
 
 sympy_decomp = apart(n/d)
 
-dens_symp = [fraction(term)[1] for term in Add.make_args(sympy_decomp)]
+frac_decomp = FractionDecomp([(symbols('u'), n/d)], [symbols('u'), w])
 
-expr, rel, q_syms, _, _ = decompose_fraction(n/d, [w])
+print('Fraction decomposition:', frac_decomp.pde[0][1], '\nRelations:', frac_decomp.rels)
 
-print('Fraction decomposition:', expr, '\nRelations:', rel)
+final_expr = frac_decomp.pde[0][1].subs([(q, 1/fac) for q, fac in frac_decomp.rels])
 
-final_expr = expr.subs(list(zip(q_syms, [1/fac for fac in rel])))
+print('final_expr', final_expr)
+print('sympy_decomp', sympy_decomp)
 
 print('Checking if sympy decomposition is equal to our decomposition:', 
       f'\n{final_expr} - ({sympy_decomp}) =', simplify(expand(final_expr) - expand(sympy_decomp)))
