@@ -290,4 +290,4 @@ class PolySys:
         V = [(1, self.poly_vars[0].ring(1))] + [(symbols(f'{sym}'), sym) for sym in poly_vars] \
             + [(q, self.poly_vars[0].ring(q)) for q, _ in self.frac_decomps.rels] \
             + new_vars_named + new_vars_x
-        return is_quadratization(V, deriv_t, self.frac_decomps, self.consts)
+        return is_quadratization(V, deriv_t, self.frac_decomps)
