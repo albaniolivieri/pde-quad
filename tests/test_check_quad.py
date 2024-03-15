@@ -2,7 +2,7 @@ from sympy import symbols, Function, simplify, expand
 from sympy import Derivative as D
 import sys
 sys.path.append("..")
-from algorithm import check_manual_quad as quad
+from algorithm.check_manual_quad import test_quadratization
 from algorithm.utils import get_order
 
 def differentiate_t(funcs_eqs, new_vars):
@@ -89,8 +89,7 @@ def test_quad(func_eq: list, new_vars: list, n_diff: int, frac_vars: list = []):
                   for i in range(max_order, 0, -1)] + [(symbols(fun.name), fun)]
     refac += quad_vars + frac_vars
     exprs_orig = [expr for _, expr in deriv_t]
-    results = quad.test_quadratization(func_eq, new_vars, n_diff, frac_vars=frac_vars)
-    #print('results', results)
+    results = test_quadratization(func_eq, new_vars, n_diff, frac_vars=frac_vars)
     if not results[0] and not results[1]: 
         print("\nQuadratization not found")
         return False 

@@ -4,7 +4,8 @@ from .quadratization import is_quadratization
 from .utils import diff_dict, get_order
 from .FractionDecomp import FractionDecomp
 
-class PolySys: 
+
+class PolySys:
     """
     A class used to represent a PDE system as polynomial expressions
 
@@ -46,9 +47,9 @@ class PolySys:
     differentiate_dict(named_new_vars)
         Builds two dictionaries with new variables derivatives in first
         and second variable
-    """ 
-    
-    def __init__(self, pde_sys, n_diff, vars_indep, new_vars=None, frac_vars=[]): 
+    """
+
+    def __init__(self, pde_sys, n_diff, vars_indep, new_vars=None, frac_vars=[]):
         """
         Parameters
         ----------
@@ -64,25 +65,26 @@ class PolySys:
             List of new variables from the fraction decomposition
         """
         self.max_order = get_order([expr for _, expr in pde_sys])
-        
+
         self.first_indep, self.sec_indep = vars_indep
         self.consts = []
         self.frac_vars = frac_vars
         self.order = n_diff
-       
-        poly_syms, eqs_pol, new_vars_pol, frac_decomps = self.build_ring(pde_sys, new_vars)
-        
+
+        poly_syms, eqs_pol, new_vars_pol, frac_decomps = self.build_ring(
+            pde_sys, new_vars)
+
         self.frac_decomps = frac_decomps
         self.poly_vars = poly_syms
         self.pde_eq = eqs_pol
-        
+
         dic_t, dic_x, frac_der_t = self.get_dics(pde_sys)
-        
+
         self.dic_t = dic_t
         self.dic_x = dic_x
         self.new_vars = new_vars_pol
         self.frac_der_t = frac_der_t
-    
+
     def build_ring(self, func_eq, new_vars):
         """Returns equation symbols and expressions expressed as polynomials. 
         If new_vars parameter is passed, it also returns the new variables as polynomials.
@@ -103,60 +105,64 @@ class PolySys:
         # der_subs is used for derivatives and functions substitution to sympy symbols
         der_subs = []
         for fun, _ in func_eq:
-            der_subs += [(D(fun, self.sec_indep, i), symbols(f'{fun.name}_{self.sec_indep.name}{i}')) 
-                    for i in range(self.max_order, 0, -1)] + [(fun, symbols(fun.name))] 
+            der_subs += [(D(fun, self.sec_indep, i), symbols(f'{fun.name}_{self.sec_indep.name}{i}'))
+                         for i in range(self.max_order, 0, -1)] + [(fun, symbols(fun.name))]
 
-        symbols_list = [symbol for _, expr in func_eq for symbol in expr.free_symbols]
-        constants = [symbols(x.name, constant = True) for x in 
-                     set(filter(lambda x: (x != self.first_indep) and (x != self.sec_indep), 
-                                 symbols_list))]
+        symbols_list = [symbol for _,
+                        expr in func_eq for symbol in expr.free_symbols]
+        constants = [symbols(x.name, constant=True) for x in
+                     set(filter(lambda x: (x != self.first_indep) and (x != self.sec_indep),
+                                symbols_list))]
         self.consts = constants
-        
+
         poly_vars = []
-        
+
         for fun, _ in func_eq:
             poly_vars.append(symbols(fun.name))
-            poly_vars.extend([symbols(f'{fun.name}_{self.sec_indep.name}{i}') 
+            poly_vars.extend([symbols(f'{fun.name}_{self.sec_indep.name}{i}')
                               for i in range(1, self.max_order + self.order + 1)])
-        
+
         # here we substite derivatives symbs and if there is an expr with a rational function,
         # we convert it to the form p/q
-        func_eq = [(lhs, cancel(rhs.subs(der_subs))) for lhs, rhs in func_eq] 
-        
-        frac_decomp = FractionDecomp(func_eq, poly_vars+constants)    
-        # print('frac_decomp', frac_decomp.pde, frac_decomp.q_syms, frac_decomp.rels)       
-        
+        func_eq = [(lhs, cancel(rhs.subs(der_subs))) for lhs, rhs in func_eq]
+
+        frac_decomp = FractionDecomp(func_eq, poly_vars+constants)
+        # print('frac_decomp', frac_decomp.pde, frac_decomp.q_syms, frac_decomp.rels)
+
         if frac_decomp:
             func_eq = frac_decomp.pde
             for i in range(len(frac_decomp.q_syms)):
                 poly_vars.append(frac_decomp.q_syms[i])
-                poly_vars.extend([symbols(f'q_{i}{self.sec_indep.name}{k}') 
+                poly_vars.extend([symbols(f'q_{i}{self.sec_indep.name}{k}')
                                   for k in range(1, self.max_order + self.order + 1)])
-        
-        QQc = FractionField(QQ, constants)
-        R, pol_sym = xring(poly_vars, QQc) 
 
-        expr_pol = [(symbols(f'{fun.name}_{self.first_indep}'), R.ring_new(eq)) for fun, eq in func_eq]
-        
+        QQc = FractionField(QQ, constants)
+        R, pol_sym = xring(poly_vars, QQc)
+
+        expr_pol = [(symbols(f'{fun.name}_{self.first_indep}'),
+                     R.ring_new(eq)) for fun, eq in func_eq]
+
         vars_pol = {'frac_vars': [], 'new_vars': []}
-        
+
         for i in range(len(frac_decomp.rels)):
-            frac_decomp.rels[i] = (frac_decomp.rels[i][0], R.ring_new(frac_decomp.rels[i][1]))
+            frac_decomp.rels[i] = (
+                frac_decomp.rels[i][0], R.ring_new(frac_decomp.rels[i][1]))
             vars_pol['frac_vars'].append(frac_decomp.rels[i])
-        
-        # if the new variables are passed as sympy expressions  
+
+        # if the new variables are passed as sympy expressions
         # they are also added to the polynomial ring
-        if new_vars: 
+        if new_vars:
+            print('new_vars', new_vars)
             new_vars = [var.subs(der_subs) for var in new_vars]
             if self.frac_vars:
-                subs_fracs = [(self.frac_vars[i].subs(der_subs), symbols(f'q_{i}')) 
+                subs_fracs = [(self.frac_vars[i].subs(der_subs), symbols(f'q_{i}'))
                               for i in range(len(self.frac_vars))]
                 new_vars = [var.subs(subs_fracs) for var in new_vars]
             vars_pol['new_vars'] = [R.ring_new(var) for var in new_vars]
-        
+
         return pol_sym, expr_pol, vars_pol, frac_decomp
-    
-    def get_dics(self, func_eq): 
+
+    def get_dics(self, func_eq):
         """Returns a tuple with two dictionaries that map the equations symbols 
         with their respective derivatives and a list with the derivatives of the
         fraction variables
@@ -176,13 +182,14 @@ class PolySys:
         """
         dic_x = {}
         dic_t = {}
-        
+
         der_order = self.max_order + self.order
         for i in range(len(func_eq)):
-            for j in range(der_order): 
-                dic_x[self.poly_vars[j + (der_order+1)*i]] = self.poly_vars[j + (der_order+1)*i + 1]
+            for j in range(der_order):
+                dic_x[self.poly_vars[j + (der_order+1)*i]
+                      ] = self.poly_vars[j + (der_order+1)*i + 1]
                 last = j + (der_order+1)*i
-        
+
         frac_ders = []
         count = last+2
         rels = self.frac_decomps.rels
@@ -192,22 +199,24 @@ class PolySys:
             count = count + (der_order + 1)*i
 
         for k in range(len(func_eq)):
-            for i in range(der_order - 1): 
+            for i in range(der_order - 1):
                 if i != 0:
                     dic_t[self.poly_vars[i + (der_order+1)*k]] = diff_dict(
                         dic_t[self.poly_vars[i - 1 + (der_order+1)*k]], dic_x)
-                else: 
-                    dic_t[self.poly_vars[(der_order + 1)*k]] = self.pde_eq[k][1]
-                    
+                else:
+                    dic_t[self.poly_vars[(der_order + 1)*k]
+                          ] = self.pde_eq[k][1]
+
         count = last+2
         for rel in self.frac_decomps.rels:
             frac_der_t = self.frac_decomps.diff_frac(rel, dic_t, self.consts)
-            frac_ders.append((symbols(rel[0].name+self.first_indep.name), frac_der_t))
+            frac_ders.append(
+                (symbols(rel[0].name+self.first_indep.name), frac_der_t))
             dic_t[self.poly_vars[count]] = frac_der_t
             count += der_order+1
 
         return dic_t, dic_x, frac_ders
-        
+
     def set_new_vars(self, new_vars):
         """Returns none as it only sets with a new value the new_vars attribute
 
@@ -217,27 +226,27 @@ class PolySys:
             List of proposed new variables 
         """
         self.new_vars['new_vars'] = new_vars
-        
+
     def get_frac_vars(self):
         """Returns the fraction variables introduced in the system
-        
+
         Returns
         -------
         list
             a list of the fraction variables introduced
         """
         return self.new_vars['frac_vars']
-    
+
     def get_max_order(self):
         """Returns the max derivative order of the system
-        
+
         Returns
         -------
         int
             the max derivative order of the system 
         """
         return self.max_order
-   
+
     def differentiate_dict(self, named_new_vars):
         """Returns two lists that map the new variables with their respective
         derivatives in the first and second independent variable 
@@ -249,32 +258,36 @@ class PolySys:
         """
         deriv_t = []
         deriv_x = []
-        
+
         for name, expr in named_new_vars:
-            deriv_t.append((symbols(f'{name}{self.first_indep}'), diff_dict(expr, self.dic_t)))
-        
+            deriv_t.append(
+                (symbols(f'{name}{self.first_indep}'), diff_dict(expr, self.dic_t)))
+
         for name, expr in named_new_vars:
             for i in range(1, self.order + 1):
-                deriv_x.append((symbols(f'{name}{self.sec_indep}{i}'), 
+                deriv_x.append((symbols(f'{name}{self.sec_indep}{i}'),
                                 diff_dict(expr, self.dic_x, i)))
-        
+
         for rel in self.frac_decomps.rels:
             for j in range(1, self.order + 1):
-                deriv_x.append((symbols(f'{rel[0].name}{self.sec_indep}{j}'), 
-                                self.frac_decomps.diff_frac(rel, self.dic_x, self.consts, n_diff=j)))
-               
+                deriv_x.append((symbols(f'{rel[0].name}{self.sec_indep}{j}'),
+                                self.frac_decomps.diff_frac(
+                                    rel, self.dic_x, self.consts, n_diff=j)))
+
         return deriv_t, deriv_x
-    
-    def try_make_quadratic(self):  
+
+    def try_make_quadratic(self):
         """Returns a tuple with a bool and the quadratization if it is a quadratization. If not,
         returns the expressions that could not be quadratized.
         """
-        new_vars_named = [(symbols(f'w_{i}'), pol) for i, pol in enumerate(self.new_vars['new_vars'])] 
-        new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named) 
-        deriv_t = new_vars_t + self.frac_der_t + self.pde_eq 
+        new_vars_named = [(symbols(f'w_{i}'), pol)
+                          for i, pol in enumerate(self.new_vars['new_vars'])]
+        new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named)
+        deriv_t = new_vars_t + self.frac_der_t + self.pde_eq
         poly_vars = list(filter(lambda x: str(x)[0] != 'q', self.poly_vars))
         # print('new vars', new_vars_named)
+        # print('deriv_t', deriv_t)
         V = [(1, self.poly_vars[0].ring(1))] + [(symbols(f'{sym}'), sym) for sym in poly_vars] \
             + [(q, self.poly_vars[0].ring(q)) for q, _ in self.frac_decomps.rels] \
-            + new_vars_named + new_vars_x 
-        return is_quadratization(V, deriv_t)
+            + new_vars_named + new_vars_x
+        return is_quadratization(V, deriv_t, self.frac_decomps, self.consts)

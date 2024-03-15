@@ -63,7 +63,7 @@ def reduction_sparse(pol1, pol2):
         coef = pol1[1].coeff(pol2[2])
         if coef != 0:
             new_pol = pol1[1] - coef * pol2[1]
-            return (pol1[0] - coef.as_expr() * pol2[0], new_pol, new_pol.leading_monom())
+            return (pol1[0] - coef.as_expr() * pol2[0], new_pol, new_pol.leading_monom()) 
     return pol1
 
 def diff_dict(pol, dic, order=1):
@@ -128,6 +128,30 @@ def powerset(iterable):
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(1, len(s)))
 
+def shrink_quad(quad_vars, poly_syst):
+    """Checks if the quadratization can be shrunk to a smaller set of variables.
+    
+    Parameters
+    ----------
+    quad_vars : list
+        List of variables in the quadratization
+    poly_syst : PolySys
+        The polynomial system
+        
+    Returns
+    -------
+    list
+        a list with a quadratization of an equal or lesser order than the original
+    """
+    final_vars = quad_vars
+    subsets = powerset(quad_vars)
+    for var_group in subsets: 
+        poly_syst.set_new_vars(var_group)
+        res, _ = poly_syst.try_make_quadratic() 
+        if res:
+            return list(var_group)
+    return final_vars
+
 def ring_to_expr(ring_pol, ring_syms=[], consts=[]):
     """converts a polynomial ring to a sympy expression
 
@@ -137,6 +161,8 @@ def ring_to_expr(ring_pol, ring_syms=[], consts=[]):
         polynomial to be converted
     ring_syms : list[sympy.PolyElement]
         symbols of the polynomial ring
+    consts : list[sympy.PolyElement]
+        constants of the polynomial ring
 
     Returns
     -------
@@ -173,29 +199,29 @@ def expr_to_ring(R, expr_pol):
     """
     return R.ring_new(expr_pol)         
 
-def revert_frac_decomp(quad_exprs, frac_rel, quad=True):
-    """Reverts a quadratization without the fraction decomposition variables
+# def revert_frac_decomp(quad_exprs, frac_rel, quad=True):
+#     """Reverts a quadratization without the fraction decomposition variables
 
-    Parameters
-    ----------
-    quad_exprs : list[sympy.Eq]
-        List with the expressions of the quadratization
-    frac_rel : list[tuple]
-        List of tuples with the relations of the fraction decomposition
+#     Parameters
+#     ----------
+#     quad_exprs : list[sympy.Eq]
+#         List with the expressions of the quadratization
+#     frac_rel : list[tuple]
+#         List of tuples with the relations of the fraction decomposition
 
-    Returns
-    -------
-    list[sympy.Eq]
-        the original quadratization without the fraction decomposition variables
-    """
-    frac_subs = [(var, 1/ring_to_expr(rel)) for var, rel in frac_rel]
-    if quad: 
-        for i in range(len(quad_exprs)):
-            quad_exprs[i] = Eq(quad_exprs[i].lhs, quad_exprs[i].rhs.subs(frac_subs))
-    else: 
-        for i in range(len(quad_exprs)):
-            quad_exprs[i] = quad_exprs[i].subs(frac_subs)
-    return quad_exprs
+#     Returns
+#     -------
+#     list[sympy.Eq]
+#         the original quadratization without the fraction decomposition variables
+#     """
+#     frac_subs = [(var, 1/ring_to_expr(rel)) for var, rel in frac_rel]
+#     if quad: 
+#         for i in range(len(quad_exprs)):
+#             quad_exprs[i] = Eq(quad_exprs[i].lhs, quad_exprs[i].rhs.subs(frac_subs))
+#     else: 
+#         for i in range(len(quad_exprs)):
+#             quad_exprs[i] = quad_exprs[i].subs(frac_subs)
+#     return quad_exprs
 
 def get_diff_order(pol):
     """Returns the order of the highest derivative in a polynomial

@@ -27,7 +27,7 @@ for heur in funcs:
     for i in range(2):
         print(heur)
         ti = time.time()
-        print(quadratize([(v, v_t), (y, y_t)], 5, heur, nvars_bound=7))
+        print(quadratize([(v, v_t), (y, y_t)], 5, heur, nvars_bound=11))
         times.append(time.time() - ti) 
     avg.append(statistics.mean(times))
     std.append(statistics.stdev(times))

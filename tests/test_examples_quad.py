@@ -13,6 +13,7 @@ tests = []
 
 # tests
 ut = u**2*D(u, x, 2) + 1/3
+print('\nu**2*D(u, x, 2) + 1/3')
 tests.append(test_try_quadratize([(u, ut)], 3, by_order_degree))
 
 # Hard example
@@ -26,17 +27,18 @@ ut2 = u**3 * D(u, x, 3)
 print('\nu**3 * D(u, x, 3)')
 tests.append(test_try_quadratize([(u, ut2)], 3, by_order_degree))
 
-ut3 = D(u, x)**3 
-print('\nD(u, x)**3')
-tests.append(test_try_quadratize([(u, ut3)], 3, by_order_degree))
-
 ut4 = D(u,x)**3 + u**3
 print('\nD(u,x)**3 + u**3')
 tests.append(test_try_quadratize([(u, ut4)], 3, by_order_degree))
 
+# u_t= u_x^3 * u  
 ut5 = D(u,x)**3 * u
 print('\nD(u,x)**3 * u')
-tests.append(test_try_quadratize([(u, ut5)], 3, by_order_degree))
+tests.append(test_try_quadratize([(u, ut5)], 3, by_order_degree, max_der_order=3))
+
+ut3 = D(u, x)**3 
+print('\nD(u, x)**3')
+tests.append(test_try_quadratize([(u, ut3)], 3, by_order_degree, max_der_order=3))
 
 # Summary
 print('\nTests passed: ', tests.count(True))

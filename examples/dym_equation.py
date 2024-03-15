@@ -22,7 +22,7 @@ std = []
 
 for heur in funcs: 
     times = []
-    for i in range(2):
+    for i in range(10):
         print(heur)
         ti = time.time()
         print(quadratize([(u, ut)], n_diff=3, sort_fun=heur, nvars_bound=4))
