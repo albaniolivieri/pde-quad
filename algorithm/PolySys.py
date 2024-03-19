@@ -4,7 +4,8 @@ from .quadratization import is_quadratization
 from .utils import diff_dict, get_order
 from .FractionDecomp import FractionDecomp
 
-
+# Gleb: perhaps, we should think about naming at some point:
+# this is no longer really a `PolySys` but a rational system instead
 class PolySys:
     """
     A class used to represent a PDE system as polynomial expressions
