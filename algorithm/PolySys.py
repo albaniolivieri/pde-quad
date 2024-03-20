@@ -31,6 +31,7 @@ class PolySys:
         all symbol names as polynomial ring
     expr_frac : list[tuple]
         a list of tuples containing the fraction variables and their expressions
+    # Gleb: shouldn't these just go to dic_t ?
     frac_ders : list[sympy.PolyElement]
         a list of the t derivatives of the fraction variables
 
@@ -62,6 +63,7 @@ class PolySys:
             The symbol of the second independent variable
         new_vars : list, optional
             List of proposed new variables
+        # Gleb: What this `vars_frac` are used for ?
         vars_frac : list, optional
             List of new variables from the fraction decomposition
         """
@@ -127,7 +129,7 @@ class PolySys:
         # we convert it to the form p/q
         func_eq = [(lhs, cancel(rhs.subs(der_subs))) for lhs, rhs in func_eq]
 
-        frac_decomp = FractionDecomp(func_eq, poly_vars+constants)
+        frac_decomp = FractionDecomp(func_eq, poly_vars + constants)
         # print('frac_decomp', frac_decomp.pde, frac_decomp.q_syms, frac_decomp.rels)
 
         if frac_decomp:
