@@ -4,7 +4,8 @@ from .quadratization import is_quadratization
 from .utils import diff_dict, get_order
 from .FractionDecomp import FractionDecomp
 
-
+# Gleb: perhaps, we should think about naming at some point:
+# this is no longer really a `PolySys` but a rational system instead
 class PolySys:
     """
     A class used to represent a PDE system as polynomial expressions
@@ -30,6 +31,7 @@ class PolySys:
         all symbol names as polynomial ring
     expr_frac : list[tuple]
         a list of tuples containing the fraction variables and their expressions
+    # Gleb: shouldn't these just go to dic_t ?
     frac_ders : list[sympy.PolyElement]
         a list of the t derivatives of the fraction variables
 
@@ -61,6 +63,7 @@ class PolySys:
             The symbol of the second independent variable
         new_vars : list, optional
             List of proposed new variables
+        # Gleb: What this `vars_frac` are used for ?
         vars_frac : list, optional
             List of new variables from the fraction decomposition
         """

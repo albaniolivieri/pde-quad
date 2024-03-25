@@ -25,6 +25,9 @@ tests.append(test_try_quadratize([(u, ut3)], 3, by_order_degree))
 ut4 = D(u, x) / (u + 1)
 tests.append(test_try_quadratize([(u, ut4)], 3, by_order_degree))
 
+ut5 = 1 / (u + 1)**2 + 1 / (2 * (u - 1))
+tests.append(test_try_quadratize([(u, ut5)], 4, by_order_degree))
+
 #Hard example
 # ut5 = (D(u,x) + u**2) / ((u+1)**2) + 1/u
 # tests.append(test_try_quadratize([(u, ut5)], 3, by_order_degree))

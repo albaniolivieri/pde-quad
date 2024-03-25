@@ -82,12 +82,18 @@ class FractionDecomp:
                     coef_den_k *= rat_coef
             coef_den_k *= d_factor[0]
             for j in range(len(d_factor[1])):
+                # Gleb: are you sure you really want this story with `coef`?
+                # It seems that you could have ignired it, it would just got to the denominators
+                # of the coefficients
                 factor_exp.append((d_factor[1][j][0], d_factor[1][j][1]))
                 rel = d_factor[1][j][0]
                 if rel not in rel_list:
                     rel_list.append((symbols(f'q_{i}'), rel))
                     q_symb.append(symbols(f'q_{i}'))
                     i += 1
+            # Gleb: It seems that the next double for-loop and reduce aim at writing 
+            # the denominator in terms q's. Couldn't you just do this right away during the above
+            # loop over the factors? I think this would be simpler
             for q, expr in rel_list:
                 for factor, exp in factor_exp:
                     if expr == factor:
@@ -139,6 +145,7 @@ class FractionDecomp:
         consts : list[sympy.Symbol]
             A list with all the symbol constants of the PDE system
         """
+        # Gleb: perhaps we have discussed this, but do we really need to have a conversion to expression here?
         coefs_denom = 1
         for x in expr.coeffs():
             coefs_denom *= fraction(x.as_expr())[1]
