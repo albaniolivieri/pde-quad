@@ -1,5 +1,5 @@
-from sympy import Eq, pprint, Expr
-from .utils import reduction_sparse
+from sympy import Eq, pprint, simplify
+from .utils import reduction_sparse, from_frac_to_expr
 
 
 def is_quadratization(V, deriv, frac_decomp):
@@ -42,7 +42,7 @@ def is_quadratization(V, deriv, frac_decomp):
         else:
             quad.append(Eq(name, names[V2_poly.index(pol)]))
     if NS != []:
-        # for seeing problematic monomials, uncomment next line:
+        # for printing problematic monomials, uncomment next line:
         # for i in range(len(NS)): pprint(f'NS for expr {NS[i][0]}: {NS[i][1]}')
         return (False, NS)
 
@@ -69,9 +69,10 @@ def reduce_set(V2):
         for j in range(i):
             V2[i] = reduction_sparse(V2[i], V2[j])
         if V2[i][1] != 0:
-            LC = V2[i][1].coeff(V2[i][1].leading_monom()).as_expr()
-            V2[i] = (V2[i][0] / LC, V2[i][1] *
-                     (1 / LC), V2[i][1].leading_monom())
+            lead_coeff = V2[i][1].coeff(V2[i][1].leading_monom())
+            V2[i] = (V2[i][0] / lead_coeff.as_expr(), 
+                     V2[i][1] * (1 / lead_coeff), 
+                     V2[i][1].leading_monom())
             for j in range(i):
                 V2[j] = reduction_sparse(V2[j], V2[i])
     return [(a[0], a[1]) for a in V2]

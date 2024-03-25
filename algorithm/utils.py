@@ -44,6 +44,18 @@ def reduction(pol1, pol2):
     else: 
         return pol1
 
+def from_frac_to_expr(frac_elem):
+    try:
+        numer = int(str(frac_elem.numer()))
+        denom = int(str(frac_elem.denom()))
+        coef = numer/denom
+    except:
+        if str(frac_elem)[0] == '-':
+            coef = -symbols(str(frac_elem)[1:], constant=True)
+        else:
+            coef = symbols(str(frac_elem), constant=True)
+    return coef
+
 def reduction_sparse(pol1, pol2):
     """Reduces the polynomial pol1 by the polynomial pol2 in the sparse representation
 

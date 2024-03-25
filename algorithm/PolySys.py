@@ -77,12 +77,12 @@ class PolySys:
         self.frac_decomps = frac_decomps
         self.poly_vars = poly_syms
         self.pde_eq = eqs_pol
+        self.new_vars = new_vars_pol
 
         dic_t, dic_x, frac_der_t = self.get_dics(pde_sys)
 
         self.dic_t = dic_t
         self.dic_x = dic_x
-        self.new_vars = new_vars_pol
         self.frac_der_t = frac_der_t
 
     def build_ring(self, func_eq, new_vars):
@@ -126,8 +126,7 @@ class PolySys:
         # we convert it to the form p/q
         func_eq = [(lhs, cancel(rhs.subs(der_subs))) for lhs, rhs in func_eq]
 
-        frac_decomp = FractionDecomp(func_eq, poly_vars+constants)
-        # print('frac_decomp', frac_decomp.pde, frac_decomp.q_syms, frac_decomp.rels)
+        frac_decomp = FractionDecomp(func_eq, poly_vars, constants)
 
         if frac_decomp:
             func_eq = frac_decomp.pde
@@ -152,7 +151,6 @@ class PolySys:
         # if the new variables are passed as sympy expressions
         # they are also added to the polynomial ring
         if new_vars:
-            print('new_vars', new_vars)
             new_vars = [var.subs(der_subs) for var in new_vars]
             if self.frac_vars:
                 subs_fracs = [(self.frac_vars[i].subs(der_subs), symbols(f'q_{i}'))
@@ -285,9 +283,8 @@ class PolySys:
         new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named)
         deriv_t = new_vars_t + self.frac_der_t + self.pde_eq
         poly_vars = list(filter(lambda x: str(x)[0] != 'q', self.poly_vars))
-        # print('new vars', new_vars_named)
-        # print('deriv_t', deriv_t)
         V = [(1, self.poly_vars[0].ring(1))] + [(symbols(f'{sym}'), sym) for sym in poly_vars] \
             + [(q, self.poly_vars[0].ring(q)) for q, _ in self.frac_decomps.rels] \
             + new_vars_named + new_vars_x
+
         return is_quadratization(V, deriv_t, self.frac_decomps)

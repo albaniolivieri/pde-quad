@@ -1,6 +1,7 @@
-from sympy import fraction, factor_list, groebner, symbols
+from sympy import fraction, factor_list, groebner, symbols, xring, FractionField, QQ
 from functools import reduce
 from .utils import ring_to_expr, diff_dict
+from fractions import Fraction
 
 
 class FractionDecomp:
@@ -30,7 +31,7 @@ class FractionDecomp:
         Reduces an expression using the Groebner basis        
     """
 
-    def __init__(self, pde_sys, syms):
+    def __init__(self, pde_sys, pol_syms, consts):
         """   
 
         Parameters
@@ -46,17 +47,17 @@ class FractionDecomp:
 
         """
         new_pde, groeb_base, rel_list, q_syms = self.get_frac_decomp(
-            pde_sys, syms)
+            pde_sys, pol_syms, consts)
         self.pde = new_pde
         self.rels = rel_list
         self.groeb_base = groeb_base
         self.q_syms = q_syms
 
-    def get_frac_decomp(self, pde_sys, syms):
+    def get_frac_decomp(self, pde_sys, pol_syms, consts):
         """
         Returns the reduced PDE system, the Groebner basis, the fraction relations and 
         the symbols introduced by the fraction decomposition.
-        
+
         Parameters
         ----------
         pde_sys : list[tuple]
@@ -65,25 +66,24 @@ class FractionDecomp:
             A list with all symbols of the PDE system
 
         """
-        q_symb, rel_list = [], []
+        q_symb, rel_list, coef_den = [], [], []
         i = 0
         for k in range(len(pde_sys)):
             n, d = fraction(pde_sys[k][1])
             if d == 1:
                 continue
-            factor_exp = []
-            q_exp = []
-            d_factor = factor_list(d)
-            coef = d_factor[0]
+            factor_exp, q_exp = [], []
+            coef_den_k = 1
+            d_factor = factor_list(d, gens=pol_syms)
+            for x in n.as_coefficients_dict().values():
+                if x.is_Float:
+                    rat_coef = Fraction(str(x)).denominator
+                    n *= rat_coef
+                    coef_den_k *= rat_coef
+            coef_den_k *= d_factor[0]
             for j in range(len(d_factor[1])):
-                if coef != 1:
-                    factor_exp.append(
-                        (d_factor[1][j][0]*coef, d_factor[1][j][1]))
-                    rel = d_factor[1][j][0]*coef
-                    coef = 1
-                else:
-                    factor_exp.append((d_factor[1][j][0], d_factor[1][j][1]))
-                    rel = d_factor[1][j][0]
+                factor_exp.append((d_factor[1][j][0], d_factor[1][j][1]))
+                rel = d_factor[1][j][0]
                 if rel not in rel_list:
                     rel_list.append((symbols(f'q_{i}'), rel))
                     q_symb.append(symbols(f'q_{i}'))
@@ -92,22 +92,23 @@ class FractionDecomp:
                 for factor, exp in factor_exp:
                     if expr == factor:
                         q_exp.append((q, exp))
+            coef_den.append(coef_den_k)
             pde_sys[k] = (pde_sys[k][0], reduce(
                 lambda y, x: y * x[0]**x[1], q_exp, 1) * n)
         groeb_rels = [q * fac - 1 for q, fac in rel_list]
         if groeb_rels:
-            groeb_base = groebner(groeb_rels, q_symb + syms, order='lex')
-            new_pde = list(
-                map(lambda x: (x[0], groeb_base.reduce(x[1])[1]), pde_sys))
+            groeb_base = groebner(groeb_rels, pol_syms+q_symb+consts, order='lex')
+            for k in range(len(pde_sys)):
+                pde_sys[k] = (pde_sys[k][0],
+                              groeb_base.reduce(pde_sys[k][1])[1] / coef_den[k])
         else:
             groeb_base = None
-            new_pde = pde_sys
-        return new_pde, groeb_base, rel_list, q_symb
+        return pde_sys, groeb_base, rel_list, q_symb
 
     def diff_frac(self, rel, dic, consts, n_diff=1):
         """
         Returns the derivative of a fraction
-        
+
         Parameters
         ----------
         rel : tuple
@@ -130,7 +131,7 @@ class FractionDecomp:
     def try_reduce(self, expr, consts):
         """
         Returns the reduced expression using the Groebner basis
-        
+
         Parameters
         ----------
         expr : sympy.Expr
@@ -138,4 +139,8 @@ class FractionDecomp:
         consts : list[sympy.Symbol]
             A list with all the symbol constants of the PDE system
         """
-        return self.groeb_base.reduce(ring_to_expr(expr, self.groeb_base.gens, consts))[1]
+        coefs_denom = 1
+        for x in expr.coeffs():
+            coefs_denom *= fraction(x.as_expr())[1]
+        return self.groeb_base.reduce(
+            ring_to_expr(expr*coefs_denom, self.groeb_base.gens, consts))[1]/coefs_denom
