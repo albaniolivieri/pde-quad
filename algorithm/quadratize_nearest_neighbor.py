@@ -4,7 +4,7 @@ from .var_selection import by_fun
 from .nearest_neighbor import nearest_neighbor
 
 
-def quadratize(func_eq, n_diff, sort_fun=by_fun, first_indep=symbols('t'), prune_rules=['der_order']):
+def quadratize(func_eq, n_diff, sort_fun=by_fun, first_indep=symbols('t')):
     """Quadratizes a given PDE
 
     Parameters

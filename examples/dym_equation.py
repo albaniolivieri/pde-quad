@@ -11,24 +11,21 @@ t, x = symbols('t x')
 u = Function('u')(t,x)
 
 ut = u**3 * D(u, x, 3)
-# y = u^3
-# ==> yt = 3u^2*(u^3 * uxxx)
 
-#quadratize([(u, ut5)], 3)
+# print(quadratize([(u, ut)], 3))
 
-funcs = [by_order_degree, by_fun] 
+funcs = [by_order_degree, by_degree_order, by_fun] 
 avg = []
 std = []
 
 for heur in funcs: 
     times = []
-    for i in range(10):
+    for i in range(3):
         print(heur)
         ti = time.time()
-        print(quadratize([(u, ut)], n_diff=3, sort_fun=heur, nvars_bound=4))
+        print(quadratize([(u, ut)], n_diff=3, sort_fun=heur))
         times.append(time.time() - ti) 
     avg.append(statistics.mean(times))
     std.append(statistics.stdev(times))
 print('averages', avg)
 print('standard deviations', std)
-

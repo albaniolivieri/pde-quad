@@ -1,5 +1,5 @@
-from sympy import Eq, pprint, simplify
-from .utils import reduction_sparse, from_frac_to_expr
+from sympy import Eq, pprint
+from .utils import reduction_sparse
 
 
 def is_quadratization(V, deriv, frac_decomp):
@@ -12,19 +12,19 @@ def is_quadratization(V, deriv, frac_decomp):
         List V with all variables/symbols
     deriv : list[sympy.PolyElement]
         List with all equations of the PDE system
-    # Gleb: frac_decomp is missing
+    frac_decomp : FractionDecomp
+        Fraction decomposition of the PDE system
 
     Returns
     -------
     tuple
         a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
     """
-    # if frac_decomp.groeb_base:
-    #     V2 = list(set((m1[0] * m2[0], m1[1].ring(frac_decomp.try_reduce(
-    #         m1[1] * m2[1], consts))) for m1 in V for m2 in V))
-    # else:
-    # Gleb: why no reduction ?
-    V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
+    if frac_decomp.groeb_base:
+        V2 = list(set((m1[0] * m2[0], m1[1].ring(frac_decomp.try_reduce(
+            m1[1] * m2[1]))) for m1 in V for m2 in V))
+    else:
+        V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
 
     V2_poly, names = [], []
     for name, polyn in V2:
@@ -71,7 +71,6 @@ def reduce_set(V2):
         for j in range(i):
             V2[i] = reduction_sparse(V2[i], V2[j])
         if V2[i][1] != 0:
-            # Gleb: as discussed, this `as_expr` should be avoided
             lead_coeff = V2[i][1].coeff(V2[i][1].leading_monom())
             V2[i] = (V2[i][0] / lead_coeff.as_expr(), 
                      V2[i][1] * (1 / lead_coeff), 

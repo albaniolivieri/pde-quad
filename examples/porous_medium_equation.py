@@ -1,20 +1,21 @@
 from sympy import *
 from sympy import Derivative as D
-import sys
 import time
 import statistics
+import sys
 sys.path.append("..")
 from algorithm.quadratize import quadratize
 from algorithm.var_selection import *
 
-#test
-r, phi = symbols('r phi')
-omega = symbols('omega', constant=True)
-v = Function('v')(r,phi)
+t, x = symbols('t x')
+u = Function('u')(t,x)
 
-v_r = (omega*D(v, phi)) / v
+# m = 7
+u_t = 7 * u**6 * D(u, x)
 
-# print(quadratize([(v, v_r)], n_diff=4, sort_fun=by_fun, first_indep=r))
+# ti = time.time()
+# print(quadratize([(v, v_t), (u, u_t)], 5, by_fun))
+# print('time', time.time() - ti)
 
 funcs = [by_order_degree, by_degree_order, by_fun] 
 avg = []
@@ -22,12 +23,13 @@ std = []
 
 for heur in funcs: 
     times = []
-    for i in range(2):
+    for i in range(10):
         print(heur)
         ti = time.time()
-        print(quadratize([(v, v_r)], n_diff=4, sort_fun=heur, first_indep=r))
+        print(quadratize([(u, u_t)], 3, heur))
         times.append(time.time() - ti) 
     avg.append(statistics.mean(times))
     std.append(statistics.stdev(times))
+
 print('averages', avg)
 print('standard deviations', std)

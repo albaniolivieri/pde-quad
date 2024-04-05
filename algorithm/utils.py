@@ -78,7 +78,7 @@ def reduction_sparse(pol1, pol2):
             return (pol1[0] - coef.as_expr() * pol2[0], new_pol, new_pol.leading_monom()) 
     return pol1
 
-def diff_dict(pol, dic, order=1):
+def diff_dict(pol, dic, frac_decomp=None, order=1):
     """differentiates a polynomial by a dictionary of variables
 
     Parameters
@@ -98,6 +98,8 @@ def diff_dict(pol, dic, order=1):
     deriv = pol
     for _ in range(1, order + 1):
         deriv = sum(deriv.diff(k) * v for (k, v) in dic.items())
+    if frac_decomp:
+        return pol.ring(frac_decomp.try_reduce(deriv))
     return deriv
 
 def remove_vars(list_vars, accum_vars, axis):

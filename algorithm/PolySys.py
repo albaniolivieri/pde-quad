@@ -78,6 +78,7 @@ class PolySys:
             pde_sys, new_vars)
 
         self.frac_decomps = frac_decomps
+        
         self.poly_vars = poly_syms
         self.pde_eq = eqs_pol
         self.new_vars = new_vars_pol
@@ -154,11 +155,6 @@ class PolySys:
         # if the new variables are passed as sympy expressions
         # they are also added to the polynomial ring
         if new_vars:
-            new_vars = [var.subs(der_subs) for var in new_vars]
-            if self.frac_vars:
-                subs_fracs = [(self.frac_vars[i].subs(der_subs), symbols(f'q_{i}'))
-                              for i in range(len(self.frac_vars))]
-                new_vars = [var.subs(subs_fracs) for var in new_vars]
             vars_pol['new_vars'] = [R.ring_new(var) for var in new_vars]
 
         return pol_sym, expr_pol, vars_pol, frac_decomp
@@ -187,34 +183,36 @@ class PolySys:
         der_order = self.max_order + self.order
         for i in range(len(func_eq)):
             for j in range(der_order):
-                dic_x[self.poly_vars[j + (der_order+1)*i]
-                      ] = self.poly_vars[j + (der_order+1)*i + 1]
-                last = j + (der_order+1)*i
+                dic_x[self.poly_vars[j + (der_order + 1) * i]
+                      ] = self.poly_vars[j + (der_order + 1) * i + 1]
+                last = j + (der_order + 1) * i
 
         frac_ders = []
         count = last+2
         rels = self.frac_decomps.rels
         for i in range(len(rels)):
-            dic_x[self.poly_vars[count + (der_order + 1)*i]] = self.frac_decomps.diff_frac(
-                rels[i], dic_x, self.consts)
-            count = count + (der_order + 1)*i
+            dic_x[self.poly_vars[count]] = self.frac_decomps.diff_frac(
+                rels[i], dic_x) 
+            count += (der_order + 1)
 
         for k in range(len(func_eq)):
-            for i in range(der_order - 1):
+            for i in range(der_order):
                 if i != 0:
                     dic_t[self.poly_vars[i + (der_order+1)*k]] = diff_dict(
-                        dic_t[self.poly_vars[i - 1 + (der_order+1)*k]], dic_x)
+                        dic_t[self.poly_vars[i - 1 + (der_order+1)*k]], dic_x, self.frac_decomps)
                 else:
                     dic_t[self.poly_vars[(der_order + 1)*k]
                           ] = self.pde_eq[k][1]
 
         count = last+2
         for rel in self.frac_decomps.rels:
-            frac_der_t = self.frac_decomps.diff_frac(rel, dic_t, self.consts)
+            frac_der_t = self.frac_decomps.diff_frac(rel, dic_t)
             frac_ders.append(
                 (symbols(rel[0].name+self.first_indep.name), frac_der_t))
             dic_t[self.poly_vars[count]] = frac_der_t
             count += der_order+1
+            
+        # print('dics t and x ', dic_t, '\n', dic_x)
 
         return dic_t, dic_x, frac_ders
 
@@ -262,18 +260,18 @@ class PolySys:
 
         for name, expr in named_new_vars:
             deriv_t.append(
-                (symbols(f'{name}{self.first_indep}'), diff_dict(expr, self.dic_t)))
-
+                (symbols(f'{name}{self.first_indep}'), diff_dict(expr, self.dic_t, self.frac_decomps)))
+            
         for name, expr in named_new_vars:
             for i in range(1, self.order + 1):
                 deriv_x.append((symbols(f'{name}{self.sec_indep}{i}'),
-                                diff_dict(expr, self.dic_x, i)))
+                                diff_dict(expr, self.dic_x, order=i, frac_decomp=self.frac_decomps)))
 
         for rel in self.frac_decomps.rels:
             for j in range(1, self.order + 1):
                 deriv_x.append((symbols(f'{rel[0].name}{self.sec_indep}{j}'),
                                 self.frac_decomps.diff_frac(
-                                    rel, self.dic_x, self.consts, n_diff=j)))
+                                    rel, self.dic_x, n_diff=j)))
 
         return deriv_t, deriv_x
 
@@ -286,6 +284,11 @@ class PolySys:
         new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named)
         deriv_t = new_vars_t + self.frac_der_t + self.pde_eq
         poly_vars = list(filter(lambda x: str(x)[0] != 'q', self.poly_vars))
+        
+        # [print(name, expr) for name, expr in deriv_t]
+        
+        # [print(name, expr) for name, expr in new_vars_x]
+
         V = [(1, self.poly_vars[0].ring(1))] + [(symbols(f'{sym}'), sym) for sym in poly_vars] \
             + [(q, self.poly_vars[0].ring(q)) for q, _ in self.frac_decomps.rels] \
             + new_vars_named + new_vars_x

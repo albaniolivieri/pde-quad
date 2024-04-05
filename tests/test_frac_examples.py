@@ -11,7 +11,8 @@ tests = []
 
 # Solar wind modified
 ut = 7*D(u, x)/u - 5*D(u, x)
-tests.append(test_quad([(u, ut)], [D(u, x)/u, D(u,x)/u**2], 3, [(q_0, 1/u)]))
+
+tests.append(test_quad([(u, ut)], [D(u, x)/u, D(u,x)/u**2], 1, [(q_0, 1/u)]))
 tests.append(test_quad([(u, ut)], [1/u**2], 4, [(q_0, 1/u)]))
 tests.append(test_quad([(u, ut)], [], 4, [(q_0, 1/u)]))
 
@@ -24,7 +25,7 @@ rho_t = -u * D(rho, x) - rho * D(u, x)
 u_t = -u * D(u, x) - D(p, x) / rho
 p_t = -p * D(u, x) - u * D(p, x)
 
-tests.append(test_quad([(u, u_t), (rho, rho_t), (p, p_t)], [], 3, [(q_0, 1/rho)]))
+tests.append(test_quad([(u, u_t), (rho, rho_t), (p, p_t)], new_vars = [], n_diff = 3, frac_vars = [(q_0, 1/rho)]))
 
 # Summary
 print('\nTests passed: ', tests.count(True))
