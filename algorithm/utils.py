@@ -44,18 +44,6 @@ def reduction(pol1, pol2):
     else: 
         return pol1
 
-def from_frac_to_expr(frac_elem):
-    try:
-        numer = int(str(frac_elem.numer()))
-        denom = int(str(frac_elem.denom()))
-        coef = numer/denom
-    except:
-        if str(frac_elem)[0] == '-':
-            coef = -symbols(str(frac_elem)[1:], constant=True)
-        else:
-            coef = symbols(str(frac_elem), constant=True)
-    return coef
-
 def reduction_sparse(pol1, pol2):
     """Reduces the polynomial pol1 by the polynomial pol2 in the sparse representation
 
@@ -212,30 +200,6 @@ def expr_to_ring(R, expr_pol):
         the resulting polynomial ring
     """
     return R.ring_new(expr_pol)         
-
-# def revert_frac_decomp(quad_exprs, frac_rel, quad=True):
-#     """Reverts a quadratization without the fraction decomposition variables
-
-#     Parameters
-#     ----------
-#     quad_exprs : list[sympy.Eq]
-#         List with the expressions of the quadratization
-#     frac_rel : list[tuple]
-#         List of tuples with the relations of the fraction decomposition
-
-#     Returns
-#     -------
-#     list[sympy.Eq]
-#         the original quadratization without the fraction decomposition variables
-#     """
-#     frac_subs = [(var, 1/ring_to_expr(rel)) for var, rel in frac_rel]
-#     if quad: 
-#         for i in range(len(quad_exprs)):
-#             quad_exprs[i] = Eq(quad_exprs[i].lhs, quad_exprs[i].rhs.subs(frac_subs))
-#     else: 
-#         for i in range(len(quad_exprs)):
-#             quad_exprs[i] = quad_exprs[i].subs(frac_subs)
-#     return quad_exprs
 
 def get_diff_order(pol):
     """Returns the order of the highest derivative in a polynomial

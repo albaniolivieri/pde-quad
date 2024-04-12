@@ -1,4 +1,4 @@
-from sympy import xring, symbols, QQ, cancel, fraction, FractionField
+from sympy import xring, symbols, QQ, cancel, FractionField, simplify
 from sympy import Derivative as D
 from .quadratization import is_quadratization
 from .utils import diff_dict, get_order
@@ -51,7 +51,7 @@ class PolySys:
         and second variable
     """
 
-    def __init__(self, pde_sys, n_diff, vars_indep, new_vars=None, frac_vars=[]):
+    def __init__(self, pde_sys, n_diff, vars_indep, new_vars=None):
         """
         Parameters
         ----------
@@ -71,7 +71,6 @@ class PolySys:
 
         self.first_indep, self.sec_indep = vars_indep
         self.consts = []
-        self.frac_vars = frac_vars
         self.order = n_diff
 
         poly_syms, eqs_pol, new_vars_pol, frac_decomps = self.build_ring(
@@ -138,13 +137,17 @@ class PolySys:
                 poly_vars.append(frac_decomp.q_syms[i])
                 poly_vars.extend([symbols(f'q_{i}{self.sec_indep.name}{k}')
                                   for k in range(1, self.max_order + self.order + 1)])
+                
+        # print('frac_decomp', frac_decomp.rels)
 
         QQc = FractionField(QQ, constants)
         R, pol_sym = xring(poly_vars, QQc)
+        
+        frac_decomp.rels_as_poly(R)
 
-        expr_pol = [(symbols(f'{fun.name}_{self.first_indep}'),
-                     R.ring_new(eq)) for fun, eq in func_eq]
-
+        pde_pol = [(symbols(f'{fun.name}_{self.first_indep}'),
+                     R.ring_new(simplify(eq))) for fun, eq in func_eq]
+        
         vars_pol = {'frac_vars': [], 'new_vars': []}
 
         for i in range(len(frac_decomp.rels)):
@@ -157,7 +160,7 @@ class PolySys:
         if new_vars:
             vars_pol['new_vars'] = [R.ring_new(var) for var in new_vars]
 
-        return pol_sym, expr_pol, vars_pol, frac_decomp
+        return pol_sym, pde_pol, vars_pol, frac_decomp
 
     def get_dics(self, func_eq):
         """Returns a tuple with two dictionaries that map the equations symbols 
@@ -180,7 +183,7 @@ class PolySys:
         dic_x = {}
         dic_t = {}
 
-        der_order = self.max_order + self.order
+        der_order = self.max_order + self.order 
         for i in range(len(func_eq)):
             for j in range(der_order):
                 dic_x[self.poly_vars[j + (der_order + 1) * i]
@@ -211,8 +214,6 @@ class PolySys:
                 (symbols(rel[0].name+self.first_indep.name), frac_der_t))
             dic_t[self.poly_vars[count]] = frac_der_t
             count += der_order+1
-            
-        # print('dics t and x ', dic_t, '\n', dic_x)
 
         return dic_t, dic_x, frac_ders
 
@@ -285,8 +286,8 @@ class PolySys:
         deriv_t = new_vars_t + self.frac_der_t + self.pde_eq
         poly_vars = list(filter(lambda x: str(x)[0] != 'q', self.poly_vars))
         
+        # print('new_vars', new_vars_named)
         # [print(name, expr) for name, expr in deriv_t]
-        
         # [print(name, expr) for name, expr in new_vars_x]
 
         V = [(1, self.poly_vars[0].ring(1))] + [(symbols(f'{sym}'), sym) for sym in poly_vars] \

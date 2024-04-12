@@ -4,7 +4,8 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from algorithm.quadratize import quadratize
+from algorithm.quadratize import quadratize as quad_bb
+from algorithm.quadratize_nearest_neighbor import quadratize as quad_nn
 from algorithm.var_selection import *
 
 t, x = symbols('t x')
@@ -12,7 +13,7 @@ v = Function('v')(t,x)
 y = Function('y')(t,x)
 epsilon, h, gamma, r = symbols('epsilon h gamma r', constant=True)
 
-v_t = epsilon * D(v, x, 2) - v**3 + 1.1*v**2 - 0.1*v - y + r
+v_t = epsilon * D(v, x, 2) - (1/epsilon) * v**3 + (1.1/epsilon) * v**2 - (0.1/epsilon)*v - y/epsilon + r/epsilon
 y_t = h * v - gamma * y + r
 
 # ti = time.time()
@@ -20,19 +21,32 @@ y_t = h * v - gamma * y + r
 # print('time', time.time() - ti)
 
 funcs = [by_order_degree, by_degree_order, by_fun] 
-avg = []
-std = []
+avg_bb = []
+std_bb = []
+avg_nn = []
+std_nn = []
 
 for heur in funcs: 
-    times = []
+    times_bb = []
     for i in range(10):
         print(heur)
         ti = time.time()
-        print(quadratize([(v, v_t), (y, y_t)], 5, heur))
-        times.append(time.time() - ti) 
-    avg.append(statistics.mean(times))
-    std.append(statistics.stdev(times))
+        print(quad_bb([(v, v_t), (y, y_t)], 3, heur))
+        times_bb.append(time.time() - ti) 
+    avg_bb.append(statistics.mean(times_bb))
+    std_bb.append(statistics.stdev(times_bb))
+    times_nn = []
+    for i in range(10):
+        print(heur)
+        ti = time.time()
+        print(quad_nn([(v, v_t), (y, y_t)], 3, heur))
+        times_nn.append(time.time() - ti) 
+    avg_nn.append(statistics.mean(times_nn))
+    std_nn.append(statistics.stdev(times_nn))
 
-print('averages', avg)
-print('standard deviations', std)
+print('averages branch-and-bound', avg_bb)
+print('standard deviations branch-and-bound', std_bb)
+
+print('averages nearest neighbor', avg_nn)
+print('standard deviations nearest neighbor', std_nn)
 

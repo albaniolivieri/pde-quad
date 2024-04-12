@@ -20,10 +20,25 @@ def is_quadratization(V, deriv, frac_decomp):
     tuple
         a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
     """
-    if frac_decomp.groeb_base:
+    # V2 = []
+    if frac_decomp.groeb_rels:
+        # for m1 in V:
+        #     for m2 in V:
+        #         mult = (m1[0] * m2[0], m1[1].ring(frac_decomp.try_reduce(m1[1] * m2[1])))
+        #         if V2 == []:
+        #             V2.append(mult)
+        #         if mult[1] not in list(zip(*V2))[1]:
+        #             V2.append(mult)
         V2 = list(set((m1[0] * m2[0], m1[1].ring(frac_decomp.try_reduce(
             m1[1] * m2[1]))) for m1 in V for m2 in V))
     else:
+        # for m1 in V:
+        #     for m2 in V:
+        #         mult = (m1[0] * m2[0], m1[1] * m2[1])
+        #         if V2 == []:
+        #             V2.append(mult)
+        #         elif mult[1] not in list(zip(*V2))[1]:
+        #             V2.append(mult)
         V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
 
     V2_poly, names = [], []
@@ -36,7 +51,7 @@ def is_quadratization(V, deriv, frac_decomp):
 
     for name, pol in deriv:
         if pol not in V2_poly:
-            result = is_linear_combination(V2_red, pol)
+            result = is_linear_combination(V2_red, pol, name)
             if type(result) == tuple:
                 NS.append((name, result[1][1]))
             else:
@@ -80,7 +95,7 @@ def reduce_set(V2):
     return [(a[0], a[1]) for a in V2]
 
 
-def is_linear_combination(V2, der_pol):
+def is_linear_combination(V2, der_pol, name):
     """Checks if a certain polynomial is a linear combination of the set V^2
 
     Parameters
@@ -93,13 +108,15 @@ def is_linear_combination(V2, der_pol):
     Returns
     -------
     tuple or sympy.PolyElement
-        if der_pol was a linear combination of V^2, returns the resulting polynomial from done operations.
-        if it was not, returns a tuple with the boolean False and a tuple that represents der_pol polynomial
+        if der_pol is a linear combination of V^2, returns the resulting polynomial from done operations.
+        if it is not, returns a tuple with the boolean False and a tuple that represents der_pol polynomial
     """
     der_tuple = (0, der_pol, der_pol.leading_monom())
     V2 = [(name, pol, pol.leading_monom()) for name, pol in V2]
+    accum = 0 
     for i in range(len(V2)):
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
             return -der_tuple[0]
+        accum = der_tuple[0]
     return (False, der_tuple)
