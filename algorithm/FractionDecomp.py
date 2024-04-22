@@ -66,7 +66,7 @@ class FractionDecomp:
             A list with all symbols of the PDE system
 
         """
-        q_symb, rel_list, coef_den = [], [], []
+        q_symb, rel_list, coef_den = [], {}, []
         i = 0
         for k in range(len(pde_sys)):
             n, d = fraction(pde_sys[k][1])
@@ -83,21 +83,24 @@ class FractionDecomp:
             pde_sys[k] = (pde_sys[k][0], n)
             for j in range(len(d_factor[1])):
                 rel = d_factor[1][j][0]
-                if not rel_list or rel not in list(zip(*rel_list))[1]:
+                if not rel_list or rel not in rel_list.values():
                     q = symbols(f'q_{i}')
-                    rel_list.append((q, rel))
+                    rel_list[q] = rel
                     q_symb.append(q)
                     i += 1
                 else:
-                    q = list(zip(*rel_list))[0][list(zip(*rel_list))[1].index(rel)]
+                    key_list = list(rel_list.keys())
+                    val_list = list(rel_list.values())
+                    q = key_list[val_list.index(rel)]
                 pde_sys[k] = (pde_sys[k][0], pde_sys[k][1] * q**d_factor[1][j][1])
-        groeb_rels = [q * fac - 1 for q, fac in rel_list]
+        groeb_rels = [rel * rel_list[rel] - 1 for rel in rel_list]
         if groeb_rels:
             groeb_base = groebner(groeb_rels, pol_syms+q_symb+consts, order='lex')
             for k in range(len(pde_sys)):
                 pde_sys[k] = (pde_sys[k][0],
                               groeb_base.reduce(pde_sys[k][1])[1] / coef_den[k])
             groeb_rels = [rel.as_expr() for rel in groeb_base._basis]
+        rel_list = list(zip(rel_list.keys(), rel_list.values()))
         return pde_sys, groeb_rels, rel_list, q_symb
     
     def rels_as_poly(self, R):

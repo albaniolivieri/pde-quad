@@ -14,26 +14,26 @@ u1 = symbols('u1')
 tests = []
 
 # Solar wind
-# ut = 7*D(u, x)/u - 5*D(u, x)
-# tests.append(test_try_quadratize([(u, ut)], 3, by_order_degree))
+ut = 7*D(u, x)/u - 5*D(u, x)
+tests.append(test_try_quadratize([(u, ut)], 3, by_order_degree))
 
-# ut1 = 1 / (5*(u + 1)) 
-# tests.append(test_try_quadratize([(u, ut1)], 1, by_order_degree))
+ut1 = 1 / (5*(u + 1)) 
+tests.append(test_try_quadratize([(u, ut1)], 1, by_order_degree))
 
-# ut2 = 1 / (0.6*u + 1)**2
-# tests.append(test_try_quadratize([(u, ut2)], 3, by_order_degree))
+ut2 = 1 / (0.6*u + 1)**2
+tests.append(test_try_quadratize([(u, ut2)], 3, by_order_degree))
 
-# ut3 = 1 / (u**2 + 1)
-# tests.append(test_try_quadratize([(u, ut3)], 3, by_order_degree))
+ut3 = 1 / (u**2 + 1)
+tests.append(test_try_quadratize([(u, ut3)], 3, by_order_degree))
 
-# ut4 = D(u, x) / (u + 1)
-# tests.append(test_try_quadratize([(u, ut4)], 3, by_order_degree))
+ut4 = D(u, x) / (u + 1)
+tests.append(test_try_quadratize([(u, ut4)], 3, by_order_degree))
 
-# ut5 = 1 / (u + 1)**2 + 1 / (u - 1)
-# tests.append(test_try_quadratize([(u, ut5)], 4, by_fun, nvars_bound=3, max_der_order=10))
+ut5 = 1 / (u + 1)**2 + 1 / (u - 1)
+tests.append(test_try_quadratize([(u, ut5)], 4, by_fun, nvars_bound=3, max_der_order=10))
 
-# ut6 = 1 / (omega*u**2) + 0.5 / (u - 1)
-# tests.append(test_try_quadratize([(u, ut6)], 4, by_fun, nvars_bound=3, max_der_order=10))
+ut6 = 1 / (omega*u**2) + 0.5 / (u - 1)
+tests.append(test_try_quadratize([(u, ut6)], 4, by_fun, nvars_bound=3, max_der_order=10))
 
 # toy example from fitz-hugh-nagumo (finds a quadratization of order 4)
 # v_t = -D(v, x, 2)/v - v**2 - v + 5
@@ -47,7 +47,7 @@ tests = []
 
 ti = time.time()
 ut7 = (D(u, x) + u**2) / ((u + 1)**2) + 1 / u
-tests.append(test_try_quadratize([(u, ut7)], 2, by_order_degree, nvars_bound=4, max_der_order=10, search_alg='near_neighbor'))
+tests.append(test_try_quadratize([(u, ut7)], 2, by_order_degree, nvars_bound=4, max_der_order=10))
 print('time', time.time() - ti)
 
 # Summary
