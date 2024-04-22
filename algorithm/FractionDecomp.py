@@ -89,6 +89,7 @@ class FractionDecomp:
                     q_symb.append(q)
                     i += 1
                 else:
+                    # TODO: change to dictionary
                     q = list(zip(*rel_list))[0][list(zip(*rel_list))[1].index(rel)]
                 pde_sys[k] = (pde_sys[k][0], pde_sys[k][1] * q**d_factor[1][j][1])
         groeb_rels = [q * fac - 1 for q, fac in rel_list]
