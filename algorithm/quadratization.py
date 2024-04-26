@@ -20,25 +20,10 @@ def is_quadratization(V, deriv, frac_decomp):
     tuple
         a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
     """
-    # V2 = []
     if frac_decomp.groeb_rels:
-        # for m1 in V:
-        #     for m2 in V:
-        #         mult = (m1[0] * m2[0], m1[1].ring(frac_decomp.try_reduce(m1[1] * m2[1])))
-        #         if V2 == []:
-        #             V2.append(mult)
-        #         if mult[1] not in list(zip(*V2))[1]:
-        #             V2.append(mult)
         V2 = list(set((m1[0] * m2[0], m1[1].ring(frac_decomp.try_reduce(
             m1[1] * m2[1]))) for m1 in V for m2 in V))
     else:
-        # for m1 in V:
-        #     for m2 in V:
-        #         mult = (m1[0] * m2[0], m1[1] * m2[1])
-        #         if V2 == []:
-        #             V2.append(mult)
-        #         elif mult[1] not in list(zip(*V2))[1]:
-        #             V2.append(mult)
         V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
 
     V2_poly, names = [], []
