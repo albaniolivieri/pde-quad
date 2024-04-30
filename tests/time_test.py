@@ -1,36 +1,58 @@
 #!/usr/bin/python
 import time
 import sys
+import statistics
 
 from sympy import *
 from sympy import Derivative as D
 
 sys.path.append("..")
 from algorithm import check_manual_quad as sparse
-from deprecated import check_quad_gauss as gauss
+from deprecated import check_quad_gauss as dense
 from deprecated import check_quad_matrix as matrix
 
 t, x = symbols('t x')
 u = Function('u')(t,x)
-u1 = Function('u1')(t,x)
+u_x1 = symbols('u_x1')
 
-u1t = u1**3 * D(u1, x, 1)
+u_sym = symbols('u')
 ut5 = u**3 * D(u, x, 3)
+
+times_avg, times_std, diff_orders = [], [], []
 
 if len(sys.argv) > 1:
     if sys.argv[1] == 'sparse':
         for i in range(1, 11):
-            ti = time.time()
-            sparse.test_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], i)
-            print("Diff order:", i, "\nTime:", time.time() - ti)
-    elif sys.argv[1] == 'gauss':
+            times = []
+            for _ in range(10):
+                ti = time.time()
+                sparse.test_quadratization([(u, ut5)], [u_sym**3, u_sym * u_x1**2], i)
+                times.append(time.time() - ti)
+            times_avg.append(statistics.mean(times))
+            times_std.append(statistics.stdev(times))
+            diff_orders.append(i)
+            print("Diff order:", i)
+    elif sys.argv[1] == 'dense':
         for i in range(1, 11):
-            ti = time.time()
-            gauss.get_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], i)
-            print("Diff order:", i, "\nTime:", time.time() - ti)
+            times = []
+            for _ in range(10):
+                ti = time.time()
+                dense.get_quadratization([(u, ut5)], [u**3, u * D(u, x)**2], i)
+                times.append(time.time() - ti)
+            times_avg.append(statistics.mean(times))
+            times_std.append(statistics.stdev(times))
+            diff_orders.append(i)
+            print("Diff order:", i)
     elif sys.argv[1] == 'matrix':
         for i in range(1, 11):
-            ti = time.time()
-            matrix.get_quadratization([(u, ut5), (u1, u1t)], [u**3, u * D(u, x)**2, u1**3], i)
-            print("Diff order:", i, "\nTime:", time.time() - ti)
+            times = []
+            for _ in range(10):
+                ti = time.time()
+                matrix.get_quadratization([(u, ut5)], [u**3, u * D(u, x)**2], i)
+                times.append(time.time() - ti)
+            times_avg.append(statistics.mean(times))
+            times_std.append(statistics.stdev(times))
+            diff_orders.append(i)
+            print("Diff order:", i)
     
+print('diff_order', diff_orders, 'times_avg:', times_avg, 'times_std:', times_std)

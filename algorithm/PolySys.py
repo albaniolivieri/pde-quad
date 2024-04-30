@@ -286,7 +286,7 @@ class PolySys:
         deriv_t = new_vars_t + self.frac_der_t + self.pde_eq
         poly_vars = list(filter(lambda x: str(x)[0] != 'q', self.poly_vars))
         
-        print('new_vars', new_vars_named)
+        # print('new_vars', new_vars_named)
         # [print(name, expr) for name, expr in deriv_t]
         # [print(name, expr) for name, expr in new_vars_x]
 

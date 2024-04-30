@@ -91,16 +91,13 @@ def bnb(new_vars, best_nvars, poly_syst, sort_fun, max_der_order):
         quadratization and the total number of traversed nodes   
     """
     if pruning_rule_nvars(len(new_vars), best_nvars):
-        #print('prune rule nvars')
         return None, math.inf, 1
     
     if not max_der_order:
         if pruning_rule_order(new_vars, poly_syst.get_max_order()):
-            #print('prune rules order from get')
             return None, math.inf, 1
     else:
         if pruning_rule_order(new_vars, max_der_order):
-            #print('prune rules order')
             return None, math.inf, 1
 
     poly_syst.set_new_vars(new_vars)

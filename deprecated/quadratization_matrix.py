@@ -35,8 +35,6 @@ def is_linear_combination(names, base, matrix_A, lambdas, der_pol):
             return False 
         
     system = (matrix_A, b_vector)
-    print('system:', f"{system[0].rows}, {system[0].cols}", system[1].rows)
-    print('lambdas', len(lambdas[0]))
     sols = list(linsolve(system, lambdas[0]))
     
     if sols == [] or sols[0] == EmptySet:

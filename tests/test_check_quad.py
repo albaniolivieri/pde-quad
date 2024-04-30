@@ -95,7 +95,7 @@ def test_quad(func_eq: list, new_vars: list, n_diff: int, frac_vars: list = [], 
     else: 
         frac_refac = [(expr, q) for q, expr in frac_vars]
         input_refac = [(expr, name) for name, expr in refac]
-        new_vars_expr = [expr.subs(frac_refac+input_refac) for expr in new_vars]
+        new_vars_expr = [expr.subs(frac_refac + input_refac) for expr in new_vars]
         
     var_dic = [(symbols(f'w_{i}'), new_vars[i]) for i in range(len(new_vars))]
     total_vars = (new_vars, [rel for _, rel in frac_vars])

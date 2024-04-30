@@ -98,10 +98,8 @@ def is_linear_combination(V2, der_pol, name):
     """
     der_tuple = (0, der_pol, der_pol.leading_monom())
     V2 = [(name, pol, pol.leading_monom()) for name, pol in V2]
-    accum = 0 
     for i in range(len(V2)):
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
             return -der_tuple[0]
-        accum = der_tuple[0]
     return (False, der_tuple)
