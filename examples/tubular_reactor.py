@@ -10,11 +10,15 @@ from algorithm.var_selection import *
 t, s = symbols('t s')
 psi = Function('psi')(t,s)
 theta = Function('theta')(t,s)
-y_0 = Function('y_0')(t,s)
-y_1 = Function('y_1')(t,s)
+Pe = symbols('Pe', constant=True)
+B  = symbols('B', constant=True)
+D_cte  = symbols('D', constant=True)
+beta = symbols('beta', constant=True)
+theta_ref = symbols('theta_ref', constant=True)
+c_0, c_1, c_2, c_3 = symbols('c_0 c_1 c_2 c_3', constant=True)
 
-psi_t = D(psi, s, 2) - D(psi, s) - psi * (theta**3 + theta**2 + theta + 1)
-theta_t = D(theta, s, 2) - D(theta, s) - theta + 1 + psi * (theta**3 + theta**2 + theta + 1)
+psi_t = (1/Pe) * D(psi, s, 2) - D(psi, s) - D_cte * (psi * (c_3 * theta**3 + c_2 * theta**2 + c_1 * theta + c_0))
+theta_t = (1/Pe) * D(theta, s, 2) - D(theta, s) - beta * (theta - theta_ref) + B * D_cte * psi * (c_3 * theta**3 + c_2 * theta**2 + c_1 * theta + c_0)
 
 ti = time.time()
 

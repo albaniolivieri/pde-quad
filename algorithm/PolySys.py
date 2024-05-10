@@ -287,8 +287,6 @@ class PolySys:
         poly_vars = list(filter(lambda x: str(x)[0] != 'q', self.poly_vars))
         
         # print('new_vars', new_vars_named)
-        # [print(name, expr) for name, expr in deriv_t]
-        # [print(name, expr) for name, expr in new_vars_x]
 
         V = [(1, self.poly_vars[0].ring(1))] + [(symbols(f'{sym}'), sym) for sym in poly_vars] \
             + [(q, self.poly_vars[0].ring(q)) for q, _ in self.frac_decomps.rels] \

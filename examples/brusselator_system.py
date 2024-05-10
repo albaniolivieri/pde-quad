@@ -9,15 +9,13 @@ from algorithm.quadratize_nearest_neighbor import quadratize as quad_nn
 from algorithm.var_selection import *
 
 t, x = symbols('t x')
-alpha = symbols('alpha', constant=True)
-beta = symbols('beta', constant=True)
-delta = symbols('delta', constant=True)
-gamma = symbols('gamma', constant=True)
+d_1, d_2, a, b = symbols('d_1 d_2 a b', constant=True)
+l = symbols('lambda', constant=True)
 u = Function('u')(t,x)
 v = Function('v')(t,x)
 
-ut = alpha * D(u, x) + (u*v - beta) * u + delta
-vt = alpha * D(v, x) - u**2 * v + u + gamma * u
+ut = d_1 * D(u, x) + l * (1 - (b + 1) * u + b * u**2 * v)
+vt = d_2 * D(v, x) + l * a**2 * (u - u**2 * v)
 
 funcs = [by_order_degree, by_degree_order, by_fun] 
 avg_bb = []
