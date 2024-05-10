@@ -11,6 +11,7 @@ def nearest_neighbor(poly_syst, sort_fun, new_vars=[]):
     count = 0
     
     while not pq.empty():
+        # print('size', pq.qsize()) 
         new_vars = pq.get()[2]
         poly_syst.set_new_vars(new_vars)
         result_quad = poly_syst.try_make_quadratic()

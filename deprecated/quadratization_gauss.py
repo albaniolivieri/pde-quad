@@ -1,5 +1,5 @@
 from sympy import *
-from .utils import 
+from .utils import reduction
 
 def is_a_quadratization(V, deriv):
     V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
@@ -36,6 +36,6 @@ def is_linear_combination(V2, der_pol):
     for i in range(len(V2)):
         der_tuple = reduction(der_tuple, V2[i])
         if der_tuple[1] == 0:
-            return simplify(-der_tuple[0])              
+            return -der_tuple[0]             
     print("Not a quadratization")
     return False      

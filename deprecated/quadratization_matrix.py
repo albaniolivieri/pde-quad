@@ -26,7 +26,7 @@ def is_a_quadratization(V, deriv):
     return quad
 
 def is_linear_combination(names, base, matrix_A, lambdas, der_pol):
-    b_vector = zeros(1, len(base), rational=True)
+    b_vector = zeros(len(base), 1, rational=True)
     for monom in der_pol.monoms():
         if monom in base:
             b_vector[base.index(monom)] = Rational(der_pol.coeff_monomial(monom))

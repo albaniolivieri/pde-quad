@@ -9,12 +9,12 @@ from algorithm.quadratize_nearest_neighbor import quadratize as quad_nn
 from algorithm.var_selection import *
 
 t, x = symbols('t x')
-a, b, gamma, d, d_u, d_v = symbols('a b gamma d d_u d_v', constant=True)
+a, b, gamma, d_uv, d_vu, d_u, d_v = symbols('a b gamma d_uv d_vu d_u d_v', constant=True)
 v = Function('v')(t,x)
 u = Function('u')(t,x)
 
-u_t = D(u, x, 2) + d_v * D(v, x, 2) + gamma*(a - u + u**2 * v)
-v_t = d*D(v, x, 2) + d_u * D(u, x, 2) + gamma*(b - u**2 * v)
+u_t = d_u*D(u, x, 2) + d_uv * D(v, x, 2) + gamma*(a - u + u**2 * v)
+v_t = d_v*D(v, x, 2) + d_vu * D(u, x, 2) + gamma*(b - u**2 * v)
 
 # ti = time.time()
 # print(quadratize([(v, v_t), (u, u_t)], 5, by_fun))

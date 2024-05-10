@@ -13,7 +13,7 @@ u = Function('u')(t,x)
 
 ut = u**3 * D(u, x, 3)
 
-# print(quadratize([(u, ut)], 3))
+# print(quad_nn([(u, ut)], 3, by_degree_order))
 
 funcs = [by_order_degree, by_degree_order, by_fun] 
 avg_bb = []
@@ -31,7 +31,7 @@ for heur in funcs:
     avg_bb.append(statistics.mean(times_bb))
     std_bb.append(statistics.stdev(times_bb))
     times_nn = []
-    for i in range(5):
+    for i in range(10):
         print(heur)
         ti = time.time()
         print(quad_nn([(u, ut)], 3, heur))

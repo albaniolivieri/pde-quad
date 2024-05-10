@@ -10,8 +10,9 @@ from algorithm.var_selection import *
 
 t, x = symbols('t x')
 u = Function('u')(t,x)
+a = symbols('a', constant=True)
 
-ut = - D(u, x, 3) + 6 * u**2 * D(u,x)
+ut = - D(u, x, 3) + a * u**2 * D(u, x)
 
 funcs = [by_order_degree, by_degree_order, by_fun] 
 avg_bb = []
