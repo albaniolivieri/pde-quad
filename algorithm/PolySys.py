@@ -186,8 +186,8 @@ class PolySys:
         der_order = self.max_order + self.order 
         for i in range(len(func_eq)):
             for j in range(der_order):
-                dic_x[self.poly_vars[j + (der_order + 1) * i]] 
-                    = self.poly_vars[j + (der_order + 1) * i + 1]
+                dic_x[self.poly_vars[j + (der_order + 1) * i]] = \
+                    self.poly_vars[j + (der_order + 1) * i + 1]
                 last = j + (der_order + 1) * i
 
         frac_ders = []
