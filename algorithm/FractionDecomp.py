@@ -71,8 +71,6 @@ class FractionDecomp:
         for k in range(len(pde_sys)):
             n, d = fraction(pde_sys[k][1])
             coef_den.append(1)
-            if d == 1:
-                continue
             d_factor = factor_list(d, gens=pol_syms)
             for x in n.as_coefficients_dict().values():
                 if x.is_Float:
@@ -81,18 +79,19 @@ class FractionDecomp:
                     coef_den[k] = coef_den[k]*rat_coef
             coef_den[k] = coef_den[k]*d_factor[0]
             pde_sys[k] = (pde_sys[k][0], n)
-            for j in range(len(d_factor[1])):
-                rel = d_factor[1][j][0]
-                if not rel_list or rel not in rel_list.values():
-                    q = symbols(f'q_{i}')
-                    rel_list[q] = rel
-                    q_symb.append(q)
-                    i += 1
-                else:
-                    key_list = list(rel_list.keys())
-                    val_list = list(rel_list.values())
-                    q = key_list[val_list.index(rel)]
-                pde_sys[k] = (pde_sys[k][0], pde_sys[k][1] * q**d_factor[1][j][1])
+            if d != 1:
+                for j in range(len(d_factor[1])):
+                    rel = d_factor[1][j][0]
+                    if not rel_list or rel not in rel_list.values():
+                        q = symbols(f'q_{i}')
+                        rel_list[q] = rel
+                        q_symb.append(q)
+                        i += 1
+                    else:
+                        key_list = list(rel_list.keys())
+                        val_list = list(rel_list.values())
+                        q = key_list[val_list.index(rel)]
+                    pde_sys[k] = (pde_sys[k][0], pde_sys[k][1] * q**d_factor[1][j][1])
         groeb_rels = [rel * rel_list[rel] - 1 for rel in rel_list]
         if groeb_rels:
             groeb_base = groebner(groeb_rels, pol_syms+q_symb+consts, order='lex')

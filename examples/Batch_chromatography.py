@@ -9,4 +9,4 @@ q = Function('q')(t,x)
 
 ct = - D(c, x) + c**2 * D(c, x, 2)
 qt = q**2 - q
-quadratize([(c, ct), (q, qt)], 4, sort_fun=by_fun, nvars_bound=3, max_order=3)
+quadratize([(c, ct), (q, qt)], 4, sort_fun=by_fun, nvars_bound=5)
