@@ -20,6 +20,8 @@ def is_quadratization(V, deriv, frac_decomp):
     tuple
         a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
     """
+    # Gleb: maybe it would be cleaner to first set `V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))`
+    # and then perform reduction if necessary?
     if frac_decomp.groeb_rels:
         V2 = list(set((m1[0] * m2[0], m1[1].ring(frac_decomp.try_reduce(
             m1[1] * m2[1]))) for m1 in V for m2 in V))
@@ -92,7 +94,7 @@ def is_linear_combination(V2, der_pol, name):
 
     Returns
     -------
-    tuple or sympy.PolyElement
+    tuple or sympy.PolyElement # Gleb: maybe tuple each time for homogeneity?
         if der_pol is a linear combination of V^2, returns the resulting polynomial from done operations.
         if it is not, returns a tuple with the boolean False and a tuple that represents der_pol polynomial
     """

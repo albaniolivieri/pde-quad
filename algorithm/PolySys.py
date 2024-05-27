@@ -186,12 +186,13 @@ class PolySys:
         der_order = self.max_order + self.order 
         for i in range(len(func_eq)):
             for j in range(der_order):
-                dic_x[self.poly_vars[j + (der_order + 1) * i]
-                      ] = self.poly_vars[j + (der_order + 1) * i + 1]
+                dic_x[self.poly_vars[j + (der_order + 1) * i]] 
+                    = self.poly_vars[j + (der_order + 1) * i + 1]
                 last = j + (der_order + 1) * i
 
         frac_ders = []
-        count = last+2
+        # Gleb: why +2 ?
+        count = last + 2
         rels = self.frac_decomps.rels
         for i in range(len(rels)):
             dic_x[self.poly_vars[count]] = self.frac_decomps.diff_frac(
@@ -201,17 +202,16 @@ class PolySys:
         for k in range(len(func_eq)):
             for i in range(der_order):
                 if i != 0:
-                    dic_t[self.poly_vars[i + (der_order+1)*k]] = diff_dict(
-                        dic_t[self.poly_vars[i - 1 + (der_order+1)*k]], dic_x, self.frac_decomps)
+                    dic_t[self.poly_vars[i + (der_order + 1) * k]] = diff_dict(
+                        dic_t[self.poly_vars[i - 1 + (der_order + 1) * k]], dic_x, self.frac_decomps)
                 else:
-                    dic_t[self.poly_vars[(der_order + 1)*k]
-                          ] = self.pde_eq[k][1]
+                    dic_t[self.poly_vars[(der_order + 1) * k]] = self.pde_eq[k][1]
 
         count = last+2
         for rel in self.frac_decomps.rels:
             frac_der_t = self.frac_decomps.diff_frac(rel, dic_t)
             frac_ders.append(
-                (symbols(rel[0].name+self.first_indep.name), frac_der_t))
+                (symbols(rel[0].name + self.first_indep.name), frac_der_t))
             dic_t[self.poly_vars[count]] = frac_der_t
             count += der_order+1
 
@@ -268,6 +268,7 @@ class PolySys:
                 deriv_x.append((symbols(f'{name}{self.sec_indep}{i}'),
                                 diff_dict(expr, self.dic_x, order=i, frac_decomp=self.frac_decomps)))
 
+        # Gleb: Is this for-loop really needed? It does not have anything to do with `named_new_vars`
         for rel in self.frac_decomps.rels:
             for j in range(1, self.order + 1):
                 deriv_x.append((symbols(f'{rel[0].name}{self.sec_indep}{j}'),
