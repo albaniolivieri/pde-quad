@@ -1,4 +1,5 @@
 from queue import PriorityQueue
+from collections import deque
 from .var_selection import prop_new_vars
 from .utils import shrink_quad
 
@@ -6,7 +7,7 @@ def nearest_neighbor(poly_syst, sort_fun, new_vars=[]):
     pq = PriorityQueue()
     
     pq.put((len(new_vars), 0, new_vars))
-    
+    NS_queue = deque()
     node_count = 0
     count = 0
     
@@ -21,7 +22,10 @@ def nearest_neighbor(poly_syst, sort_fun, new_vars=[]):
             shrinked_quad = shrink_quad(new_vars, poly_syst)
             return shrinked_quad, node_count
         else:
-            prop_vars = prop_new_vars(result_quad[1], new_vars, sort_fun)
-            for p_vars in prop_vars: 
-                pq.put((len(new_vars + list(p_vars)), count, new_vars + list(p_vars)))
-                count += 1
+            NS_queue.append((new_vars, result_quad[1]))
+            if pq.qsize() <= 1: 
+                new_vars, NS = NS_queue.popleft()
+                prop_vars = prop_new_vars(NS, new_vars, sort_fun)
+                for p_vars in prop_vars: 
+                    pq.put((len(new_vars + list(p_vars)), count, new_vars + list(p_vars)))
+                    count += 1

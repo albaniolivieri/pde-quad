@@ -10,8 +10,9 @@ x,t = symbols('x t')
 u = Function('u')
 
 
-#ut = sin(u(t,x))
-#ut = u(t,x)**3.4
-ut = sin(exp(u(t,x)))
+# ut = sin(u(t,x))
+# ut = u(t,x)**3.4
+# ut = sin(exp(u(t,x)))
+ut = sin(D(u(t,x), x, 2)) + exp(u(t,x)**1.7)
 
 print(polynomialize([(u(t,x), ut)]))

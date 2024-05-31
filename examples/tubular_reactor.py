@@ -5,6 +5,7 @@ import statistics
 import sys
 sys.path.append("..")
 from algorithm.quadratize import quadratize
+from algorithm.quadratize_nearest_neighbor import quadratize as quad_nn
 from algorithm.var_selection import *
 
 t, s = symbols('t s')
@@ -22,7 +23,9 @@ theta_t = (1/Pe) * D(theta, s, 2) - D(theta, s) - beta * (theta - theta_ref) + B
 
 ti = time.time()
 
-print(quadratize([(psi, psi_t), (theta, theta_t)], n_diff=2, nvars_bound=5, sort_fun=by_degree_order, max_der_order=3))
+# print(quadratize([(psi, psi_t), (theta, theta_t)], n_diff=2, nvars_bound=5, sort_fun=by_degree_order, max_der_order=3))
+print(quad_nn([(psi, psi_t), (theta, theta_t)], n_diff=2, sort_fun=by_degree_order))
+
 
 print('time', time.time() - ti)
 funcs = [by_fun] 

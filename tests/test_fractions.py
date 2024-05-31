@@ -8,7 +8,6 @@ from algorithm.FractionDecomp import FractionDecomp
 
 w = symbols("w")
 
-
 def generate_rand_poly(sym, degree):
     p = 0
     for i in range(degree + 1):

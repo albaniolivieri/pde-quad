@@ -20,6 +20,7 @@ class FractionDecomp:
         A list that represents the ideal I set for the Groebner basis
     q_syms : list[sympy.Symbol]
         A list with all the symbols introduced by the fraction decomposition
+    Gleb: I suggest to add a reference to the paper on multivariate fraction decomposition
 
     Methods
     -------
@@ -66,7 +67,9 @@ class FractionDecomp:
             A list with all symbols of the PDE system
 
         """
+        # Gleb: A variable `rel_list` being a dictionary is a bit too avant-garde f for me)
         q_symb, rel_list, coef_den = [], {}, []
+        # Gleb: maybe commenting on the purpose of all these variables would be a good idea
         i = 0
         for k in range(len(pde_sys)):
             n, d = fraction(pde_sys[k][1])
@@ -75,6 +78,8 @@ class FractionDecomp:
             for x in n.as_coefficients_dict().values():
                 if x.is_Float:
                     rat_coef = Fraction(str(x)).denominator
+                    # Gleb: Multiplying n while iterating over it is very dangerous!
+                    # I am also not so sure what this loop does exactly
                     n *= rat_coef
                     coef_den[k] = coef_den[k]*rat_coef
             coef_den[k] = coef_den[k]*d_factor[0]
@@ -121,10 +126,12 @@ class FractionDecomp:
         ----------
         rel : tuple
             A tuple with the relation to be differentiated
+            # Gleb: did you mean with the numerator and denominator?
         dic : dict
             A dictionary with the differentiation rules
         consts : list[sympy.Symbol]
             A list with all the symbol constants of the PDE system
+        # Gleb: the last parameter does not seem to appear anymore
         """
         q, den = rel
         deriv_var = den.ring(q)
