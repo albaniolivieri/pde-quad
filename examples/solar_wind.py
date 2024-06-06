@@ -28,7 +28,7 @@ for heur in funcs:
     for i in range(10):
         print(heur)
         ti = time.time()
-        print(quad_bb([(v, v_r)], n_diff=4, sort_fun=heur, first_indep=r))
+        print(quad_bb([(v, v_r)], n_diff=2, sort_fun=heur, first_indep=r))
         times_bb.append(time.time() - ti) 
     avg_bb.append(statistics.mean(times_bb))
     std_bb.append(statistics.stdev(times_bb))
