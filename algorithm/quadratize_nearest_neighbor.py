@@ -1,5 +1,5 @@
 from sympy import symbols
-from .PolySys import PolySys
+from .RatSys import RatSys
 from .var_selection import by_fun
 from .nearest_neighbor import nearest_neighbor
 
@@ -29,7 +29,7 @@ def quadratize(func_eq, n_diff, sort_fun=by_fun, first_indep=symbols('t')):
     x_var = [
         symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep].pop()
 
-    poly_syst = PolySys(func_eq, n_diff, (first_indep, x_var))
+    poly_syst = RatSys(func_eq, n_diff, (first_indep, x_var))
     quad = nearest_neighbor(poly_syst, sort_fun, new_vars=[])
     vars_frac_intro = poly_syst.get_frac_vars()
 

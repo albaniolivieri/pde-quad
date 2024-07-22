@@ -79,7 +79,7 @@ def bnb(new_vars, best_nvars, poly_syst, sort_fun, max_der_order):
         List of proposed new variables
     best_nvars : int
         The minimum number of variables found in a quadratization
-    poly_syst : PolySys
+    poly_syst : RatSys
         The polynomial system
     sort_fun : function
         The function to sort the proposed new variables 

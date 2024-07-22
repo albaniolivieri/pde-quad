@@ -21,7 +21,7 @@ ut1_1 = u**2 * D(u, x, 2) + 2
 vt1_2 = D(v, x, 2)/u**3 + 1.7
 # print('\nu**2*D(u, x, 2) + 1/3')
 tests.append(test_try_quadratize([(u, ut1_1), (v, vt1_2)], 3, by_order_degree, search_alg=search_alg_to_test))
-# print('time elapsed: ', time.time() - t_i)
+
 
 v = Function('v')(t,x)
 u = Function('u')(t,x)

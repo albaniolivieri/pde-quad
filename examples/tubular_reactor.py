@@ -25,7 +25,8 @@ ti = time.time()
 
 # print(quadratize([(psi, psi_t), (theta, theta_t)], n_diff=2, nvars_bound=5, sort_fun=by_degree_order, max_der_order=3))
 print(quad_nn([(psi, psi_t), (theta, theta_t)], n_diff=2, sort_fun=by_degree_order))
-
+# print(quad_nn([(psi, psi_t), (theta, theta_t)], n_diff=2, sort_fun=by_order_degree))
+# print(quad_nn([(psi, psi_t), (theta, theta_t)], n_diff=2, sort_fun=by_fun))
 
 print('time', time.time() - ti)
 funcs = [by_fun] 

@@ -6,8 +6,7 @@ def decompose_fraction(pol, pol_vars, i=0):
     
     Parameters
     ----------
-    # Gleb: it is called `pol` above
-    frac : sympy.Expr
+    pol : sympy.Expr
         fraction to be decomposed
     pol_vars : list[sympy.PolyElement]
         list of symbols in the expression

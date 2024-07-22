@@ -1,5 +1,5 @@
 from sympy import symbols
-from .PolySys import PolySys
+from .RatSys import RatSys
 from .branch_and_bound import bnb
 from .var_selection import by_fun
 
@@ -32,7 +32,7 @@ def quadratize(func_eq, n_diff, sort_fun=by_fun, nvars_bound=5, first_indep=symb
     x_var = [
         symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep].pop()
 
-    poly_syst = PolySys(func_eq, n_diff, (first_indep, x_var))
+    poly_syst = RatSys(func_eq, n_diff, (first_indep, x_var))
     quad = bnb([], nvars_bound, poly_syst, sort_fun, max_der_order)
     vars_frac_intro = poly_syst.get_frac_vars()
 

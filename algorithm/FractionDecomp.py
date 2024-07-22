@@ -129,9 +129,6 @@ class FractionDecomp:
             # Gleb: did you mean with the numerator and denominator?
         dic : dict
             A dictionary with the differentiation rules
-        consts : list[sympy.Symbol]
-            A list with all the symbol constants of the PDE system
-        # Gleb: the last parameter does not seem to appear anymore
         """
         q, den = rel
         deriv_var = den.ring(q)

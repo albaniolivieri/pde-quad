@@ -85,7 +85,7 @@ def test_quad(func_eq: list, new_vars: list, n_diff: int, frac_vars: list = [], 
     refac = []
     for fun, _ in func_eq:
         refac += [(symbols(f'{fun.name}_{x_var}{i}'), D(fun, x_var, i))
-                  for i in range(1, n_diff + max_order + 1)] + [(symbols(fun.name), fun)]
+                  for i in range(n_diff + max_order + 1, 0, -1)] + [(symbols(fun.name), fun)]
         
     new_vars_expr = new_vars
     if vars_from_alg:
@@ -110,7 +110,7 @@ def test_quad(func_eq: list, new_vars: list, n_diff: int, frac_vars: list = [], 
     if not results[0] and not results[1]:
         print("\nQuadratization not found")
         return False
-
+    
     for i in range(len(exprs_orig)):
         print('Checking equation:', results[1][i])
         if simplify(exprs_orig[i] - results[1][i].rhs.subs(refac)) != 0: 

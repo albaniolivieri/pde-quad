@@ -1,6 +1,6 @@
 from sympy import symbols
 
-from .PolySys import PolySys
+from .RatSys import RatSys
 
 def test_quadratization(func_eq, new_vars: list, n_diff: int, first_indep=symbols('t')):
     """Test the proposed quadratization of a given PDE
@@ -23,6 +23,6 @@ def test_quadratization(func_eq, new_vars: list, n_diff: int, first_indep=symbol
     x_var = [symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep].pop()
 
 
-    poly_syst = PolySys(func_eq, n_diff, (first_indep, x_var), new_vars)    
+    poly_syst = RatSys(func_eq, n_diff, (first_indep, x_var), new_vars)    
     
     return poly_syst.try_make_quadratic()

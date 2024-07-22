@@ -137,7 +137,7 @@ def shrink_quad(quad_vars, poly_syst):
     ----------
     quad_vars : list
         List of variables in the quadratization
-    poly_syst : PolySys
+    poly_syst : RatSys
         The polynomial system
         
     Returns
