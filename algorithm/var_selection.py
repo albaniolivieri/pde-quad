@@ -18,9 +18,13 @@ def prop_new_vars(NS_list, accum_vars, sort_fun):
         the proposed new variables
     """
     list_vars = []
+    # print('NS_list', NS_list)
     for ns_pol in NS_list:
         for monom in ns_pol[1].itermonoms(): 
-            list_vars += get_decompositions(monom)  
+            # print('ns_pol[1]', ns_pol[1])
+            list_vars += get_decompositions(monom)
+            break
+        break
                 
     list_vars = list(map(lambda x: (NS_list[0][1].ring({x[0]:1}), NS_list[0][1].ring({x[1]:1})), list_vars))
     
@@ -35,8 +39,7 @@ def prop_new_vars(NS_list, accum_vars, sort_fun):
     return sorted_vars
 
 def get_decompositions(monomial):
-    """ Returns the decompositions of a monomial to turn it into
-    linear or quadratic
+    """ Returns the decompositions of a monomial to turn it into linear or quadratic
     
     Parameters
     ----------

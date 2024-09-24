@@ -30,8 +30,7 @@ class RatSys:
         all symbol names as polynomial ring
     expr_frac : list[tuple]
         a list of tuples containing the fraction variables and their expressions
-    # Gleb: shouldn't these just go to dic_t ?
-    frac_ders : list[sympy.PolyElement]
+    frac_der_t : list[sympy.PolyElement]
         a list of the t derivatives of the fraction variables
 
     Methods
@@ -73,7 +72,6 @@ class RatSys:
             pde_sys, new_vars)
 
         self.frac_decomps = frac_decomps
-        
         self.poly_vars = poly_syms
         self.pde_eq = eqs_pol
         self.new_vars = new_vars_pol
@@ -121,7 +119,7 @@ class RatSys:
             poly_vars.extend([symbols(f'{fun.name}_{self.sec_indep.name}{i}')
                               for i in range(1, self.max_order + self.order + 1)])
 
-        # here we substite derivatives symbs and if there is an expr with a rational function,
+        # we substite derivatives symbols and if there is an expr with a rational function,
         # we convert it to the form p/q
         func_eq = [(lhs, cancel(rhs.subs(der_subs))) for lhs, rhs in func_eq]
 
@@ -262,12 +260,11 @@ class RatSys:
                 deriv_x.append((symbols(f'{name}{self.sec_indep}{i}'),
                                 diff_dict(expr, self.dic_x, order=i, frac_decomp=self.frac_decomps)))
 
-        # Gleb: Is this for-loop really needed? It does not have anything to do with `named_new_vars`
         for rel in self.frac_decomps.rels:
-            for j in range(1, self.order + 1):
-                deriv_x.append((symbols(f'{rel[0].name}{self.sec_indep}{j}'),
+            for i in range(1, self.order + 1):
+                deriv_x.append((symbols(f'{rel[0].name}{self.sec_indep}{i}'),
                                 self.frac_decomps.diff_frac(
-                                    rel, self.dic_x, n_diff=j)))
+                                    rel, self.dic_x, n_diff=i)))
 
         return deriv_t, deriv_x
 

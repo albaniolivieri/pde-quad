@@ -20,13 +20,9 @@ def is_quadratization(V, deriv, frac_decomp):
     tuple
         a tuple with a boolean value and the quadratization found (if not found, returns the NS set)
     """
-    # Gleb: maybe it would be cleaner to first set `V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))`
-    # and then perform reduction if necessary?
+    V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
     if frac_decomp.groeb_rels:
-        V2 = list(set((m1[0] * m2[0], m1[1].ring(frac_decomp.try_reduce(
-            m1[1] * m2[1]))) for m1 in V for m2 in V))
-    else:
-        V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
+        V2 = [(m[0], m[1].ring(frac_decomp.try_reduce(m[1]))) for m in V2]
 
     V2_poly, names = [], []
     for name, polyn in V2:
@@ -39,10 +35,10 @@ def is_quadratization(V, deriv, frac_decomp):
     for name, pol in deriv:
         if pol not in V2_poly:
             result = is_linear_combination(V2_red, pol, name)
-            if type(result) == tuple:
+            if not result[0]:
                 NS.append((name, result[1][1]))
             else:
-                quad.append(Eq(name, result))
+                quad.append(Eq(name, result[1]))
         else:
             quad.append(Eq(name, names[V2_poly.index(pol)]))
     if NS != []:
@@ -94,14 +90,14 @@ def is_linear_combination(V2, der_pol, name):
 
     Returns
     -------
-    tuple or sympy.PolyElement # Gleb: maybe tuple each time for homogeneity?
-        if der_pol is a linear combination of V^2, returns the resulting polynomial from done operations.
-        if it is not, returns a tuple with the boolean False and a tuple that represents der_pol polynomial
+    tuple
+        if der_pol is a linear combination of V^2, returns a tuple with the boolean True and resulting polynomial from the operations.
+        If that is not the case, returns a tuple with the boolean False and a tuple that represents der_pol polynomial.
     """
     der_tuple = (0, der_pol, der_pol.leading_monom())
     V2 = [(name, pol, pol.leading_monom()) for name, pol in V2]
     for i in range(len(V2)):
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
-            return -der_tuple[0]
+            return (True, -der_tuple[0])
     return (False, der_tuple)

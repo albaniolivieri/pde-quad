@@ -2,16 +2,7 @@ import signal
 import time
 import math
 from .var_selection import prop_new_vars
-from .utils import get_diff_order, shrink_quad
-
-ALGORITHM_INTERRUPTED = False
-
-# def signal_handler(sig_num, frame):
-#     global ALGORITHM_INTERRUPTED
-#     print("The algorithm has been interrupted. Returning the current best.")
-#     ALGORITHM_INTERRUPTED = True
-
-# signal.signal(signal.SIGINT, signal_handler)    
+from .utils import get_diff_order, shrink_quad  
 
 def pruning_rule_nvars(nvars, global_nvars):
     """Pruning rule based on the number of variables in the quadratization found.

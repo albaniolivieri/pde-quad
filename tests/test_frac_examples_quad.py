@@ -2,6 +2,7 @@
 from sympy import symbols, Function
 from sympy import Derivative as D
 import time
+import math
 from test_quadratize import test_try_quadratize 
 from algorithm.var_selection import by_order_degree, by_fun, by_degree_order
 
@@ -13,9 +14,12 @@ y = Function('y')(t,x)
 u1 = symbols('u1')
 tests = []
 
-# Solar wind
 ut = 7*D(u, x)/u - 5*D(u, x)
 tests.append(test_try_quadratize([(u, ut)], 3, by_order_degree))
+
+v_t = D(v, x) / v - round((math.pi), 5) * D(v, x)
+u_t = 3.4 * D(u, x) * D(v, x)
+print(test_try_quadratize([(v, v_t), (u, u_t)], 4, by_fun))
 
 ut1 = 1 / (5*(u + 1)) 
 tests.append(test_try_quadratize([(u, ut1)], 1, by_order_degree))
@@ -33,9 +37,13 @@ ut5 = 1 / (u + 1)**2 + 1 / (u - 1)
 tests.append(test_try_quadratize([(u, ut5)], 4, by_fun, nvars_bound=3, max_der_order=10))
 
 ut6 = 1 / (omega*u**2) + 0.5 / (u - 1)
+print(ut6)
 tests.append(test_try_quadratize([(u, ut6)], 4, by_fun, nvars_bound=3, max_der_order=10))
 
-# toy example from fitz-hugh-nagumo (finds a quadratization of order 4)
+ut8 = 1 / ((u**2) - 0.5*u + 1)
+tests.append(test_try_quadratize([(u, ut8)], 4, by_fun, nvars_bound=3, max_der_order=10))
+
+# toy example from fitz-hugh-nagumo (hard example: finds a quadratization of order 4)
 # v_t = -D(v, x, 2)/v - v**2 - v + 5
 # y_t = v/y - y + 5
 # tests.append(test_try_quadratize([(v, v_t), (y, y_t)], 2, by_degree_order, nvars_bound=10, max_der_order=10))
@@ -45,10 +53,10 @@ tests.append(test_try_quadratize([(u, ut6)], 4, by_fun, nvars_bound=3, max_der_o
 # vt1 = 1/(u * v) + 1/u 
 # tests.append(test_try_quadratize([(u, ut6), (v, vt1)], 3, by_fun, nvars_bound=10, max_der_order=10))
 
-ti = time.time()
+# ti = time.time()
 ut7 = (D(u, x) + u**2) / ((u + 1)**2) + 1 / u
 tests.append(test_try_quadratize([(u, ut7)], 2, by_order_degree, nvars_bound=4, max_der_order=10))
-print('time', time.time() - ti)
+# print('time', time.time() - ti)
 
 # Summary
 print('\nTests passed: ', tests.count(True))

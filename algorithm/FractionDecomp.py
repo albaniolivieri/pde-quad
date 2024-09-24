@@ -6,8 +6,10 @@ from fractions import Fraction
 
 class FractionDecomp:
     """
-    A class to perform a fraction decomposition for a PDE system
-
+    A class to perform a multivariate fraction decomposition for a PDE system. 
+    Based on the algorithm presented in the work of M. Heller and A. von Manteuffel, 2021:
+    "MultivariateApart: Generalized partial fractions". 
+    
     ...
 
     Attributes
@@ -20,13 +22,12 @@ class FractionDecomp:
         A list that represents the ideal I set for the Groebner basis
     q_syms : list[sympy.Symbol]
         A list with all the symbols introduced by the fraction decomposition
-    Gleb: I suggest to add a reference to the paper on multivariate fraction decomposition
 
     Methods
     -------
     get_frac_decomp(pde_sys, syms)
         Performs the fraction decomposition for the PDE system
-    diff_frac(rel, dic, n_diff=1)
+    diff_frac(frac, dic, n_diff=1)
         Calculates the derivative of a fraction
     try_reduce(expr)
         Reduces an expression using the Groebner basis        
@@ -67,22 +68,25 @@ class FractionDecomp:
             A list with all symbols of the PDE system
 
         """
-        # Gleb: A variable `rel_list` being a dictionary is a bit too avant-garde f for me)
-        q_symb, rel_list, coef_den = [], {}, []
-        # Gleb: maybe commenting on the purpose of all these variables would be a good idea
-        i = 0
+        # list for new variables, dictionary for relations, list for denominators coefficients
+        q_symb, rel_list, coef_den = [], {}, [] 
+        # counter for rational new variables
+        i = 0 
         for k in range(len(pde_sys)):
+            # print('list(pde_sys[k][1]._args)', list(pde_sys[k][1]._args))
+            # coef_eq = list(filter(lambda x: x.is_Number, list(pde_sys[k][1]._args)))
+            # print('coef_eq', coef_eq)
+            # if len(coef_eq) > 0:
+            #     coef_rat = coef_eq[0]
+            # else:
+            #     coef_rat = 1
+            # new_eq = Fraction(str(coef_rat))*reduce(lambda a,b: a*b, 
+            #                                         filter(lambda x: not x.is_Number, 
+            #                                                pde_sys[k][1]._args), 1)
+            # n, d = fraction(new_eq)
             n, d = fraction(pde_sys[k][1])
-            coef_den.append(1)
             d_factor = factor_list(d, gens=pol_syms)
-            for x in n.as_coefficients_dict().values():
-                if x.is_Float:
-                    rat_coef = Fraction(str(x)).denominator
-                    # Gleb: Multiplying n while iterating over it is very dangerous!
-                    # I am also not so sure what this loop does exactly
-                    n *= rat_coef
-                    coef_den[k] = coef_den[k]*rat_coef
-            coef_den[k] = coef_den[k]*d_factor[0]
+            # coef_den.append(d_factor[0])
             pde_sys[k] = (pde_sys[k][0], n)
             if d != 1:
                 for j in range(len(d_factor[1])):
@@ -102,7 +106,7 @@ class FractionDecomp:
             groeb_base = groebner(groeb_rels, pol_syms+q_symb+consts, order='lex')
             for k in range(len(pde_sys)):
                 pde_sys[k] = (pde_sys[k][0],
-                              groeb_base.reduce(pde_sys[k][1])[1] / coef_den[k])
+                               groeb_base.reduce(pde_sys[k][1])[1]) # / coef_den[k])
             groeb_rels = [rel.as_expr() for rel in groeb_base._basis]
         rel_list = list(zip(rel_list.keys(), rel_list.values()))
         return pde_sys, groeb_rels, rel_list, q_symb
@@ -118,19 +122,18 @@ class FractionDecomp:
         """
         self.groeb_rels = [R.ring_new(rel) for rel in self.groeb_rels]
 
-    def diff_frac(self, rel, dic, n_diff=1):
+    def diff_frac(self, frac, dic, n_diff=1):
         """
         Returns the derivative of a fraction
 
         Parameters
         ----------
-        rel : tuple
-            A tuple with the relation to be differentiated
-            # Gleb: did you mean with the numerator and denominator?
+        frac : tuple
+            A tuple with the numerator and denominator to be differentiated
         dic : dict
             A dictionary with the differentiation rules
         """
-        q, den = rel
+        q, den = frac
         deriv_var = den.ring(q)
         deriv_num, deriv_den = den.ring(1), den
         for _ in range(1, n_diff + 1):

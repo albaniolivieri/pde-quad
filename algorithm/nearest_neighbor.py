@@ -32,6 +32,7 @@ def nearest_neighbor(poly_syst, sort_fun, new_vars=[]):
             else:
                 quad_temp = shrinked_quad
             flag = True
+            # print('NS_queue size', len(NS_queue))
             while len(NS_queue) > 0:
                 new_vars_ns, NS = NS_queue.popleft()
                 if len(new_vars_ns) + 1 < len(quad_temp):

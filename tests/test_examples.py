@@ -22,7 +22,6 @@ ut2 = u**2*D(u, x, 2)
 w02 = u**2
 tests.append(test_quad([(u, ut2)], [w02], 2))
 
-print('my example')
 ut2p = D(u, x)**2*u
 w02p = u**2
 tests.append(test_quad([(u, ut2p)], [w02p], 1))

@@ -15,9 +15,9 @@ def is_quadratization(V, deriv):
             if not result: return False
             else: quad.append(Eq(name, result))
         else: quad.append(Eq(name, names[V2_poly.index(pol)]))
-    print("\nQuadratization:")
+    ("\nQuadratization:")
     for exprs in quad:
-        pprint(exprs)       
+        p(exprs)       
     return quad
 
 def reduce_set(V2):
@@ -38,6 +38,6 @@ def is_linear_combination(V2, der_pol):
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
             return simplify(-der_tuple[0])  
-    print('rest', der_tuple[1])            
-    print("Not a quadratization")
+    ('rest', der_tuple[1])            
+    ("Not a quadratization")
     return False  
