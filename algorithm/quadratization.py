@@ -22,7 +22,7 @@ def is_quadratization(V, deriv, frac_decomp):
     """
     V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))
     if frac_decomp.groeb_rels:
-        V2 = [(m[0], m[1].ring(frac_decomp.try_reduce(m[1]))) for m in V2]
+        V2 = [(m[0], frac_decomp.try_reduce(m[1])) for m in V2]
 
     V2_poly, names = [], []
     for name, polyn in V2:

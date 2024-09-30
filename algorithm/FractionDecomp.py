@@ -1,8 +1,5 @@
-from sympy import fraction, factor_list, groebner, symbols, sympify
-from functools import reduce
-from .utils import ring_to_expr, diff_dict
-from fractions import Fraction
-
+from sympy import fraction, factor_list, groebner, symbols, FractionField, QQ, xring
+from .utils import diff_dict
 
 class FractionDecomp:
     """
@@ -69,47 +66,38 @@ class FractionDecomp:
 
         """
         # list for new variables, dictionary for relations, list for denominators coefficients
-        q_symb, rel_list, coef_den = [], {}, [] 
+        q_symb, q_vars_def, coef_den = [], {}, [] 
         # counter for rational new variables
         i = 0 
         for k in range(len(pde_sys)):
-            # print('list(pde_sys[k][1]._args)', list(pde_sys[k][1]._args))
-            # coef_eq = list(filter(lambda x: x.is_Number, list(pde_sys[k][1]._args)))
-            # print('coef_eq', coef_eq)
-            # if len(coef_eq) > 0:
-            #     coef_rat = coef_eq[0]
-            # else:
-            #     coef_rat = 1
-            # new_eq = Fraction(str(coef_rat))*reduce(lambda a,b: a*b, 
-            #                                         filter(lambda x: not x.is_Number, 
-            #                                                pde_sys[k][1]._args), 1)
-            # n, d = fraction(new_eq)
             n, d = fraction(pde_sys[k][1])
             d_factor = factor_list(d, gens=pol_syms)
-            # coef_den.append(d_factor[0])
             pde_sys[k] = (pde_sys[k][0], n)
             if d != 1:
                 for j in range(len(d_factor[1])):
                     rel = d_factor[1][j][0]
-                    if not rel_list or rel not in rel_list.values():
+                    if not q_vars_def or rel not in q_vars_def.values():
                         q = symbols(f'q_{i}')
-                        rel_list[q] = rel
+                        q_vars_def[q] = rel
                         q_symb.append(q)
                         i += 1
                     else:
-                        key_list = list(rel_list.keys())
-                        val_list = list(rel_list.values())
+                        key_list = list(q_vars_def.keys())
+                        val_list = list(q_vars_def.values())
                         q = key_list[val_list.index(rel)]
                     pde_sys[k] = (pde_sys[k][0], pde_sys[k][1] * q**d_factor[1][j][1])
-        groeb_rels = [rel * rel_list[rel] - 1 for rel in rel_list]
+        groeb_rels = [rel * q_vars_def[rel] - 1 for rel in q_vars_def]
         if groeb_rels:
+            QQc = FractionField(QQ, consts)
+            R, _ = xring(pol_syms+q_symb, QQc)
             groeb_base = groebner(groeb_rels, pol_syms+q_symb+consts, order='lex')
+            groeb_rels = [R(rel.as_expr()) for rel in groeb_base._basis]
             for k in range(len(pde_sys)):
                 pde_sys[k] = (pde_sys[k][0],
-                               groeb_base.reduce(pde_sys[k][1])[1]) # / coef_den[k])
-            groeb_rels = [rel.as_expr() for rel in groeb_base._basis]
-        rel_list = list(zip(rel_list.keys(), rel_list.values()))
-        return pde_sys, groeb_rels, rel_list, q_symb
+                               R(pde_sys[k][1]).div(groeb_rels)[1].as_expr()/d_factor[0]) # multiply by the den coef
+        q_vars_def = list(zip(q_vars_def.keys(), q_vars_def.values()))
+        groeb_rels = [rel.as_expr() for rel in groeb_rels]
+        return pde_sys, groeb_rels, q_vars_def, q_symb
     
     def rels_as_poly(self, R):
         """
@@ -120,7 +108,7 @@ class FractionDecomp:
         R : sympy.PolyRing
             The polynomial ring
         """
-        self.groeb_rels = [R.ring_new(rel) for rel in self.groeb_rels]
+        self.groeb_rels = [R(rel) for rel in self.groeb_rels]
 
     def diff_frac(self, frac, dic, n_diff=1):
         """
@@ -144,15 +132,15 @@ class FractionDecomp:
 
         return den.ring(self.try_reduce(deriv_num*deriv_var))
 
-    def try_reduce(self, expr):
+    def try_reduce(self, poly):
         """
-        Returns the reduced expression using the Groebner basis
+        Returns the reduced polynomial using a Groebner basis
 
         Parameters
         ----------
-        expr : sympy.Expr
-            The expression to be reduced
+        poly : sympy.polys.rings.PolyElement
+            The polynomial to be reduced
         """
         if not self.groeb_rels:
-            return expr
-        return expr.div(self.groeb_rels)[1] 
+            return poly
+        return poly.div(self.groeb_rels)[1] 

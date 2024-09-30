@@ -138,19 +138,19 @@ class RatSys:
         frac_decomp.rels_as_poly(R)
 
         pde_pol = [(symbols(f'{fun.name}_{self.first_indep}'),
-                     R.ring_new(simplify(eq))) for fun, eq in func_eq]
+                     R(simplify(eq))) for fun, eq in func_eq]
         
         vars_pol = {'frac_vars': [], 'new_vars': []}
 
         for i in range(len(frac_decomp.rels)):
             frac_decomp.rels[i] = (
-                frac_decomp.rels[i][0], R.ring_new(frac_decomp.rels[i][1]))
+                frac_decomp.rels[i][0], R(frac_decomp.rels[i][1]))
             vars_pol['frac_vars'].append(frac_decomp.rels[i])
 
         # if the new variables are passed as sympy expressions
         # they are also added to the polynomial ring
         if new_vars:
-            vars_pol['new_vars'] = [R.ring_new(var) for var in new_vars]
+            vars_pol['new_vars'] = [R(var) for var in new_vars]
 
         return pol_sym, pde_pol, vars_pol, frac_decomp
 

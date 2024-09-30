@@ -1,7 +1,8 @@
-from sympy import symbols, sympify, Eq, Poly, Expr
+from sympy import symbols, sympify, Eq, Poly, Expr, Float, Rational
 from sympy import Derivative as D
 from functools import reduce
 from itertools import chain, combinations
+from fractions import Fraction
 
 def get_order(set_derivs):
     """Gets the maximum order of derivatives in a list of derivatives
@@ -199,7 +200,7 @@ def expr_to_ring(R, expr_pol):
     sympy.PolyRing
         the resulting polynomial ring
     """
-    return R.ring_new(expr_pol)         
+    return R(expr_pol)         
 
 def get_diff_order(pol):
     """Returns the order of the highest derivative in a polynomial

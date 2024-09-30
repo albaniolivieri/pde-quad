@@ -18,10 +18,8 @@ def prop_new_vars(NS_list, accum_vars, sort_fun):
         the proposed new variables
     """
     list_vars = []
-    # print('NS_list', NS_list)
     for ns_pol in NS_list:
         for monom in ns_pol[1].itermonoms(): 
-            # print('ns_pol[1]', ns_pol[1])
             list_vars += get_decompositions(monom)
             break
         break
