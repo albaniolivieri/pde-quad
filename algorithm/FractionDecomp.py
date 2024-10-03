@@ -65,8 +65,8 @@ class FractionDecomp:
             A list with all symbols of the PDE system
 
         """
-        # list for new variables, dictionary for relations, list for denominators coefficients
-        q_symb, q_vars_def, coef_den = [], {}, [] 
+        # list for new variables, dictionary for relations
+        q_symb, q_vars_def = [], {} 
         # counter for rational new variables
         i = 0 
         for k in range(len(pde_sys)):
@@ -129,7 +129,6 @@ class FractionDecomp:
                          diff_dict(deriv_den, dic) * deriv_num)
             deriv_den = den**2
             deriv_var = deriv_var**2
-
         return den.ring(self.try_reduce(deriv_num*deriv_var))
 
     def try_reduce(self, poly):
