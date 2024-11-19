@@ -1,7 +1,7 @@
 # This file contains examples of PDEs with fractions
 from sympy import symbols, Function
 from sympy import Derivative as D
-from test_check_quad import test_quad 
+from deprecated.check_quad_test import test_quad 
 
 t, x = symbols('t x')
 u = Function('u')(t,x)

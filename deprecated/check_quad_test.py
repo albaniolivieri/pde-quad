@@ -4,8 +4,8 @@ from sympy import Derivative as D
 
 sys.path.append("..")
 
-from algorithm.utils import get_order
-from algorithm.check_manual_quad import check_quadratization
+from qupde.utils import get_order
+from qupde.check_manual_quad import check_quadratization
 
 def differentiate_t(funcs_eqs, new_vars):
     """Differentiate the functions with respect to t

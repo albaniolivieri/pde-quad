@@ -4,7 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from algorithm.quadratize import quadratize
+from qupde.quadratize import quadratize
 
 #tests
 t, x = symbols('t x')
@@ -41,14 +41,21 @@ ut6 = u * (D(u, x)**2 + u * D(u, x, 2))
 # w_t = 2 * u**2 * (2 ux * uxx + u * uxxx + 1)
 ut7 = u * (3 * D(u, x) * D(u, x, 2) + u * D(u, x, 3) + 1)
 
-pdes = [ut1, ut2, ut3, ut4, ut5, ut6, ut7]
+ut8= D(u,x)**3 + u**3
 
-for eq in pdes: 
-    times = []
-    for i in range(10):
-        ti = time.time()
-        order = quadratize([(u, eq)], 3)[1]
-        times.append(time.time() - ti)
-        
-    print(f'result for {eq}', f'order: {order}', f'avg: {statistics.mean(times)}',
-        f'std dev: {statistics.stdev(times)}')
+ut9 = D(u,x)**4
+
+ut10 = D(u,x)**3 + u**5
+
+
+if __name__ == '__main__':
+    pdes = [ut1, ut2, ut3, ut4, ut5, ut6, ut7, ut8, ut9, ut10]
+    for eq in pdes: 
+        times = []
+        for i in range(5):
+            ti = time.time()
+            quad = quadratize([(u, eq)], 2, search_alg='nn', max_der_order=5)[0]
+            times.append(time.time() - ti)
+        if quad:
+            print(f'result for {eq}', f'new variables: {quad}', f'order: {len(quad)}', f'avg: {statistics.mean(times)}',
+                f'std dev: {statistics.stdev(times)}')

@@ -3,8 +3,8 @@ from sympy import symbols, Function
 from sympy import Derivative as D
 import time
 import math
-from test_quadratize import test_try_quadratize
-from algorithm.var_selection import by_order_degree, by_fun, by_degree_order
+from deprecated.quadratize_test import test_try_quadratize
+from qupde.var_selection import by_order_degree, by_fun, by_degree_order
 
 t, x = symbols("t x")
 omega = symbols("omega", constant=True)
@@ -14,9 +14,8 @@ y = Function("y")(t, x)
 u1 = symbols("u1")
 tests = []
 
-# Ask Gleb about this example
 # ut = 7.15666*D(u, x)/u - 5.677*D(u, x)
-# tests.append(test_try_quadratize([(u, ut)], 3, by_order_degree))
+tests.append(test_try_quadratize([(u, ut)], 3, by_order_degree))
 
 v_t = D(v, x) / v - round((math.pi), 5) * D(v, x)
 u_t = 3.4 * D(u, x) * D(v, x)

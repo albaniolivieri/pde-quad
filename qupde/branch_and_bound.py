@@ -111,7 +111,7 @@ def bnb(new_vars, best_nvars, poly_syst, sort_fun, max_der_order):
         traversed_total += traversed
         if nvars < min_nvars:
             min_nvars = nvars
-            print('Best quadratization until now:', min_nvars, quad_vars)
+            # print('Best quadratization until now:', min_nvars, quad_vars)
             best_quad_vars = quad_vars
     
     return best_quad_vars, min_nvars, traversed_total

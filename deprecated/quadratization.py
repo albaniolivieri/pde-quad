@@ -1,5 +1,5 @@
 from sympy import *
-from ..algorithm.utils import reduction_sparse
+from ..qupde.utils import reduction_sparse
 
 def is_quadratization(V, deriv):
     V2 = list(set((m1[0] * m2[0], m1[1] * m2[1]) for m1 in V for m2 in V))

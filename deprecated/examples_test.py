@@ -1,7 +1,7 @@
 # In this file we test verifying a quadratization for some toy and practical PDE examples 
 from sympy import symbols, Function
 from sympy import Derivative as D
-from test_check_quad import test_quad 
+from deprecated.check_quad_test import test_quad 
 
 # examples
 

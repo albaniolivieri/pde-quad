@@ -4,8 +4,8 @@ import sys
 import time
 import statistics
 sys.path.append("..")
-from algorithm.quadratize import quadratize
-from algorithm.var_selection import *
+from qupde.quadratize import quadratize
+from qupde.var_selection import *
 
 t, x = symbols('t x')
 u = Function('u')(t,x)

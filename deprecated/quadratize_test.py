@@ -1,12 +1,12 @@
 import sys
 from sympy import symbols
 from sympy import Derivative as D
-from test_check_quad import test_quad
+from deprecated.check_quad_test import test_quad
 
 sys.path.append("..")
 
-from algorithm.quadratize import quadratize
-from algorithm.utils import ring_to_expr
+from qupde.quadratize import quadratize
+from qupde.utils import ring_to_expr
 
 def test_try_quadratize(func_eq, n_diff, sort_fun, nvars_bound=5, max_der_order=None, search_alg='bnb'):
     [print('\n', eq) for eq in func_eq]

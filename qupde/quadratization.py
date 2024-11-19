@@ -42,15 +42,15 @@ def is_quadratization(V, deriv, frac_decomp):
         else:
             quad.append(Eq(name, names[V2_poly.index(pol)]))
     if NS != []:
-        # for printing problematic monomials, uncomment next line:
+        # for printing problematic polynomials, uncomment next line:
         # for i in range(len(NS)): pprint(f'NS for expr {NS[i][0]}: {NS[i][1]}')
         return (False, NS)
 
+    # add flag to print 
     print("\nQuadratization:")
     for exprs in quad:
         pprint(exprs)
     return (True, quad)
-
 
 def reduce_set(V2):
     """Reduces the V^2 set following the Gauss elimination method 

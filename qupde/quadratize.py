@@ -9,7 +9,7 @@ def quadratize(
     func_eq,
     n_diff,
     sort_fun=by_fun,
-    nvars_bound=100,
+    nvars_bound=10,
     first_indep=symbols("t"),
     max_der_order=None,
     search_alg = 'bnb' # 'bnb' or 'nn'

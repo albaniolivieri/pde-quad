@@ -4,8 +4,8 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from algorithm.quadratize import quadratize
-from algorithm.var_selection import *
+from qupde.quadratize import quadratize
+from qupde.var_selection import *
 
 t, x = symbols('t x')
 a, b, gamma, d_uv, d_vu, d_u, d_v = symbols('a b gamma d_uv d_vu d_u d_v', constant=True)
@@ -24,7 +24,7 @@ for heur in funcs:
     for i in range(10):
         print(heur)
         ti = time.time()
-        print(quadratize([(u, u_t), (v, v_t)], 3, heur, search_alg='nn'))
+        print(quadratize([(u, u_t), (v, v_t)], 3, heur, search_alg='bnb'))
         times.append(time.time() - ti) 
     avg.append(statistics.mean(times))
     std.append(statistics.stdev(times))

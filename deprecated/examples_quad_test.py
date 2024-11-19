@@ -2,8 +2,8 @@
 from sympy import symbols, Function
 import time
 from sympy import Derivative as D
-from test_quadratize import test_try_quadratize
-from algorithm.var_selection import by_order_degree, by_fun, by_degree_order
+from deprecated.quadratize_test import test_try_quadratize
+from qupde.var_selection import by_order_degree, by_fun, by_degree_order
 
 # examples
 

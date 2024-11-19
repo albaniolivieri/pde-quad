@@ -18,6 +18,7 @@ def prop_new_vars(NS_list, accum_vars, sort_fun):
         the proposed new variables
     """
     list_vars = []
+    NS_list = sorted(NS_list, key=lambda x: str(x[0]))
     for ns_pol in NS_list:
         for monom in ns_pol[1].itermonoms(): 
             list_vars += get_decompositions(monom)
@@ -158,7 +159,5 @@ def by_fun2(vars_tup):
         return sum([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + \
                 4*sum([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])])
     else: 
-        return sum(vars_tup[0].degrees()) + 4*get_diff_order(vars_tup[0])
-    
-# max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) +
-# 2*max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])])
+        return sum(vars_tup[0].degrees()) + 4 * get_diff_order(vars_tup[0])
+

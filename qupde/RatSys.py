@@ -278,7 +278,7 @@ class RatSys:
         deriv_t = new_vars_t + self.frac_der_t + self.pde_eq
         poly_vars = list(filter(lambda x: str(x)[0] != 'q', self.poly_vars))
         
-        # print('new_vars', new_vars_named)
+        # print('new vars', new_vars_named)
 
         V = [(1, self.poly_vars[0].ring(1))] + [(symbols(f'{sym}'), sym) for sym in poly_vars] \
             + [(q, self.poly_vars[0].ring(q)) for q, _ in self.frac_decomps.rels] \
