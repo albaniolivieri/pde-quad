@@ -5,7 +5,7 @@ from sympy import Derivative as D
 sys.path.append("..")
 
 from qupde.utils import get_order
-from qupde.check_manual_quad import check_quadratization
+from qupde.quadratization import check_quadratization
 
 def differentiate_t(funcs_eqs, new_vars):
     """Differentiate the functions with respect to t
@@ -34,7 +34,7 @@ def differentiate_x(var_indep, new_vars, n):
     """Differentiates functions with respect to the x variable.
 
     Parameters
-    var_indep : sympy.Symbol
+    var_indep : sp.Symbol
         The symbol of the second independent variable
     new_vars : tuple
         Tuple with a list of proposed new variables and 

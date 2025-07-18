@@ -1,53 +1,67 @@
+from typing import Callable
+import sympy as sp
+from sympy.polys.rings import PolyElement
 from .utils import remove_vars, get_diff_order
 
-def prop_new_vars(NS_list, accum_vars, sort_fun):
+
+def prop_new_vars(
+    NS_list: list[tuple[sp.Symbol, PolyElement]],
+    accum_vars: list[PolyElement],
+    sort_fun: Callable,
+) -> list[PolyElement]:
     """Proposes new variables for the quadratization of a PDE
-    
+
     Parameters
     ----------
-    NS_list : list[tuple]
+    NS_list
         List of tuples with the symbol and expressions not quadratized of the PDE
-    accum_vars : list
+    accum_var
         List with all variables proposed up to this point
-    sort_fun : function
+    sort_fun
         Function to sort the variables
-        
+
     Returns
     -------
-    list
+    list[PolyElement]
         the proposed new variables
     """
     list_vars = []
     NS_list = sorted(NS_list, key=lambda x: str(x[0]))
     for ns_pol in NS_list:
-        for monom in ns_pol[1].itermonoms(): 
+        for monom in ns_pol[1].itermonoms():
             list_vars += get_decompositions(monom)
             break
         break
-                
-    list_vars = list(map(lambda x: (NS_list[0][1].ring({x[0]:1}), NS_list[0][1].ring({x[1]:1})), list_vars))
-    
+
+    list_vars = list(
+        map(
+            lambda x: (NS_list[0][1].ring({x[0]: 1}), NS_list[0][1].ring({x[1]: 1})),
+            list_vars,
+        )
+    )
+
     list_vars = remove_vars(list_vars, accum_vars, 0)
     list_vars = remove_vars(list_vars, accum_vars, 1)
 
-    for i in range(len(list_vars)): 
-        if not list_vars[i]: 
+    for i in range(len(list_vars)):
+        if not list_vars[i]:
             list_vars.remove(list_vars[i])
-    
+
     sorted_vars = sort_vars(list_vars, sort_fun)
     return sorted_vars
 
-def get_decompositions(monomial):
-    """ Returns the decompositions of a monomial to turn it into linear or quadratic
-    
+
+def get_decompositions(monomial: tuple) -> set[tuple]:
+    """Returns the decompositions of a monomial to turn it into linear or quadratic
+
     Parameters
     ----------
-    monomial : tuple
+    monomial
         Monomial to decompose
-    
+
     Returns
     -------
-    set
+    set[tuple]
         the decompositions of the monomial
     """
     if len(monomial) == 0:
@@ -60,104 +74,115 @@ def get_decompositions(monomial):
             result.add((min(a, b), max(a, b)))
     return result
 
-def sort_vars(var_list, fun):
+
+def sort_vars(var_list: list[PolyElement], fun: Callable) -> list[PolyElement]:
     """Sorts the list of variables according to the function fun
-    
+
     Parameters
     ----------
-    var_list : list
+    var_list
         List of variables to sort
-    fun : function
+    fun
         Function to sort the variables
-        
+
     Returns
     -------
-    list
+    list[PolyElement]
         the sorted list of variables
     """
     sorted_list = sorted(var_list, key=fun)
     return sorted_list
 
-def by_degree_order(vars_tup):
-    """Function to sort the variables by the sum of their degrees and the 
+
+def by_degree_order(vars_tup: tuple[PolyElement, PolyElement]) -> tuple[int, int]:
+    """Function to sort the variables by the sum of their degrees and the
     maximum order of differentiation
-    
+
     Parameters
     ----------
-    vars_tup : tuple
+    vars_tup
         Tuple with the variables to be sorted
-    
+
     Returns
     -------
-    tuple
-        tuple with the sorting criteria given by the sum of the degrees and 
+    tuple[int, int]
+        tuple with the sorting criteria given by the sum of the degrees and
         the maximum order of differentiation of the variables
     """
     if len(vars_tup) > 1:
-        return (max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]), 
-                max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]))
-    else: 
-        return (sum(vars_tup[0].degrees()), get_diff_order(vars_tup[0]))
-    
-def by_order_degree(vars_tup):
+        deg, order = (
+            max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]),
+            max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]),
+        )
+    else:
+        deg, order = (sum(vars_tup[0].degrees()), get_diff_order(vars_tup[0]))
+    return (deg, order)
+
+
+def by_order_degree(vars_tup: tuple[PolyElement, PolyElement]) -> tuple[int, int]:
     """Function to sort the variables by the maximum order of differentiation and the
     sum of their degrees
-    
+
     Parameters
     ----------
-    vars_tup : tuple
+    vars_tup
         Tuple with the variables to be sorted
-        
+
     Returns
     -------
     tuple
-        tuple with sorting criteria given by the maximum order of differentiation and 
+        tuple with sorting criteria given by the maximum order of differentiation and
         the sum of the degrees of the variables
     """
     deg, order = 0, 0
     if len(vars_tup) > 1:
-        order, deg = (max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]),
-                max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]))
-    else: 
+        order, deg = (
+            max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]),
+            max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]),
+        )
+    else:
         order, deg = (get_diff_order(vars_tup[0]), sum(vars_tup[0].degrees()))
     return (order, deg)
-    
-def by_fun(vars_tup):
+
+
+def by_fun(vars_tup: tuple[PolyElement, PolyElement]) -> int:
     """Function to sort the variables by the function: degree + 2 * order
-    
+
     Parameters
     ----------
-    vars_tup : tuple
+    vars_tup: tuple
         Tuple with the variables to be sorted
-    
+
     Returns
     -------
     int
         sorting criteria given by the value of the function degree + 2 * order
     """
     if len(vars_tup) > 1:
-        return max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + \
-                2*max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])])
-    else: 
-        return sum(vars_tup[0].degrees()) + 2*get_diff_order(vars_tup[0])
-    
-def by_fun2(vars_tup):
+        return max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + 2 * max(
+            [get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]
+        )
+    else:
+        return sum(vars_tup[0].degrees()) + 2 * get_diff_order(vars_tup[0])
+
+
+def by_fun2(vars_tup: tuple[PolyElement, PolyElement]) -> int:
     """
     Function to sort the variables by the function: degree + 4 * order
-    
+
     Parameters
     ----------
-    vars_tup : tuple
+    vars_tup
         Tuple with the variables to be sorted
-    
+
     Returns
     -------
     int
         sorting criteria given by the value of the function degree + 4 * order
     """
     if len(vars_tup) > 1:
-        return sum([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + \
-                4*sum([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])])
-    else: 
+        return sum([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + 4 * sum(
+            [get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]
+        )
+    else:
         return sum(vars_tup[0].degrees()) + 4 * get_diff_order(vars_tup[0])
-

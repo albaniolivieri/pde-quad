@@ -1,31 +1,37 @@
-from sympy import *
+import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
 import sys
 sys.path.append("..")
 from qupde.quadratize import quadratize
-from qupde.var_selection import *
 
-t, x = symbols('t x')
-u = Function('u')(t,x)
+"""
+The porous medium equation is a nonlinear diffusion equation that has applications in biology, notably in models of animal and
+insect dispersal, and some are in plasma physics. Another, as indicated by the name, is in the study of the ow of a gas in a 
+porous medium. The porous medium equation is given by:
+    u_t = Delta(u^m), m>1.
+References: 
+    Vázquez, J. L. (2007). The porous medium equation: Mathematical theory. Clarendon Press.
+    https://books.google.com/books?id=kZQUDAAAQBAJ
+"""
+t, x = sp.symbols('t x')
+u = sp.Function('u')(t,x)
 
 m = 7
-u_t = m * u**6 * D(u, x)
+u_t = D(u**m, x, 2).doit()
 
-funcs = [by_order_degree, by_degree_order, by_fun] 
-avg = []
-std = []
-
-for heur in funcs: 
+# we run QuPDE for the porous medium equation
+if __name__ == '__main__':
     times= []
     for i in range(10):
-        print(heur)
         ti = time.time()
-        print(quadratize([(u, u_t)], 3, heur, search_alg = 'bnb'))
+        quadratize([(u, u_t)], 3, search_alg = 'bnb')
         times.append(time.time() - ti) 
-    avg.append(statistics.mean(times))
-    std.append(statistics.stdev(times))
+    avg=statistics.mean(times)
+    std=statistics.stdev(times)
+    
+    quadratize([(u, u_t)], 3, search_alg = 'bnb', printing = 'pprint')
 
-print('averages', avg)
-print('standard deviations', std)
+    print('Average time', avg)
+    print('Standard deviation', std)

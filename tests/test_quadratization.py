@@ -7,8 +7,8 @@ from sympy import Derivative as D
 sys.path.append("..")
 
 from qupde.quadratize import quadratize
-from qupde.utils import ring_to_expr, get_order
-from qupde.check_manual_quad import check_quadratization
+from qupde.utils import get_order
+from qupde.quadratize import check_quadratization
 from qupde.var_selection import by_fun
 
 class TestCase():
@@ -37,7 +37,8 @@ class TestQuadratization(unittest.TestCase):
         # u_t = - u_x * u**3 - 1/3 * u_x * u**2
         # v_t = v_x * u - 2 * v_x
         self.test_cases_quad.append(TestCase([(self.u, - D(self.v, self.x) * self.u**3 - 1/3 * D(self.v, self.x) * self.u**2), 
-                  (self.v, D(self.v, self.x) * self.u - 2 * D(self.v, self.x))], 2, max_der_order=2))
+                                              (self.v, D(self.v, self.x) * self.u - 2 * D(self.v, self.x))], 
+                                             2, max_der_order=2))
         
         # u_t = u**3 * u_xxx
         self.test_cases_quad.append(TestCase([(self.u, self.u**3 * D(self.u, self.x, 3))], 3))
@@ -59,7 +60,8 @@ class TestQuadratization(unittest.TestCase):
         # u_t = 3.4 * u_x * v_x
         # v_t = v_x / v - pi * v_x
         self.test_cases_rat.append(TestCase([(self.u, 3.4 * D(self.u, self.x) * D(self.v, self.x)), 
-                  (self.v, D(self.v, self.x) / self.v - round((math.pi), 5) * D(self.v, self.x))], 4))
+                                             (self.v, D(self.v, self.x) / self.v - round((math.pi), 5) * D(self.v, self.x))],
+                                            4))
         
         # ut = 7.15666*D(u, x)/u - 5.677*D(u, x)
         self.test_cases_rat.append(TestCase([(self.u, 7.15666*D(self.u, self.x) / self.u + 5.677*D(self.u, self.x))], 1))
@@ -67,7 +69,7 @@ class TestQuadratization(unittest.TestCase):
         # u_t = u_xx * u**2 + 2
         # v_t = v_xx/u**3 + u
         self.test_cases_rat.append(TestCase([(self.u, self.u**2 * D(self.u, self.x, 2) + 2), 
-                  (self.v, D(self.v, self.x, 2)/self.u**3 + self.u)], 3))
+                                             (self.v, D(self.v, self.x, 2)/self.u**3 + self.u)], 3))
         
         # u_t = 1/(5 * (u + 1))
         self.test_cases_rat.append(TestCase([(self.u, 1 / (5 * (self.u + 1)))], 1))
@@ -90,7 +92,7 @@ class TestQuadratization(unittest.TestCase):
         # u_t = -u_xx/u - u**2 - u + 5
         # v_t = u/v - v + 5
         self.test_cases_rat.append(TestCase([(self.u,  -D(self.u, self.x, 2) / self.u - self.u**2 - self.u + 5), 
-                  (self.v, self.u / self.v - self.v + 5)], max_der_order=10, n_diff=2))
+                                             (self.v, self.u / self.v - self.v + 5)], 2, max_der_order=10))
         
         self.test_cases_coeff_sym = []
         
@@ -104,8 +106,8 @@ class TestQuadratization(unittest.TestCase):
         """
         Transform the new variables to sympy expressions.
         """
-        quad_prop = list(map(lambda x: ring_to_expr(x), new_vars))
-        frac_vars = list(map(lambda x: ring_to_expr(x), frac_vars))
+        quad_prop = list(map(lambda x: x.as_expr(), new_vars))
+        frac_vars = list(map(lambda x: (x[0], x[1].as_expr()), frac_vars))
         return quad_prop, frac_vars
     
     def differentiate_t(self, funcs_eqs, new_vars):
@@ -133,9 +135,9 @@ class TestQuadratization(unittest.TestCase):
                             for j in range(1, n_diff + 1)])
         return quad_vars
     
-    def refac_expr(self, test_case, new_vars, frac_vars):
+    def rewrite_expr(self, test_case, new_vars, frac_vars):
         """
-        Refactor the expressions with the new variables definitions. 
+        Rewrite the expressions with the new variables definitions. 
         """
         max_order = get_order(list(zip(*test_case.func_eq))[1])
         refac = []
@@ -157,7 +159,8 @@ class TestQuadratization(unittest.TestCase):
         
     def construct_quadratic_PDE(self, new_vars, frac_vars, test_case, refac):
         """
-        Returns the new variables expressions and derivatives, and its differential equations to construct the quadratic PDE trasnformation.
+        Returns the new variables expressions and derivatives, and its differential equations 
+        to construct the quadratic PDE transformation.
         """
         var_dic = [(symbols(f'w_{i}'), new_vars[i]) for i in range(len(new_vars))]
         total_vars = (new_vars, [rel for _, rel in frac_vars])
@@ -178,12 +181,14 @@ class TestQuadratization(unittest.TestCase):
             quad = quadratize(test.func_eq, test.n_diff, sort_fun=sort_heur, search_alg=search_alg, max_der_order=test.max_der_order)
             self.assertIsNotNone(quad, f'Quadratization not found for {test.func_eq}')
             quad_prop, frac_vars, _ = quad
+            print(f'Quadratization: {quad_prop}')
+            print(f'Fractional variables: {frac_vars}')
             self.assertTrue(quad_prop or frac_vars, f'Quadratization not found for {test.func_eq}')
             
             quad_prop_expr, frac_vars_expr = self.transform_new_vars(quad_prop, frac_vars)
-            new_vars, frac_vars, refac = self.refac_expr(test, quad_prop_expr, frac_vars_expr)
-            refac_new_vars, exprs_orig = self.construct_quadratic_PDE(new_vars, frac_vars, test, refac)
+            new_vars, frac_vars, refac = self.rewrite_expr(test, quad_prop_expr, frac_vars_expr)
             
+            refac_new_vars, exprs_orig = self.construct_quadratic_PDE(new_vars, frac_vars, test, refac)
             results = check_quadratization(test.func_eq, quad_prop, test.n_diff)
             for i in range(len(exprs_orig)):
                 rewritten_result = results[1][i].rhs.subs(refac_new_vars)
@@ -193,7 +198,7 @@ class TestQuadratization(unittest.TestCase):
                                 f"Original expression: {expand(self.convert_to_rational(exprs_orig[i]))} \n" + \
                                 f"Quad expression: {self.convert_to_rational(rewritten_result.evalf())} \n" + \
                                 f"Substraction: {simplify(self.convert_to_rational(exprs_orig[i]) - self.convert_to_rational(rewritten_result.evalf()))}")
-                
+              
     def test_branch_and_bound(self):
         """
         Test the branch and bound algorithm.
@@ -204,19 +209,19 @@ class TestQuadratization(unittest.TestCase):
         """
         Test the nearest neighbor algorithm.
         """
-        self.quadratization_test(search_alg='nn', test_cases=self.test_cases_quad)
+        self.quadratization_test(search_alg='inn', test_cases=self.test_cases_quad)
     
     def test_rational_pdes(self):
         """
         Test PDEs quadratization for rational PDEs.
         """
-        self.quadratization_test(search_alg='nn', test_cases=self.test_cases_rat)
+        self.quadratization_test(search_alg='inn', test_cases=self.test_cases_rat)
     
     def test_symbolic_coeff(self):
         """
         Test PDEs quadratization for PDEs with symbolic coefficients.
         """
-        self.quadratization_test(search_alg='nn', test_cases=self.test_cases_coeff_sym)
+        self.quadratization_test(search_alg='inn', test_cases=self.test_cases_coeff_sym)
         
         
 if __name__ == '__main__':

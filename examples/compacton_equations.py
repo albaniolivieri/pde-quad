@@ -1,30 +1,37 @@
-from sympy import *
+import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
 import sys
 sys.path.append("..")
 from qupde.quadratize import quadratize
-from qupde.var_selection import *
 
-t, x = symbols('t x')
-u = Function('u')(t,x)
+"""
+The compacton equation is generalization of the KdV equation in which the dispersion too is nonlinear. The solutions of this equation
+are compactons, which are solitary waves with compact support. The compacton equation (K(m,n)) is given by:
+    u_t = -(u^m)_x - (u^n)_x, m>0 and 1<n<=3.
+References: 
+    Rosenau, P., & Hyman, J. (1993). Compactons: Solitons with finite wavelength. Physical Review Letters, 70(4), 564–567. 
+    https://doi.org/10.1103/PhysRevLett.70.564
+"""
+t, x = sp.symbols('t x')
+u = sp.Function('u')(t,x)
 
-u_t = -5 * u**4 * D(u, x) - 6 * D(u, x)**3 - 12 * u * D(u, x) * D(u, x, 2) - 6 * u * D(u, x) * D(u, x, 2) - 3 * u**2 * D(u, x, 3)
+m = 3
+n = 3
+u_t = -D(u**m, x).doit() - D(u**n, x).doit()
 
-funcs = [by_order_degree, by_degree_order, by_fun] 
-avg = []
-std = []
-
-for heur in funcs: 
+# we run QuPDE for the compacton equation
+if __name__ == '__main__':
     times = []
     for i in range(10):
-        print(heur)
         ti = time.time()
-        print(quadratize([(u, u_t)], 3, heur, search_alg = 'bnb'))
+        quadratize([(u, u_t)], 3, search_alg = 'bnb')
         times.append(time.time() - ti) 
-    avg.append(statistics.mean(times))
-    std.append(statistics.stdev(times))
+    avg = statistics.mean(times)
+    std = statistics.stdev(times)
+    
+    quadratize([(u, u_t)], 3, search_alg = 'bnb', printing = 'pprint')
 
-print('averages', avg)
-print('standard deviations', std)
+    print('Average time', avg)
+    print('Standard deviation', std)

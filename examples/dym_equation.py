@@ -1,30 +1,37 @@
-from sympy import *
+import sympy as sp
 from sympy import Derivative as D
 import statistics
 import sys
 import time
 sys.path.append("..")
 from qupde.quadratize import quadratize
-from qupde.var_selection import *
 
-t, x = symbols('t x')
-u = Function('u')(t,x)
+"""
+The Harry Dym equation is an important dynamical equation that is integrable and finds applications 
+in several physical systems. The Dym equation represents a system in which dispersion and nonlinearity 
+are coupled together:
+    u_t = u^3 * u_xxx
+References:
+    Kumar, S., Tripathi, M. P., & Singh, O. P. (2013). A fractional model of Harry Dym equation and its 
+    approximate solution. Ain Shams Engineering Journal, 4(1), 111–115. https://doi.org/10.1016/j.asej.2012.07.001
+"""
+
+t, x = sp.symbols('t x')
+u = sp.Function('u')(t,x)
 
 u_t = u**3 * D(u, x, 3)
 
-funcs = [by_order_degree, by_degree_order, by_fun] 
-avg = []
-std = []
-
-for heur in funcs: 
+# we run QuPDE for the Dym equation
+if __name__ == '__main__':
     times= []
     for i in range(10):
-        print(heur)
         ti = time.time()
-        print(quadratize([(u, u_t)], 3, heur, search_alg = 'bnb'))
+        quadratize([(u, u_t)], 3, search_alg = 'bnb')
         times.append(time.time() - ti) 
-    avg.append(statistics.mean(times))
-    std.append(statistics.stdev(times))
+    avg = statistics.mean(times)
+    std = statistics.stdev(times)
 
-print('averages', avg)
-print('standard deviations', std)
+    quadratize([(u, u_t)], 3, search_alg = 'bnb', printing = 'latex')
+    
+    print('Average time', avg)
+    print('Standard deviation', std)

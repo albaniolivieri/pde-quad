@@ -7,7 +7,7 @@ from sympy import *
 from sympy import Derivative as D
 
 sys.path.append("..")
-from qupde import check_manual_quad as sparse
+from qupde import quadratize as sparse
 from deprecated import check_quad_gauss as dense
 from deprecated import check_quad_matrix as matrix
 

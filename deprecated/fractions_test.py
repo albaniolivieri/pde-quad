@@ -4,7 +4,7 @@ sys.path.append("..")
 
 import random
 from sympy import apart, symbols, simplify, Add, fraction, expand
-from qupde.FractionDecomp import FractionDecomp
+from qupde.fraction_decomp import FractionDecomp
 
 w = symbols("w")
 

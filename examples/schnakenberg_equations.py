@@ -1,33 +1,40 @@
-from sympy import *
+import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
 import sys
 sys.path.append("..")
 from qupde.quadratize import quadratize
-from qupde.var_selection import *
 
-t, x = symbols('t x')
-a, b, gamma, d_uv, d_vu, d_u, d_v = symbols('a b gamma d_uv d_vu d_u d_v', constant=True)
-v = Function('v')(t,x)
-u = Function('u')(t,x)
+"""
+The Schnakenberg equations are evolution equations for reaction-diffusion systems with cross-diffusion:
+    u_t = D_u u_xx + D_uv * v_{xx} + k_1 * a_1 - k_2 * u + k_3 * u^2 * v,
+    v_t = D_v v_xx + D_vu * u_xx + k_4 * b_1 - k_3 * u^2v
+References:
+    Madzvamuse, A., Ndakwo, H. S., & Barreira, R. (2014). Cross-diffusion-driven instability for 
+    reaction-diffusion systems: Analysis and simulations. Journal of Mathematical Biology, 70(4), 
+    709–743. https://doi.org/10.1007/s00285-014-0779-6
+"""
+
+t, x = sp.symbols('t x')
+a, b, gamma, d_uv, d_vu, d_u, d_v = sp.symbols('a b gamma d_uv d_vu d_u d_v', constant=True)
+v = sp.Function('v')(t,x)
+u = sp.Function('u')(t,x)
 
 u_t = d_u*D(u, x, 2) + d_uv * D(v, x, 2) + gamma*(a - u + u**2 * v)
 v_t = d_v*D(v, x, 2) + d_vu * D(u, x, 2) + gamma*(b - u**2 * v)
 
-funcs = [by_order_degree, by_degree_order, by_fun] 
-avg = []
-std = []
-
-for heur in funcs: 
+# we run QuPDE for the Schnakenberg equations
+if __name__ == '__main__':
     times= []
     for i in range(10):
-        print(heur)
         ti = time.time()
-        print(quadratize([(u, u_t), (v, v_t)], 3, heur, search_alg='bnb'))
+        quadratize([(u, u_t), (v, v_t)], 3, search_alg='nn')
         times.append(time.time() - ti) 
-    avg.append(statistics.mean(times))
-    std.append(statistics.stdev(times))
+    avg = statistics.mean(times)
+    std = statistics.stdev(times)
+    
+    quadratize([(u, u_t), (v, v_t)], 3, search_alg='nn', printing='pprint')
 
-print('averages', avg)
-print('standard deviations', std)
+    print('Average time', avg)
+    print('Standard deviation', std)

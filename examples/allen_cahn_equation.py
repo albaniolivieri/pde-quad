@@ -1,30 +1,38 @@
-from sympy import *
+import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
 import sys
 sys.path.append("..")
 from qupde.quadratize import quadratize
-from qupde.var_selection import *
 
-t, x = symbols('t x')
-u = Function('u')(t,x)
+
+"""
+The Allen-Cahn equation is a partial differential equation that describes the phase separation of 
+a binary alloy at a fixed temperature. In one space dimension:
+    u_t = u_xx + u - u^3.
+References:
+    Allen, S. M., & Cahn, J. W. (1979). A microscopic theory for antiphase boundary motion and its 
+    application to antiphase domain coarsening. Acta Metallurgica, 27(6), 1085–1095.
+    https://doi.org/10.1016/0001-6160(79)90196-2
+"""
+
+t, x = sp.symbols('t x')
+u = sp.Function('u')(t,x)
 
 u_t = D(u, x, 2) + u - u**3 
 
-funcs = [by_order_degree, by_degree_order, by_fun] 
-avg = []
-std = []
-
-for heur in funcs: 
+# we run QuPDE for the Allen-Cahn equation
+if __name__ == '__main__':
     times= []
     for i in range(10):
-        print(heur)
         ti = time.time()
-        print(quadratize([(u, u_t)], 3, heur, search_alg='bnb'))
+        quadratize([(u, u_t)], 3, search_alg='bnb')
         times.append(time.time() - ti) 
-    avg.append(statistics.mean(times))
-    std.append(statistics.stdev(times))
+    avg = statistics.mean(times)
+    std = statistics.stdev(times)
+    
+    quadratize([(u, u_t)], 3, search_alg='bnb', printing='pprint')
 
-print('averages', avg)
-print('standard deviations', std)
+    print('Average time', avg)
+    print('Standard deviation', std)

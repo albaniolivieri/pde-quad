@@ -1,30 +1,35 @@
-from sympy import *
+import sympy as sp
 from sympy import Derivative as D
 import sys
 import time
 import statistics
 sys.path.append("..")
 from qupde.quadratize import quadratize
-from qupde.var_selection import *
 
-t, x = symbols('t x')
-u = Function('u')(t,x)
+"""
+The Swift-Hohenberg equation is a partial differential equation for a scalar field which has been widely
+used as a model for the study of various issues in pattern formation:
+    u_t = r * u - (u_xx + q_c^2)^2*u + v * u^2 - g * u^3.
+References:
+    Burke, J., & Knobloch, E. (2006). Localized states in the generalized Swift-Hohenberg equation. Physical Review E, 73(5).
+"""
+t, x = sp.symbols('t x')
+u = sp.Function('u')(t,x)
+r, qc, v, g = sp.symbols('r qc v g', constant=True)
 
-u_t = -(D(u, x, 2) + 1)**2 * u + 5 * u - u**3
+u_t = r * u - D(u, (x, 2))**2*u - 2 * qc**2 * D(u, (x, 2))**2 * u - qc**4*u + v * u**2 - g * u**3 
 
-funcs = [by_order_degree, by_degree_order, by_fun] 
-avg = []
-std = []
-
-for heur in funcs: 
+# we run QuPDE for the Swift-Hohenberg equation
+if __name__ == '__main__':
     times= []
     for i in range(10):
-        print(heur)
         ti = time.time()
-        print(quadratize([(u, u_t)], 3, heur, search_alg = 'bnb'))
+        quadratize([(u, u_t)], n_diff=4, search_alg = 'bnb', max_der_order=4)
         times.append(time.time() - ti) 
-    avg.append(statistics.mean(times))
-    std.append(statistics.stdev(times))
+    avg = statistics.mean(times)
+    std = statistics.stdev(times)
+    
+    quadratize([(u, u_t)], n_diff=4, search_alg = 'bnb', max_der_order=4, printing = 'latex')
 
-print('averages', avg)
-print('standard deviations', std)
+    print('Average time', avg)
+    print('Standard deviation', std)

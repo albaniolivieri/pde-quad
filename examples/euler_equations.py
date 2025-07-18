@@ -1,34 +1,42 @@
-from sympy import *
+import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
 import sys
 sys.path.append("..")
 from qupde.quadratize import quadratize
-from qupde.var_selection import *
 
-t, x = symbols('t x')
-rho = Function('rho')(t,x)
-u = Function('u')(t,x)
-p = Function('p')(t,x)
+"""
+The Euler equations are derived from tile physical principles of conservation of mass, momentum, and energy:
+    rho_t = -u * rho_x - rho * u_x 
+    u_t = -u_x * u - p_x/rho}
+    p_t = -gamma * u_x * p - u * p_x.
+References:
+    Huynh, H. T. (1995). Accurate upwind methods for the Euler equations. SIAM Journal on Numerical Analysis, 
+    32(5), 1565–1619. https://doi.org/10.1137/0732071
+"""
+
+t, x = sp.symbols('t x')
+rho = sp.Function('rho')(t,x)
+u = sp.Function('u')(t,x)
+p = sp.Function('p')(t,x)
+gamma = sp.symbols('gamma', constant=True)
 
 rho_t = -u * D(rho, x) - rho * D(u, x)
 u_t = -u * D(u, x) - D(p, x) / rho
-p_t = -p * D(u, x) - u * D(p, x)
+p_t = -gamma * p * D(u, x) - u * D(p, x)
 
-funcs = [by_order_degree, by_degree_order, by_fun] 
-avg = []
-std = []
-
-for heur in funcs: 
-    times= []
+# we run QuPDE for the Euler equations
+if __name__ == '__main__':
+    times = []
     for i in range(10):
-        print(heur)
         ti = time.time()
-        print(quadratize([(rho, rho_t), (u, u_t), (p, p_t)], 2, heur, search_alg='bnb'))
+        quadratize([(rho, rho_t), (u, u_t), (p, p_t)], 2, search_alg='bnb')
         times.append(time.time() - ti) 
-    avg.append(statistics.mean(times))
-    std.append(statistics.stdev(times))
+    avg = statistics.mean(times)
+    std = statistics.stdev(times)
+    
+    quadratize([(rho, rho_t), (u, u_t), (p, p_t)], 2, search_alg='bnb', printing='pprint')
 
-print('averages', avg)
-print('standard deviations', std)
+    print('Average time', avg)
+    print('Standard deviation', std)
