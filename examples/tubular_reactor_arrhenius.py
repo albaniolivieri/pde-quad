@@ -46,7 +46,7 @@ y_t = gamma/theta**2 * y * ((1 / Pe) * D(theta, s, 2) - D(theta, s) -
 if __name__ == "__main__":
     times = []
     # print('start time', time.time())
-    for i in range(2):
+    for i in range(3):
         ti = time.time()
         quadratize(
             [(psi, psi_t), (theta, theta_t), (y, y_t)],

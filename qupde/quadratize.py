@@ -3,7 +3,7 @@ import sympy as sp
 from sympy.polys.rings import PolyElement
 from .rat_sys import RatSys
 from .search_quad import bnb, nearest_neighbor
-from .var_selection import by_fun
+from .mon_heuristics import by_fun
 
 def quadratize(
     func_eq: list[tuple[sp.Function, sp.Expr]],

@@ -26,7 +26,7 @@ beta = sp.symbols("beta", constant=True)
 theta_ref = sp.symbols("theta_ref", constant=True)
 c_0, c_1, c_2, c_3, c_4, c_5, c_6 = sp.symbols("c_0 c_1 c_2 c_3 c_4 c_5 c_6", constant=True)
 
-f = (c_5 * theta**5 + c_4 * theta**4 + c_3 * theta**3 + c_2 * theta**2 + c_1 * theta + c_0)
+f = (c_3 * theta**3 + c_2 * theta**2 + c_1 * theta + c_0)
 
 psi_t = (
     (1 / Pe) * D(psi, s, 2)
@@ -43,7 +43,7 @@ theta_t = (
 # we run QuPDE for the tubular reactor model
 if __name__ == "__main__":
     times = []
-    for i in range(2):
+    for i in range(5):
         ti = time.time()
         quadratize(
             [(psi, psi_t), (theta, theta_t)],

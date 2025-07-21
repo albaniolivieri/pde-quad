@@ -5,7 +5,7 @@ import statistics
 import sys
 sys.path.append("..")
 from qupde.quadratize import quadratize
-from qupde.var_selection import *
+from qupde.mon_heuristics import *
 
 t, x = sp.symbols('t x')
 c_a = sp.Function('p_a')(t,x)

@@ -3,7 +3,7 @@ from sympy import symbols, Function
 import time
 from sympy import Derivative as D
 from deprecated.quadratize_test import test_try_quadratize
-from qupde.var_selection import by_order_degree, by_fun, by_degree_order
+from qupde.mon_heuristics import by_order_degree, by_fun, by_degree_order
 
 # examples
 

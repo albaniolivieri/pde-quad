@@ -9,7 +9,7 @@ sys.path.append("..")
 from qupde.quadratize import quadratize
 from qupde.utils import get_order
 from qupde.quadratize import check_quadratization
-from qupde.var_selection import by_fun
+from qupde.mon_heuristics import by_fun
 
 class TestCase():
     

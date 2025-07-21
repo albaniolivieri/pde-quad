@@ -5,7 +5,7 @@ from queue import PriorityQueue
 from collections import deque
 from itertools import chain, combinations
 from sympy.polys.rings import PolyElement
-from .var_selection import prop_new_vars
+# from .var_selection import prop_new_vars
 from .utils import get_diff_order
 from .rat_sys import RatSys
 
@@ -71,22 +71,6 @@ def pruning_rule_order(new_vars: list[PolyElement], max_order: int) -> bool:
         if get_diff_order(var) > max_order / 2:
             return True
     return False
-
-# def powerset(iterable: list[PolyElement]) -> list[PolyElement]:
-#     """Returns the powerset of a set
-
-#     Parameters
-#     ----------
-#     iterable
-#         Set to get the powerset from
-
-#     Returns
-#     -------
-#     list[PolyElement]
-#         the powerset of the set
-#     """
-#     s = list(iterable)
-#     return chain.from_iterable(combinations(s, r) for r in range(1, len(s)))
 
 def shrink_quad(quad_vars: list[PolyElement], poly_syst: RatSys) -> list[PolyElement]:
     """Checks if the quadratization can be shrunk to a smaller set of variables.
@@ -154,7 +138,6 @@ def bnb(
     result_quad = poly_syst.try_make_quadratic()
 
     if result_quad[0]:
-        # print('quad found', time.time())
         shrinked_quad = shrink_quad(new_vars, poly_syst)
         return shrinked_quad, len(shrinked_quad), 1
     else:
@@ -164,7 +147,7 @@ def bnb(
     min_nvars = best_nvars
     best_quad_vars = None
     traversed_total = 1
-    prop_vars = prop_new_vars(result_quad[1], new_vars, sort_fun)
+    prop_vars = poly_syst.prop_new_vars(sort_fun)
 
     for p_vars in prop_vars:
         quad_vars, nvars, traversed = bnb(
@@ -226,7 +209,9 @@ def nearest_neighbor(
             while len(NS_queue) > 0:
                 new_vars_ns, NS = NS_queue.popleft()
                 if len(new_vars_ns) + 1 < len(quad_temp):
-                    prop_vars = prop_new_vars(NS, new_vars_ns, sort_fun)
+                    poly_syst.set_new_vars(new_vars_ns)
+                    poly_syst.set_NS_list(NS)
+                    prop_vars = poly_syst.prop_new_vars(sort_fun)
                     for p_vars in prop_vars:
                         if len(new_vars_ns + list(p_vars)) < len(quad_temp):
                             pq.put(
@@ -242,7 +227,9 @@ def nearest_neighbor(
                 NS_queue.append((new_vars, result_quad[1]))
                 if pq.qsize() <= 1:
                     new_vars, NS = NS_queue.popleft()
-                    prop_vars = prop_new_vars(NS, new_vars, sort_fun)
+                    poly_syst.set_new_vars(new_vars)
+                    poly_syst.set_NS_list(NS)
+                    prop_vars = poly_syst.prop_new_vars(sort_fun)
                     for p_vars in prop_vars:
                         pq.put(
                             (
