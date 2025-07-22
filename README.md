@@ -9,7 +9,6 @@ QuPDE is a Python library that finds an optimal and monomial quadratic transform
 - [Usage](#usage)
 - [Examples](#examples)
 - [Running Tests](#running-tests)
-- [Credits](#credits)
 
 ## Overview
 
