@@ -141,6 +141,3 @@ In this module, we provided tests for:
 - The module that handles quadratization for rational PDEs
 - PDEs with symbolic coefficients
 
-## Credits
-Developed and maintained by Albani Olivieri.
- - Big thanks to Gleb Pogudin, whose guidance and feedback was crucial for this project.

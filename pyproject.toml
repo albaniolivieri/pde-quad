@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "QuPDE"
+version = "1.0.0"
+description = "Python library that finds an optimal and monomial quadratic transformation (quadratization) for nonquadratic PDEs."
+authors = [
+    { name = "Albani Olivieri", email = "albaniolivieri@gmail.com" }, 
+    { name = "Gleb Pogudin", email = "gleb.pogudin@polytechnique.edu>" }
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+dependencies = [
+    "sympy"
+]
+
+[project.optional-dependencies]
+dev = ["unittest"]
+
+[project.urls]
+"Homepage" = "https://github.com/albaniolivieri/QuPDE"
+"Issue Tracker" = "https://github.com/albaniolivieri/QuPDE/issues"
+"Source" = "https://github.com/albaniolivieri/QuPDE"
