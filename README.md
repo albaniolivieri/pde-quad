@@ -1,20 +1,19 @@
 
 # QuPDE
-
-## Overview
-
 QuPDE is a Python library that finds an optimal and monomial quadratic transformation (quadratization) for nonquadratic PDEs using Sympy. QuPDE handles one-dimensional PDEs that are polynomial or rational. 
-
-A quadratization for a PDE is the set of auxiliary variables we introduce to rewrite the right-hand-side differential equations as quadratic. An optimal quadratization refers to the minimum number of new variables to achieve this transformation. Our software outputs this optimal set of new variables and gives the corresponding transformation of the differential equations.
 
 ## Table of Contents
 
+- [Overview] (#overview)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Examples](#examples)
 - [Running Tests](#running-tests)
 - [Credits](#credits)
 
+## Overview
+
+A quadratization for a PDE is the set of auxiliary variables we introduce to rewrite the right-hand-side differential equations as quadratic. An optimal quadratization refers to the minimum number of new variables to achieve this transformation. QuPDE outputs this optimal set of new variables and gives the corresponding transformation of the differential equations.
 
 ## Installation
 ### Install using PyPI: 
